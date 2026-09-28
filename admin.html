@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wishly Admin</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#141211">
+<link rel="icon" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #141211; --surface: #1d1a18; --surface-2: #26221f; --ink: #f1ebe4; --muted: #a39a90; --faint: #756c63;
+  --line: #2f2a26; --accent: #e07a5f; --accent-ink: #1a0f0b; --accent-soft: #3a2520;
+  --c-birthday: #e57f73; --c-anniversary: #c592bd; --c-event: #7fb2d3; --c-other: #a9bb86;
+  --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 10px 30px -12px rgb(0 0 0 / .6);
+  --serif: "Fraunces", Georgia, serif; --sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --ease: cubic-bezier(.2,.8,.2,1);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased; min-height: 100dvh; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+.top { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; font: italic 400 22px/1 var(--serif); }
+.brand small { font: 500 11px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 4px 8px; border-radius: 999px; font-style: normal; }
+.logo { width: 32px; height: 32px; border-radius: 10px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); padding: 9px 14px; border-radius: 12px; font-weight: 500; font-size: 14px; white-space: nowrap; }
+.btn:hover { border-color: var(--faint); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn.danger { color: var(--c-birthday); }
+.btn svg { width: 16px; height: 16px; }
+.input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); }
+.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.login { min-height: 100dvh; display: grid; place-items: center; padding: 24px 16px; background: radial-gradient(900px 500px at 50% -10%, rgb(224 122 95 / .18), transparent 60%); }
+.login form { width: 100%; max-width: 360px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 26px 22px; box-shadow: var(--shadow); text-align: center; }
+.login img { width: 60px; height: 60px; border-radius: 18px; }
+.login h1 { font: italic 400 30px/1.1 var(--serif); margin: 14px 0 4px; }
+.login p { color: var(--muted); margin: 0 0 18px; font-size: 14px; }
+.login .btn { width: 100%; justify-content: center; padding: 12px; margin-top: 10px; }
+.err { color: var(--c-birthday); font-size: 13px; min-height: 18px; margin-top: 8px; }
+
+h2 { font: 400 20px/1.2 var(--serif); margin: 34px 0 12px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+h2 span { font: 400 13px var(--sans); color: var(--muted); }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 8px; }
+@media (max-width: 720px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; }
+.stat b { display: block; font: 600 32px/1 var(--serif); font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); font-size: 13px; }
+
+.mix { display: flex; height: 10px; border-radius: 99px; overflow: hidden; background: var(--surface-2); gap: 2px; }
+.mix i { display: block; height: 100%; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.pad { padding: 16px 18px; }
+
+.users .u { border-top: 1px solid var(--line); }
+.users .u:first-child { border-top: 0; }
+.urow { display: grid; grid-template-columns: 40px 1fr auto auto; gap: 14px; align-items: center; width: 100%; padding: 12px 16px; background: none; border: 0; text-align: left; }
+.urow:hover { background: var(--surface-2); }
+.av { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font: 600 15px var(--serif); color: #fff; background: linear-gradient(135deg, #e07a5f, #8a5a83); }
+.uname { font-weight: 500; }
+.umeta { color: var(--muted); font-size: 12px; }
+.counts { display: flex; gap: 10px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.counts span { display: inline-flex; align-items: center; gap: 4px; }
+.counts svg { width: 14px; height: 14px; }
+.chev { width: 18px; color: var(--faint); transition: transform .2s; }
+.u.open .chev { transform: rotate(90deg); }
+.detail { padding: 4px 16px 16px 70px; }
+.detail table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.detail td { padding: 7px 8px 7px 0; border-top: 1px solid var(--line); vertical-align: top; }
+.detail td:first-child { width: 22px; }
+.detail .muted { color: var(--muted); }
+.detail-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+@media (max-width: 640px) {
+  .urow { grid-template-columns: 36px 1fr auto; }
+  .urow .counts { grid-column: 2 / -1; grid-row: 2; }
+  .detail { padding-left: 16px; }
+}
+
+.feed { list-style: none; margin: 0; padding: 0; }
+.feed li { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line); font-size: 14px; }
+.feed li:first-child { border-top: 0; }
+.feed .ic { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); color: var(--c, var(--muted)); }
+.feed .ic svg { width: 15px; height: 15px; }
+.feed time { color: var(--faint); font-size: 12px; white-space: nowrap; }
+.feed b { font-weight: 600; }
+.feed .act { color: var(--muted); }
+.search { max-width: 260px; padding: 8px 12px; font-size: 13px; }
+.empty { padding: 28px; text-align: center; color: var(--muted); }
+.note { font-size: 13px; color: var(--muted); margin: 10px 2px 0; }
+.ty-birthday { --c: var(--c-birthday); } .ty-anniversary { --c: var(--c-anniversary); } .ty-event { --c: var(--c-event); } .ty-other { --c: var(--c-other); }
+footer { color: var(--faint); font-size: 12px; text-align: center; padding: 40px 0; }
+</style>
+</head>
+<body>
+
+<section class="login" id="login">
+  <form id="loginForm">
+    <img src="/icons/icon-192.png" alt="">
+    <h1>Wishly Admin</h1>
+    <p>See who's using Wishly and what they're adding.</p>
+    <input class="input" type="password" id="pw" placeholder="Admin password" autocomplete="current-password" aria-label="Admin password">
+    <button class="btn primary" type="submit" id="loginBtn">Open dashboard</button>
+    <div class="err" id="loginErr"></div>
+  </form>
+</section>
+
+<main class="wrap" id="dash" hidden>
+  <header class="top">
+    <div class="brand"><img class="logo" src="/icons/icon-192.png" alt="">Wishly <small>Admin</small></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" id="refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Refresh</button>
+      <button class="btn" id="logout">Sign out</button>
+    </div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <h2>What people are adding <span id="mixTotal"></span></h2>
+  <div class="card pad"><div class="mix" id="mix"></div><div class="legend" id="legend"></div></div>
+
+  <h2>Users <input class="input search" id="q" type="search" placeholder="Search users…" aria-label="Search users"></h2>
+  <div class="card users" id="users"></div>
+
+  <h2>Recent activity <span>latest 400 changes</span></h2>
+  <div class="card"><ul class="feed" id="feed"></ul></div>
+  <p class="note" id="mailNote"></p>
+
+  <footer>Wishly admin · data from Netlify Blobs</footer>
+</main>
+
+<script>
+(() => {
+"use strict";
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const KEY = "wishly.adminToken";
+const store = { get: () => { try { return sessionStorage.getItem(KEY) || ""; } catch { return ""; } }, set: (v) => { try { v ? sessionStorage.setItem(KEY, v) : sessionStorage.removeItem(KEY); } catch {} } };
+
+const TYPES = {
+  birthday: { label: "Birthdays", path: '<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3M12 8v3M17 8v3"/>' },
+  anniversary: { label: "Anniversaries", path: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>' },
+  event: { label: "Events", path: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
+  other: { label: "Reminders", path: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>' },
+};
+const ACTION_PATHS = {
+  joined: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  deleted: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>',
+  "removed by admin": '<path d="M18 6 6 18M6 6l12 12"/>',
+};
+const svg = (p) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const icon = (t) => svg((TYPES[t] || TYPES.other).path);
+
+let token = store.get(), data = null, open = new Set(), q = "";
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, { ...opts, headers: { "content-type": "application/json", ...(token && { authorization: `Bearer ${token}` }) } });
+  const d = await res.json().catch(() => null);
+  if (!res.ok || !d) { const e = new Error(d?.error || `HTTP ${res.status}`); e.status = res.status; throw e; }
+  return d;
+}
+
+function ago(ts) {
+  if (!ts) return "never";
+  const s = (Date.now() - ts) / 1000;
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  if (s < 86400 * 30) return `${Math.floor(s / 86400)}d ago`;
+  return new Date(ts).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+const fmtDate = (ev) => {
+  const [y, m, d] = ev.date.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { day: "numeric", month: "short", ...(ev.yearUnknown ? {} : { year: "numeric" }) });
+};
+const countBy = (events) => events.reduce((a, e) => (a[e.type] = (a[e.type] || 0) + 1, a), {});
+
+function render() {
+  const { users, activity } = data;
+  const all = users.flatMap((u) => u.events);
+  const week = Date.now() - 7 * 864e5;
+  const addedWeek = activity.filter((a) => a.action === "added" && a.at > week).length;
+  const active = users.filter((u) => u.lastSeen > week).length;
+  const withEmail = users.filter((u) => u.email).length;
+
+  $("#stats").innerHTML = [
+    [users.length, "Users"],
+    [all.length, "Dates saved"],
+    [addedWeek, "Added this week"],
+    [`${active}<small style="font-size:16px;color:var(--muted)"> / ${users.length}</small>`, "Active this week"],
+  ].map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
+
+  const mix = countBy(all);
+  $("#mixTotal").textContent = `${all.length} dates · ${withEmail} of ${users.length} users get email reminders`;
+  $("#mix").innerHTML = all.length
+    ? Object.keys(TYPES).filter((t) => mix[t]).map((t) => `<i style="flex:${mix[t]};background:var(--c-${t})" title="${TYPES[t].label}: ${mix[t]}"></i>`).join("")
+    : "";
+  $("#legend").innerHTML = Object.entries(TYPES).map(([t, v]) => `<span><i style="background:var(--c-${t})"></i>${v.label} <b style="color:var(--ink)">${mix[t] || 0}</b></span>`).join("");
+
+  const list = users.filter((u) => !q || u.name.toLowerCase().includes(q));
+  $("#users").innerHTML = list.length ? list.map((u) => {
+    const c = countBy(u.events);
+    const isOpen = open.has(u.key);
+    const rows = [...u.events].sort((a, b) => a.date.slice(5).localeCompare(b.date.slice(5)))
+      .map((e) => `<tr class="ty-${e.type}"><td style="color:var(--c)">${icon(e.type)}</td><td>${esc(e.title)}</td><td class="muted">${fmtDate(e)}</td><td class="muted">${e.repeat === "yearly" ? "yearly" : "once"}</td><td class="muted">${e.remind?.length ? "email on" : ""}</td></tr>`).join("");
+    return `<div class="u ${isOpen ? "open" : ""}">
+      <button class="urow" data-key="${esc(u.key)}" aria-expanded="${isOpen}">
+        <span class="av">${esc(u.name.trim()[0].toUpperCase())}</span>
+        <span><div class="uname">${esc(u.name)}</div><div class="umeta">Joined ${ago(u.created)} · active ${ago(u.lastSeen)}${u.email ? ` · ${esc(u.email)}` : " · no reminder email"}</div></span>
+        <span class="counts">${Object.keys(TYPES).map((t) => `<span class="ty-${t}" title="${TYPES[t].label}"><span style="color:var(--c)">${icon(t)}</span>${c[t] || 0}</span>`).join("")}</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+      ${isOpen ? `<div class="detail">${rows ? `<table>${rows}</table>` : `<div class="muted" style="padding:6px 0">No dates yet.</div>`}
+        <div class="detail-actions"><span>${u.events.length} date${u.events.length === 1 ? "" : "s"}</span>
+        <button class="btn danger" data-del="${esc(u.key)}" data-name="${esc(u.name)}">Remove user</button></div></div>` : ""}
+    </div>`;
+  }).join("") : `<div class="empty">${users.length ? "No users match." : "No one has signed up yet. Share your Wishly link with friends!"}</div>`;
+
+  $("#feed").innerHTML = activity.length ? activity.slice(0, 150).map((a) => {
+    const p = ACTION_PATHS[a.action] || (TYPES[a.type] || TYPES.other).path;
+    const what = a.title ? ` <span class="act">${a.action}</span> ${esc(a.title)}` : ` <span class="act">${esc(a.action)}</span>`;
+    return `<li class="ty-${a.type || ""}"><span class="ic">${svg(p)}</span><span><b>${esc(a.user)}</b>${what}</span><time>${ago(a.at)}</time></li>`;
+  }).join("") : `<li style="display:block" class="empty">Nothing yet.</li>`;
+
+  $("#mailNote").textContent = data.mail
+    ? `Email sending is on (EmailJS). Reminders use time zone ${data.tz}.`
+    : "Email sending is off — add EMAILJS_PUBLIC_KEY in Netlify environment variables.";
+}
+
+async function load() {
+  try {
+    data = await api("/api/admin/overview");
+    $("#login").hidden = true; $("#dash").hidden = false;
+    render();
+  } catch (e) {
+    if (e.status === 401) { token = ""; store.set(""); showLogin(); }
+    else alert(e.message);
+  }
+}
+function showLogin(msg = "") {
+  $("#dash").hidden = true; $("#login").hidden = false;
+  $("#loginErr").textContent = msg;
+  setTimeout(() => $("#pw").focus(), 50);
+}
+
+$("#loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = $("#loginBtn"); btn.disabled = true;
+  try {
+    const r = await api("/api/admin/login", { method: "POST", body: JSON.stringify({ password: $("#pw").value }) });
+    token = r.token; store.set(token); $("#pw").value = "";
+    await load();
+  } catch (err) { $("#loginErr").textContent = err.message; }
+  btn.disabled = false;
+});
+$("#logout").addEventListener("click", () => { token = ""; store.set(""); showLogin(); });
+$("#refresh").addEventListener("click", load);
+$("#q").addEventListener("input", (e) => { q = e.target.value.trim().toLowerCase(); render(); });
+document.addEventListener("click", async (e) => {
+  const del = e.target.closest("[data-del]");
+  if (del) {
+    if (!confirm(`Remove ${del.dataset.name} and all their dates? This can't be undone.`)) return;
+    try { await api(`/api/admin/users/${encodeURIComponent(del.dataset.del)}`, { method: "DELETE" }); open.delete(del.dataset.del); await load(); }
+    catch (err) { alert(err.message); }
+    return;
+  }
+  const row = e.target.closest("[data-key]");
+  if (row) { const k = row.dataset.key; open.has(k) ? open.delete(k) : open.add(k); render(); }
+});
+
+token ? load() : showLogin();
+})();
+</script>
+</body>
+</html>

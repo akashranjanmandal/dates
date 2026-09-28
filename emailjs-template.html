@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{{subject}}</title>
+</head>
+<body style="margin:0;padding:0;background:#f6f2ec;-webkit-font-smoothing:antialiased">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f6f2ec">
+    <tr>
+      <td align="center" style="padding:32px 14px">
+
+        <!-- Brand -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px">
+          <tr>
+            <td style="padding:0 6px 14px;font:italic 20px Georgia,'Times New Roman',serif;color:#1f1a17">
+              <img src="{{app_url}}/email-icons/logo.png" width="28" height="28" alt="" style="border:0;width:28px;height:28px;vertical-align:middle;border-radius:8px">
+              <span style="vertical-align:middle;padding-left:8px">Wishly</span>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Card -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+               style="max-width:520px;background:#fffdf9;border:1px solid #e7dfd4;border-radius:22px;overflow:hidden;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1f1a17">
+
+          <!-- Accent band -->
+          <tr><td style="height:6px;background:#b4533a;background-image:linear-gradient(90deg,#b4533a,#e0a458,#8a5a83);font-size:0;line-height:0">&nbsp;</td></tr>
+
+          <!-- Icon -->
+          <tr>
+            <td align="center" style="padding:36px 32px 6px">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" valign="middle" width="84" height="84" style="width:84px;height:84px;border-radius:42px;background:#f5e3db">
+                    <img src="{{icon_url}}" width="40" height="40" alt="" style="display:block;border:0;width:40px;height:40px">
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- When -->
+          <tr>
+            <td align="center" style="padding:14px 32px 0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#b4533a;font-weight:600">
+              {{when}}
+            </td>
+          </tr>
+
+          <!-- Title -->
+          <tr>
+            <td align="center" style="padding:10px 32px 0;font:400 30px/1.2 Georgia,'Times New Roman',serif;color:#1f1a17">
+              {{title}}
+            </td>
+          </tr>
+
+          <!-- Tagline -->
+          <tr>
+            <td align="center" style="padding:12px 32px 26px;font-size:15px;line-height:1.55;color:#7a6f66">
+              {{{tagline_html}}}
+            </td>
+          </tr>
+
+          <!-- Notes (only shows when the date has notes) -->
+          {{{notes_html}}}
+
+          <!-- Buttons -->
+          <tr>
+            <td align="center" style="padding:18px 32px 36px">
+              <a href="{{gcal_url}}" target="_blank"
+                 style="display:inline-block;background:#b4533a;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 24px 12px 20px;border-radius:999px;white-space:nowrap">
+                <img src="{{app_url}}/email-icons/calendar.png" width="16" height="16" alt="" style="border:0;width:16px;height:16px;vertical-align:-3px;margin-right:6px">Add to Google Calendar
+              </a>
+              <div style="height:14px;line-height:14px;font-size:0">&nbsp;</div>
+              <a href="{{app_url}}" target="_blank" style="color:#7a6f66;text-decoration:underline;font-size:13px">Open Wishly</a>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Footer -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px">
+          <tr>
+            <td align="center" style="padding:18px 6px 0;font:12px/1.5 -apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#a79d93">
+              Sent by Wishly · Never miss a special day again.
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

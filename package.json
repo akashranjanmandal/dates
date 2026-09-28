@@ -1,0 +1,9 @@
+{
+  "name": "dates",
+  "private": true,
+  "type": "module",
+  "description": "Birthdays & events with email reminders — static HTML + Netlify Functions",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
