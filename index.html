@@ -1258,7 +1258,21 @@
       min-width: 0;
     }
 
-    /* Toasts */
+    /* Reminder editor */
+.rem-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.rem { display: inline-flex; align-items: center; gap: 6px; padding: 6px 6px 6px 12px; border-radius: 999px; background: var(--accent-soft); color: var(--ink); font-size: 13px; font-weight: 500; animation: pop .3s var(--ease) both; }
+.rem svg { width: 14px; height: 14px; color: var(--accent); }
+.rem button { width: 22px; height: 22px; border-radius: 50%; border: 0; background: transparent; color: var(--muted); display: grid; place-items: center; font-size: 15px; line-height: 1; }
+.rem button:hover { background: color-mix(in srgb, var(--ink) 12%, transparent); color: var(--ink); }
+.rem-empty { font-size: 13px; color: var(--faint); padding: 4px 0; }
+.rem-custom { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+.rem-custom select { flex: 1.3; min-width: 0; }
+.rem-custom input[type=time] { flex: 1; min-width: 0; }
+.rem-custom .at { color: var(--muted); font-size: 13px; }
+@media (max-width: 480px) { .rem-custom { flex-wrap: wrap; } .rem-custom select { flex: 1 1 100%; } }
+.status-ok { color: #4f9d69; } .status-bad { color: var(--c-birthday); }
+
+/* Toasts */
     #toasts {
       position: fixed;
       left: 50%;
@@ -1489,8 +1503,20 @@
           </div>
         </div>
         <div class="field">
-          <span class="lbl">Email me</span>
-          <div class="chips" id="remindChips" style="flex-wrap:wrap;margin:0"></div>
+          <span class="lbl">Remind me</span>
+          <div class="rem-list" id="remList"></div>
+          <div class="chips" id="remPresets" style="flex-wrap:wrap;margin:10px 0 0"></div>
+          <div class="rem-custom">
+            <select class="input" id="remDays" aria-label="How many days before">
+              <option value="0">Same day</option><option value="1" selected>1 day before</option>
+              <option value="2">2 days before</option><option value="3">3 days before</option>
+              <option value="5">5 days before</option><option value="7">1 week before</option>
+              <option value="14">2 weeks before</option><option value="30">1 month before</option>
+            </select>
+            <span class="at">at</span>
+            <input class="input" type="time" id="remTime" value="21:00" aria-label="Reminder time">
+            <button type="button" class="btn" id="remAdd">Add</button>
+          </div>
           <div class="hint" id="remindHint"></div>
         </div>
         <div class="field">
@@ -1561,14 +1587,37 @@
           </div>
         </div>
       </div>
+      <div class="settings-sec" id="remSec">
+        <h3>Reminders</h3>
+        <p>New birthdays &amp; anniversaries remind you by default:</p>
+        <div class="rem-custom" style="margin-top:0">
+          <select class="input" id="defDays" aria-label="Default days before">
+            <option value="0">Same day</option><option value="1">1 day before</option>
+            <option value="2">2 days before</option><option value="3">3 days before</option>
+            <option value="7">1 week before</option>
+          </select>
+          <span class="at">at</span>
+          <input class="input" type="time" id="defTime" aria-label="Default reminder time">
+        </div>
+        <p class="hint" id="tzNote" style="margin-top:8px"></p>
+      </div>
       <div class="settings-sec">
-        <h3>Email reminders</h3>
+        <h3>Email</h3>
         <p id="mailStatus">…</p>
         <form class="email-row" id="emailForm">
           <input class="input" type="email" id="fEmail" placeholder="you@gmail.com" autocomplete="email"
             aria-label="Reminder email">
           <button class="btn primary" type="submit">Save</button>
         </form>
+      </div>
+      <div class="settings-sec" id="pushSec">
+        <h3>Phone notifications</h3>
+        <p id="pushStatus">…</p>
+        <div class="btn-row"><button class="btn primary" id="btnPush">Turn on for this device</button></div>
+      </div>
+      <div class="settings-sec" id="lastSec" hidden>
+        <h3>Last reminder</h3>
+        <p id="lastDelivery"></p>
       </div>
       <div class="settings-sec">
         <h3>Google Calendar</h3>
@@ -1641,10 +1690,10 @@
 
       // ---------- constants & storage ----------
       const TYPES = {
-        birthday: { label: "Birthday", plural: "Birthdays", title: "Whose birthday?", repeat: "yearly", remind: ["eve9"] },
-        anniversary: { label: "Anniversary", plural: "Anniversaries", title: "Whose anniversary?", repeat: "yearly", remind: ["eve9"] },
-        event: { label: "Event", plural: "Events", title: "What's happening?", repeat: "once", remind: ["eve9"] },
-        other: { label: "Reminder", plural: "Reminders", title: "What to remember?", repeat: "once", remind: ["morn8"] },
+        birthday: { label: "Birthday", plural: "Birthdays", title: "Whose birthday?", repeat: "yearly" },
+        anniversary: { label: "Anniversary", plural: "Anniversaries", title: "Whose anniversary?", repeat: "yearly" },
+        event: { label: "Event", plural: "Events", title: "What's happening?", repeat: "once" },
+        other: { label: "Reminder", plural: "Reminders", title: "What to remember?", repeat: "once" },
       };
       const ICON_PATHS = {
         birthday: '<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3M12 8v3M17 8v3"/><path d="M7 4h.01M12 4h.01M17 4h.01"/>',
@@ -1653,7 +1702,23 @@
         other: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
       };
       const icon = (type, cls = "ic") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON_PATHS[type] || ICON_PATHS.other}</svg>`;
-      const REMIND = { week: "1 week before", eve9: "Day before · 9 PM", morn8: "Same day · 8 AM", hour1: "1 hour before" };
+      // A reminder is { d, t } ("d days before at t") or { m } ("m minutes before" a timed event).
+      const LEGACY_REMIND = { week: { d: 7, t: "09:00" }, eve9: { d: 1, t: "21:00" }, morn8: { d: 0, t: "08:00" }, hour1: { m: 60 } };
+      const normRemind = (r) => (typeof r === "string" ? LEGACY_REMIND[r] : r) || null;
+      const remKey = (r) => (r.m != null ? `m${r.m}` : `d${r.d}@${r.t}`);
+      const PRESETS = [
+        { d: 1, t: "21:00" }, { d: 0, t: "08:00" }, { d: 7, t: "09:00" }, { m: 60, timed: true }, { m: 15, timed: true },
+      ];
+      function remLabel(r) {
+        if (r.m != null) return r.m >= 60 ? `${r.m / 60} hour${r.m > 60 ? "s" : ""} before` : `${r.m} min before`;
+        const day = r.d === 0 ? "Same day" : r.d === 1 ? "Day before" : r.d === 7 ? "1 week before" : r.d === 14 ? "2 weeks before" : r.d === 30 ? "1 month before" : `${r.d} days before`;
+        return `${day} · ${fmtTime(r.t)}`;
+      }
+      function defaultRemind(type) {
+        const def = ls.get("wishly.defRemind", { d: 1, t: "21:00" });
+        return type === "birthday" || type === "anniversary" ? [def] : type === "event" ? [{ d: 1, t: "21:00" }] : [{ d: 0, t: "08:00" }];
+      }
+      const browserTz = () => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { return ""; } };
       const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
       const LS = { events: "wishly.events.", token: "wishly.token", user: "wishly.user", tab: "wishly.tab", theme: "wishly.theme" };
 
@@ -1760,6 +1825,8 @@
           const d = await api("/api/me");
           state.server = d;
           state.user = d.user; ls.set(LS.user, d.user);
+          const tz = browserTz();
+          if (tz && tz !== d.user.tz) api("/api/profile", { method: "PUT", body: JSON.stringify({ tz }) }).then((r) => { state.user = r.user; ls.set(LS.user, r.user); }).catch(() => { });
           state.mode = "remote";
           state.events = d.events; ls.set(cacheKey(), state.events);
           setPill("synced");
@@ -1949,7 +2016,7 @@
         $("#fTime").value = ev?.time || "";
         $("#fNotes").value = ev?.notes || "";
         $(ev ? (ev.repeat === "yearly" ? "#rYearly" : "#rOnce") : (TYPES[type].repeat === "yearly" ? "#rYearly" : "#rOnce")).checked = true;
-        editDlg.dataset.remind = JSON.stringify(ev?.remind || TYPES[type].remind);
+        editDlg.dataset.remind = JSON.stringify((ev ? ev.remind || [] : defaultRemind(type)).map(normRemind).filter(Boolean));
         editDlg.dataset.touchedRemind = ev ? "1" : "";
         $("#btnDelete").hidden = isNew;
         syncForm();
@@ -1969,15 +2036,16 @@
         $("#timeWrap").style.visibility = annual ? "hidden" : "visible";
         const hasTime = !annual && $("#fTime").value;
         let remind = formRemind();
-        if (!hasTime) remind = remind.filter((r) => r !== "hour1");
+        if (!hasTime) remind = remind.filter((r) => r.m == null);
         editDlg.dataset.remind = JSON.stringify(remind);
-        $("#remindChips").innerHTML = Object.entries(REMIND).map(([k, l]) =>
-          `<button type="button" class="chip" data-remind="${k}" aria-pressed="${remind.includes(k)}" ${k === "hour1" && !hasTime ? "disabled title='Set a time first'" : ""}>${l}</button>`).join("");
-        const hint = $("#remindHint");
-        if (state.mode !== "remote") hint.textContent = "Email reminders need an account — sign in to turn them on.";
-        else if (!state.server?.mail) hint.textContent = "Email sending isn't switched on for this site yet.";
-        else if (!state.user?.email) hint.textContent = "Add your email in Settings to receive these.";
-        else hint.textContent = remind.length ? `Sent to ${state.user.email}` : "No emails for this one.";
+        const bell = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>';
+        $("#remList").innerHTML = remind.length
+          ? remind.map((r, i) => `<span class="rem">${bell}${remLabel(r)}<button type="button" data-rm="${i}" aria-label="Remove reminder">×</button></span>`).join("")
+          : `<span class="rem-empty">No reminders — pick one below.</span>`;
+        const have = new Set(remind.map(remKey));
+        $("#remPresets").innerHTML = PRESETS.filter((p) => !have.has(remKey(p)) && (!p.timed || hasTime))
+          .map((p) => `<button type="button" class="chip" data-preset='${JSON.stringify({ d: p.d, t: p.t, m: p.m })}'>+ ${remLabel(p)}</button>`).join("");
+        $("#remindHint").textContent = channelsText(remind.length);
         updateGcal();
       }
 
@@ -2009,21 +2077,39 @@
         const type = formType();
         if (!state.editing) {
           $(TYPES[type].repeat === "yearly" ? "#rYearly" : "#rOnce").checked = true;
-          if (!editDlg.dataset.touchedRemind) editDlg.dataset.remind = JSON.stringify(TYPES[type].remind);
+          if (!editDlg.dataset.touchedRemind) editDlg.dataset.remind = JSON.stringify(defaultRemind(type));
         }
         syncForm();
       });
       ["#fTime"].forEach((s) => $(s).addEventListener("input", syncForm));
       ["#fTitle", "#fDate", "#fYearUnknown", "#fNotes"].forEach((s) => $(s).addEventListener("input", updateGcal));
       $("#editForm").addEventListener("change", (e) => { if (e.target.name === "repeat") updateGcal(); });
-      $("#remindChips").addEventListener("click", (e) => {
-        const b = e.target.closest("[data-remind]"); if (!b || b.disabled) return;
-        const set = new Set(formRemind());
-        set.has(b.dataset.remind) ? set.delete(b.dataset.remind) : set.add(b.dataset.remind);
-        editDlg.dataset.remind = JSON.stringify([...set]);
+      function addRemind(r) {
+        const list = formRemind();
+        if (list.some((x) => remKey(x) === remKey(r))) return toast("That reminder is already set.");
+        if (list.length >= 6) return toast("Up to 6 reminders per date.");
+        list.push(r);
+        list.sort((a, b) => (b.d ?? -1) - (a.d ?? -1) || String(a.t).localeCompare(String(b.t)) || (b.m ?? 0) - (a.m ?? 0));
+        editDlg.dataset.remind = JSON.stringify(list);
         editDlg.dataset.touchedRemind = "1";
-        b.setAttribute("aria-pressed", set.has(b.dataset.remind));
         syncForm();
+      }
+      $("#remPresets").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-preset]"); if (!b) return;
+        const p = JSON.parse(b.dataset.preset);
+        addRemind(p.m != null ? { m: p.m } : { d: p.d, t: p.t });
+      });
+      $("#remList").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-rm]"); if (!b) return;
+        const list = formRemind(); list.splice(Number(b.dataset.rm), 1);
+        editDlg.dataset.remind = JSON.stringify(list);
+        editDlg.dataset.touchedRemind = "1";
+        syncForm();
+      });
+      $("#remAdd").addEventListener("click", () => {
+        const t = $("#remTime").value;
+        if (!t) return $("#remTime").focus();
+        addRemind({ d: Number($("#remDays").value), t });
       });
 
       $("#editForm").addEventListener("submit", (e) => {
@@ -2134,12 +2220,86 @@
       $("#bulkAdd").addEventListener("click", () => {
         const { ok } = parseBulk($("#bulkText").value);
         const type = $('input[name="bulkType"]:checked').value;
-        for (const x of ok) state.events.push({ id: uid(), type, ...x, time: "", repeat: "yearly", remind: ["eve9"], notes: "", updated: Date.now() });
+        for (const x of ok) state.events.push({ id: uid(), type, ...x, time: "", repeat: "yearly", remind: defaultRemind(type), notes: "", updated: Date.now() });
         $("#bulkText").value = ""; $("#bulkText").dispatchEvent(new Event("input"));
         $("#bulkDlg").close();
         persist();
         toast(`Added ${ok.length} ${type === "birthday" ? "birthdays" : "anniversaries"}`);
         confetti();
+      });
+
+      // Where reminders will actually arrive, in plain words.
+      function channelsText(count = 1) {
+        if (state.mode !== "remote") return "Reminders need an account — sign in to turn them on.";
+        if (!count) return "No reminders for this date.";
+        const ch = [];
+        if (state.server?.mail && state.user?.email) ch.push(`email (${state.user.email})`);
+        if (state.server?.push && state.user?.devices) ch.push(`phone notification`);
+        return ch.length ? `You'll get ${ch.join(" + ")}.` : "Add your email or turn on phone notifications in Settings to receive these.";
+      }
+      function ago(ts) {
+        const m = Math.round((Date.now() - ts) / 60000);
+        if (m < 1) return "just now"; if (m < 60) return `${m} min ago`;
+        const h = Math.round(m / 60); if (h < 24) return `${h}h ago`;
+        return `${Math.round(h / 24)}d ago`;
+      }
+
+      // ---------- phone notifications (Web Push) ----------
+      const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+      const pushSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+      function urlB64ToUint8(b64) {
+        const s = atob((b64 + "=".repeat((4 - b64.length % 4) % 4)).replace(/-/g, "+").replace(/_/g, "/"));
+        return Uint8Array.from(s, (c) => c.charCodeAt(0));
+      }
+      async function currentSub() {
+        if (!pushSupported()) return null;
+        const reg = await navigator.serviceWorker.getRegistration();
+        return reg ? reg.pushManager.getSubscription() : null;
+      }
+      async function renderPush() {
+        const btn = $("#btnPush"), st = $("#pushStatus");
+        btn.hidden = false; btn.disabled = false;
+        if (state.mode !== "remote") { st.textContent = "Sign in to get phone notifications."; btn.hidden = true; return; }
+        if (!state.server?.push) { st.textContent = "Notifications aren't switched on for this site yet."; btn.hidden = true; return; }
+        if (!pushSupported()) {
+          st.innerHTML = isIOS && !standalone
+            ? "On iPhone, first add Wishly to your Home Screen (Share → <b>Add to Home Screen</b>), open it from there, then turn notifications on here."
+            : "This browser can't show notifications.";
+          btn.hidden = true; return;
+        }
+        const sub = await currentSub();
+        const n = state.user?.devices || 0;
+        if (sub) {
+          st.innerHTML = `<span class="status-ok">On for this device</span>${n > 1 ? ` · ${n} devices in total` : ""}. Reminders pop up even when Wishly is closed.`;
+          btn.textContent = "Turn off for this device"; btn.className = "btn";
+        } else {
+          st.textContent = Notification.permission === "denied"
+            ? "Notifications are blocked for this site — allow them in your browser/phone settings, then try again."
+            : `Get a notification on this ${isIOS || /android/i.test(navigator.userAgent) ? "phone" : "device"} when a reminder is due.${n ? ` Already on for ${n} other device${n > 1 ? "s" : ""}.` : ""}`;
+          btn.textContent = "Turn on for this device"; btn.className = "btn primary";
+        }
+      }
+      $("#btnPush").addEventListener("click", async () => {
+        const btn = $("#btnPush"); btn.disabled = true;
+        try {
+          const existing = await currentSub();
+          if (existing) {
+            const r = await api("/api/push/unsubscribe", { method: "POST", body: JSON.stringify({ endpoint: existing.endpoint }) });
+            await existing.unsubscribe();
+            state.user = r.user; ls.set(LS.user, r.user);
+            toast("Notifications off for this device");
+          } else {
+            if (await Notification.requestPermission() !== "granted") throw new Error("Notifications weren't allowed.");
+            const reg = await navigator.serviceWorker.register("/sw.js");
+            await navigator.serviceWorker.ready;
+            const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToUint8(state.server.vapidKey) });
+            const r = await api("/api/push/subscribe", { method: "POST", body: JSON.stringify({ subscription: sub.toJSON() }) });
+            state.user = r.user; ls.set(LS.user, r.user);
+            toast("Notifications on — you'll get a pop-up when a reminder is due");
+          }
+        } catch (err) { toast(err.message || "Couldn't change notifications", "error"); }
+        renderPush();
       });
 
       // ---------- settings ----------
@@ -2153,8 +2313,17 @@
         let mail;
         if (!remote) mail = "Sign in to get email reminders.";
         else if (!s.mail) mail = "Email sending isn't switched on for this site yet.";
-        else mail = `Where should we send your reminders? Birthdays arrive at 9 PM the evening before (${esc(s.tz)}).`;
+        else mail = "Where should we email your reminders? Leave empty to turn email off.";
         $("#mailStatus").innerHTML = mail;
+        const def = ls.get("wishly.defRemind", { d: 1, t: "21:00" });
+        $("#defDays").value = String(def.d); $("#defTime").value = def.t;
+        $("#tzNote").textContent = remote ? `Times are in your time zone (${state.user.tz || s.tz}). You can set any time on each date too.` : "";
+        const ld = remote && state.user.lastDelivery;
+        $("#lastSec").hidden = !ld;
+        if (ld) $("#lastDelivery").innerHTML = ld.ok
+          ? `<span class="status-ok">Delivered</span> · ${esc(ld.title)} · ${ago(ld.at)}`
+          : `<span class="status-bad">Couldn't be delivered</span> · ${esc(ld.title)} · ${ago(ld.at)}<br><span class="hint">${esc(ld.error)}</span>`;
+        renderPush();
         $("#emailForm").hidden = !remote;
         $("#fEmail").value = state.user?.email || "";
         $("#deviceStatus").textContent = remote
@@ -2164,6 +2333,13 @@
         $(`#themeSeg input[value="${ls.get(LS.theme, "dark")}"]`).checked = true;
         $("#settingsDlg").showModal();
       }
+      function saveDefault() {
+        const t = $("#defTime").value; if (!t) return;
+        ls.set("wishly.defRemind", { d: Number($("#defDays").value), t });
+        toast(`New birthdays will remind you ${remLabel({ d: Number($("#defDays").value), t }).toLowerCase()}`);
+      }
+      $("#defDays").addEventListener("change", saveDefault);
+      $("#defTime").addEventListener("change", saveDefault);
       $("#emailForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         const btn = e.target.querySelector("button");
@@ -2248,7 +2424,7 @@
         const btn = $("#authBtn"), label = btn.textContent;
         btn.disabled = true; btn.textContent = mode === "signup" ? "Creating…" : "Signing in…";
         try {
-          const r = await api(`/api/${mode}`, { method: "POST", body: JSON.stringify({ name, password }) });
+          const r = await api(`/api/${mode}`, { method: "POST", body: JSON.stringify({ name, password, tz: browserTz() }) });
           state.token = r.token; ls.set(LS.token, r.token);
           state.user = r.user; ls.set(LS.user, r.user);
           state.events = ls.get(cacheKey(), []);
@@ -2338,7 +2514,7 @@
       render();
       document.fonts?.ready.then(moveInd);
       if (location.protocol === "file:") { state.mode = "local"; setPill("local"); } else connect();
-      if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("/sw.js").catch(() => { });
+      if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("/sw.js").catch(() => { });
     })();
   </script>
 </body>

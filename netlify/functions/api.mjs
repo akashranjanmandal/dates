@@ -3,7 +3,8 @@ import {
   authConfigured, checkAdmin, checkPassword, eventsKey, hashPassword, nameKey, sign, userKey, validName, verify,
 } from "../shared/auth.mjs";
 import { mailConfigured } from "../shared/mail.mjs";
-import { tzName } from "../shared/schedule.mjs";
+import { pushConfigured, validSubscription, vapidPublicKey } from "../shared/push.mjs";
+import { normRemind, remindKey, tzName, validTz } from "../shared/schedule.mjs";
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -13,7 +14,6 @@ const json = (data, status = 200) =>
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const TYPES = new Set(["birthday", "anniversary", "event", "other"]);
-const REMIND = new Set(["week", "eve9", "morn8", "hour1"]);
 
 function clean(ev) {
   if (!ev || typeof ev !== "object") return null;
@@ -26,13 +26,16 @@ function clean(ev) {
     yearUnknown: Boolean(ev.yearUnknown),
     time: /^\d{2}:\d{2}$/.test(ev.time || "") ? ev.time : "",
     repeat: ev.repeat === "yearly" ? "yearly" : "once",
-    remind: [...new Set((ev.remind || []).filter((r) => REMIND.has(r)))],
+    remind: [...new Map((Array.isArray(ev.remind) ? ev.remind : []).map(normRemind).filter(Boolean).map((r) => [remindKey(r), r])).values()].slice(0, 6),
     notes: String(ev.notes || "").slice(0, 1000),
     updated: Number(ev.updated) || Date.now(),
   };
 }
 
-const publicUser = (u) => ({ name: u.name, email: u.email || "" });
+const publicUser = (u) => ({
+  name: u.name, email: u.email || "", tz: u.tz || tzName(),
+  devices: (u.push || []).length, lastDelivery: u.lastDelivery || null,
+});
 const sameEvent = (a, b) => JSON.stringify({ ...a, updated: 0 }) === JSON.stringify({ ...b, updated: 0 });
 
 async function logActivity(store, entries) {
@@ -64,7 +67,10 @@ export default async (req) => {
     const k = nameKey(name);
     if (await store.get(userKey(k))) return json({ error: "That name is taken — sign in instead, or add a surname" }, 409);
     const now = Date.now();
-    const user = { name, key: k, ...hashPassword(String(body.password)), email: "", created: now, lastSeen: now };
+    const user = {
+      name, key: k, ...hashPassword(String(body.password)), email: "", push: [],
+      tz: validTz(body.tz) ? body.tz : tzName(), created: now, lastSeen: now,
+    };
     await store.setJSON(userKey(k), user);
     await store.setJSON(eventsKey(k), []);
     await logActivity(store, [{ user: name, action: "joined", at: now }]);
@@ -78,6 +84,7 @@ export default async (req) => {
       await sleep(600);
       return json({ error: "Name or password is incorrect" }, 401);
     }
+    if (!user.tz && validTz(body.tz)) { user.tz = body.tz; await store.setJSON(userKey(k), user); }
     return json({ token: sign({ u: k }), user: publicUser(user) });
   }
 
@@ -93,11 +100,29 @@ export default async (req) => {
     if (path === "/admin/overview" && method === "GET") {
       const users = await allUsers(store);
       const rows = await Promise.all(users.map(async (u) => ({
-        name: u.name, key: u.key, email: u.email || "", created: u.created, lastSeen: u.lastSeen,
+        name: u.name, key: u.key, email: u.email || "", tz: u.tz || tzName(), devices: (u.push || []).length,
+        created: u.created, lastSeen: u.lastSeen, lastDelivery: u.lastDelivery || null,
         events: (await store.get(eventsKey(u.key), { type: "json" })) || [],
       })));
-      const activity = (await store.get("activity", { type: "json" })) || [];
-      return json({ users: rows.sort((a, b) => b.lastSeen - a.lastSeen), activity, mail: mailConfigured(), tz: tzName() });
+      const [activity, deliveries] = await Promise.all([
+        store.get("activity", { type: "json" }), store.get("deliveries", { type: "json" }),
+      ]);
+      return json({
+        users: rows.sort((a, b) => b.lastSeen - a.lastSeen), activity: activity || [], deliveries: deliveries || [],
+        mail: mailConfigured(), push: pushConfigured(), tz: tzName(),
+      });
+    }
+
+    const pw = path.match(/^\/admin\/users\/(.+)\/password$/);
+    if (pw && method === "PUT") {
+      const k = decodeURIComponent(pw[1]);
+      const user = await store.get(userKey(k), { type: "json" });
+      if (!user) return json({ error: "No such user" }, 404);
+      if (String(body.password || "").length < 6) return json({ error: "Password needs at least 6 characters" }, 400);
+      Object.assign(user, hashPassword(String(body.password)));
+      await store.setJSON(userKey(k), user);
+      await logActivity(store, [{ user: user.name, action: "password reset by admin", at: Date.now() }]);
+      return json({ ok: true });
     }
 
     const m = path.match(/^\/admin\/users\/(.+)$/);
@@ -123,7 +148,10 @@ export default async (req) => {
       await store.setJSON(userKey(user.key), user);
     }
     const events = (await store.get(eventsKey(user.key), { type: "json" })) || [];
-    return json({ user: publicUser(user), events, tz: tzName(), mail: mailConfigured() });
+    return json({
+      user: publicUser(user), events, tz: user.tz || tzName(),
+      mail: mailConfigured(), push: pushConfigured(), vapidKey: vapidPublicKey(),
+    });
   }
 
   if (path === "/events" && method === "PUT") {
@@ -147,9 +175,30 @@ export default async (req) => {
   }
 
   if (path === "/profile" && method === "PUT") {
-    const email = String(body.email || "").trim();
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "That email doesn't look right" }, 400);
-    user.email = email;
+    if ("email" in body) {
+      const email = String(body.email || "").trim();
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "That email doesn't look right" }, 400);
+      user.email = email;
+    }
+    if ("tz" in body) {
+      if (!validTz(body.tz)) return json({ error: "Unknown time zone" }, 400);
+      user.tz = body.tz;
+    }
+    await store.setJSON(userKey(user.key), user);
+    return json({ user: publicUser(user) });
+  }
+
+  if (path === "/push/subscribe" && method === "POST") {
+    if (!pushConfigured()) return json({ error: "Notifications aren't switched on for this site yet" }, 400);
+    if (!validSubscription(body.subscription)) return json({ error: "Invalid subscription" }, 400);
+    const { endpoint, keys } = body.subscription;
+    user.push = [...(user.push || []).filter((s) => s.endpoint !== endpoint), { endpoint, keys: { p256dh: keys.p256dh, auth: keys.auth }, added: Date.now() }].slice(-10);
+    await store.setJSON(userKey(user.key), user);
+    return json({ user: publicUser(user) });
+  }
+
+  if (path === "/push/unsubscribe" && method === "POST") {
+    user.push = (user.push || []).filter((s) => s.endpoint !== body.endpoint);
     await store.setJSON(userKey(user.key), user);
     return json({ user: publicUser(user) });
   }

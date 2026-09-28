@@ -1,12 +1,28 @@
 // Date + reminder logic shared by the API and the scheduled reminder job.
 // All reminder times are interpreted in REMINDER_TZ (default Asia/Kolkata).
 
-export const REMINDERS = {
-  week:  { label: "1 week before, 9 AM", days: -7, time: "09:00" },
-  eve9:  { label: "Day before, 9 PM",    days: -1, time: "21:00" },
-  morn8: { label: "Same day, 8 AM",      days: 0,  time: "08:00" },
-  hour1: { label: "1 hour before",       hourBefore: true },
+// A reminder is either { d, t } — "d days before, at time t" (d = 0 means the same day) —
+// or { m } — "m minutes before" a timed event. Old presets are still accepted.
+const LEGACY = {
+  week: { d: 7, t: "09:00" },
+  eve9: { d: 1, t: "21:00" },
+  morn8: { d: 0, t: "08:00" },
+  hour1: { m: 60 },
 };
+
+export function normRemind(r) {
+  if (typeof r === "string") r = LEGACY[r];
+  if (!r || typeof r !== "object") return null;
+  if (r.m != null) {
+    const m = Math.round(Number(r.m));
+    return m >= 5 && m <= 2880 ? { m } : null;
+  }
+  const d = Math.round(Number(r.d));
+  if (!(d >= 0 && d <= 60) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(r.t || "")) return null;
+  return { d, t: r.t };
+}
+
+export const remindKey = (r) => (r.m != null ? `m${r.m}` : `d${r.d}@${r.t}`);
 
 export const TYPES = {
   birthday:    { label: "Birthday" },
@@ -19,6 +35,10 @@ export const TYPES = {
 const CATCH_UP_MS = 12 * 3600e3;
 
 export const tzName = () => process.env.REMINDER_TZ || "Asia/Kolkata";
+
+export function validTz(tz) {
+  try { return Boolean(tz) && Boolean(new Intl.DateTimeFormat("en-US", { timeZone: tz })); } catch { return false; }
+}
 
 function tzOffsetMs(ts, tz) {
   const p = Object.fromEntries(
@@ -56,14 +76,14 @@ function occurrences(ev, aroundYear) {
     .map((yy) => ({ y: yy, m, d: clampDay(yy, m, d) }));
 }
 
-function reminderInstant(ev, occ, def, tz) {
-  if (def.hourBefore) {
+function reminderInstant(ev, occ, r, tz) {
+  if (r.m != null) {
     if (!ev.time) return null;
     const [h, mi] = ev.time.split(":").map(Number);
-    return zonedToUtc(occ.y, occ.m, occ.d, h, mi, tz) - 3600e3;
+    return zonedToUtc(occ.y, occ.m, occ.d, h, mi, tz) - r.m * 60e3;
   }
-  const base = new Date(Date.UTC(occ.y, occ.m - 1, occ.d + def.days));
-  const [h, mi] = def.time.split(":").map(Number);
+  const base = new Date(Date.UTC(occ.y, occ.m - 1, occ.d - r.d));
+  const [h, mi] = r.t.split(":").map(Number);
   return zonedToUtc(base.getUTCFullYear(), base.getUTCMonth() + 1, base.getUTCDate(), h, mi, tz);
 }
 
@@ -72,18 +92,18 @@ export function computeDue(events, sent, now, tz) {
   const { y: nowY } = localYmd(now, tz);
   const due = [];
   for (const ev of events) {
-    for (const key of ev.remind || []) {
-      const def = REMINDERS[key];
-      if (!def) continue;
+    for (const raw of ev.remind || []) {
+      const r = normRemind(raw);
+      if (!r) continue;
       for (const occ of occurrences(ev, nowY)) {
-        const at = reminderInstant(ev, occ, def, tz);
+        const at = reminderInstant(ev, occ, r, tz);
         if (at == null || at > now || now - at >= CATCH_UP_MS) continue;
-        const k = `${ev.id}|${ymd(occ)}|${key}`;
-        if (!sent[k]) due.push({ ev, occ, key, k });
+        const k = `${ev.id}|${ymd(occ)}|${remindKey(r)}`;
+        if (!sent[k]) due.push({ ev, occ, r, k, at });
       }
     }
   }
-  return due.sort((a, b) => ymd(a.occ).localeCompare(ymd(b.occ)));
+  return due.sort((a, b) => a.at - b.at);
 }
 
 export function describe(ev, occ) {
