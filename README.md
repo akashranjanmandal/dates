@@ -12,7 +12,6 @@ added to Google Calendar, and it installs to iPhone/Android home screens like an
 | `netlify/functions/reminders.mjs` | Runs every 30 min and emails each user their due reminders via EmailJS |
 | `emailjs-template.html` | Paste into your EmailJS template |
 | `icons/`, `manifest.webmanifest`, `sw.js` | Home-screen app icon + offline shell |
-| `email-icons/` | PNG icons the email loads (Gmail blocks SVG) |
 
 Birthdays email at **9 PM the evening before** (India time by default). Each date can also remind
 1 week before, same day 8 AM, or 1 hour before (timed events).
@@ -24,6 +23,8 @@ Template `template_8o97oyb`:
 - **To Email:** `{{to_email}}`
 - **From Name:** `Wishly`
 - **Reply To:** leave empty
+
+Template variables: `subject, to_email, title, when, day, month, weekday, tagline_html, notes_html, gcal_url, app_url`.
 
 Then **Account → Security** → enable **"Allow EmailJS API for non-browser applications"**, and copy the
 **Public Key** and **Private Key** from **Account → General**.
@@ -45,6 +46,16 @@ Build command: *(empty)* · Publish directory: `.` · Functions directory is rea
 | `REMINDER_TZ` | optional, default `Asia/Kolkata` |
 
 Redeploy after adding them.
+
+## Run locally
+```bash
+npm install
+cp .env.example .env   # already done on this machine — fill in keys
+npm run dev
+```
+- App: http://localhost:8888 · Admin: http://localhost:8888/admin (password = `ADMIN_PASSWORD` in `.env`)
+- http://localhost:8888/__remind runs the reminder job immediately (sends real emails for anything due)
+- Local data lives in `.netlify/local-blobs/` (delete it to start fresh)
 
 ## Using it
 - Everyone opens the site → **Create account** (name + password) → **Settings → Email reminders** to add their email.

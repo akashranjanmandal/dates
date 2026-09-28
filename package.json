@@ -1,9 +1,12 @@
 {
-  "name": "dates",
+  "name": "wishly",
   "private": true,
   "type": "module",
   "description": "Birthdays & events with email reminders — static HTML + Netlify Functions",
   "dependencies": {
     "@netlify/blobs": "^8.1.0"
+  },
+  "scripts": {
+    "dev": "node --env-file=.env scripts/dev.mjs"
   }
 }

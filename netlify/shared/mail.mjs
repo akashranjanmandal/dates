@@ -58,8 +58,8 @@ export function reminderParams(ev, occ, now, tz) {
   const { detail } = describe(ev, occ);
   const rel = relativeDay(occ, now, tz);                     // "Tomorrow", "Today", "In 7 days"
   const relLower = rel === "Today" || rel === "Tomorrow" ? rel.toLowerCase() : rel.replace("In", "in");
-  const date = new Date(Date.UTC(occ.y, occ.m - 1, occ.d))
-    .toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+  const day = new Date(Date.UTC(occ.y, occ.m - 1, occ.d));
+  const fmt = (o) => day.toLocaleDateString("en-GB", { ...o, timeZone: "UTC" });
   const name = ev.title;
   const age = detail.startsWith("turns") ? Number(detail.slice(6)) : null;
   const years = ev.type === "anniversary" && detail ? detail : "";
@@ -84,21 +84,20 @@ export function reminderParams(ev, occ, now, tz) {
     default:
       title = name;
       subject = `Reminder: ${name} — ${relLower}`;
-      tagline = `A gentle nudge from Dates.`;
+      tagline = `A gentle nudge from Wishly.`;
   }
 
-  const site = (process.env.URL || "").replace(/\/$/, "");
   return {
     subject,
     title,
-    when: `${rel} · ${date}${ev.time ? ` · ${fmtTime(ev.time)}` : ""}`,
+    when: `${rel}${ev.time ? ` · ${fmtTime(ev.time)}` : ""}`,
+    day: String(occ.d),
+    month: fmt({ month: "short" }).toUpperCase(),
+    weekday: fmt({ weekday: "long" }),
     tagline_html: tagline,
-    icon_url: `${site}/email-icons/${ev.type in ICONS ? ev.type : "other"}.png`,
     notes_html: ev.notes
-      ? `<tr><td style="padding:0 32px 8px"><div style="background:#f6f2ec;border-radius:12px;padding:14px 16px;font-size:14px;line-height:1.55;color:#4a413b"><b style="color:#1f1a17">Notes</b><br>${esc(ev.notes).replace(/\n/g, "<br>")}</div></td></tr>`
+      ? `<div style="margin:22px 0 0;padding:12px 16px;border-left:3px solid #e0a458;background:#faf7f2;border-radius:0 10px 10px 0;text-align:left;font-size:14px;line-height:1.6;color:#4a413b">${esc(ev.notes).replace(/\n/g, "<br>")}</div>`
       : "",
     gcal_url: gcalUrl(ev, occ, tz, title),
   };
 }
-
-const ICONS = { birthday: 1, anniversary: 1, event: 1, other: 1 };
