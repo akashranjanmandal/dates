@@ -37,7 +37,7 @@ export function checkAdmin(password) {
   return b.length > 0 && a.length === b.length && timingSafeEqual(a, b);
 }
 
-// "  Souvik   Ghosh " -> "souvik ghosh" — names are unique case-insensitively.
+// "  Souvik   Ghosh " -> "Akash" — names are unique case-insensitively.
 export const nameKey = (name) => String(name || "").trim().replace(/\s+/g, " ").toLowerCase();
 export const validName = (name) => /^[\p{L}\p{N} ._'-]{2,32}$/u.test(String(name || "").trim());
 

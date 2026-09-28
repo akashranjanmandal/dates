@@ -1,1182 +1,2346 @@
 <!doctype html>
 <html lang="en" data-theme="dark">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Wishly</title>
-<meta name="description" content="Birthdays, anniversaries and events — with email reminders and Google Calendar.">
-<meta name="theme-color" content="#141211">
-<link rel="manifest" href="/manifest.webmanifest">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Wishly">
-<link rel="icon" type="image/png" href="/icons/icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #f6f2ec; --surface: #fffdf9; --surface-2: #f1ebe3; --ink: #1f1a17; --muted: #7a6f66; --faint: #a79d93;
-  --line: #e7dfd4; --accent: #b4533a; --accent-ink: #fff; --accent-soft: #f5e3db;
-  --c-birthday: #c0564b; --c-anniversary: #8a5a83; --c-event: #3b6e8f; --c-other: #6b7d4f;
-  --shadow: 0 1px 2px rgb(60 40 20 / .05), 0 8px 24px -12px rgb(60 40 20 / .18);
-  --radius: 16px; --ease: cubic-bezier(.2,.8,.2,1);
-  --serif: "Fraunces", Georgia, serif; --sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #141211; --surface: #1d1a18; --surface-2: #26221f; --ink: #f1ebe4; --muted: #a39a90; --faint: #756c63;
-    --line: #2f2a26; --accent: #e07a5f; --accent-ink: #1a0f0b; --accent-soft: #3a2520;
-    --c-birthday: #e57f73; --c-anniversary: #c592bd; --c-event: #7fb2d3; --c-other: #a9bb86;
-    --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 10px 30px -12px rgb(0 0 0 / .6);
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #141211; --surface: #1d1a18; --surface-2: #26221f; --ink: #f1ebe4; --muted: #a39a90; --faint: #756c63;
-  --line: #2f2a26; --accent: #e07a5f; --accent-ink: #1a0f0b; --accent-soft: #3a2520;
-  --c-birthday: #e57f73; --c-anniversary: #c592bd; --c-event: #7fb2d3; --c-other: #a9bb86;
-  --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 10px 30px -12px rgb(0 0 0 / .6);
-  color-scheme: dark;
-}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Wishly</title>
+  <meta name="description" content="Birthdays, anniversaries and events — with email reminders and Google Calendar.">
+  <meta name="theme-color" content="#141211">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Wishly">
+  <link rel="icon" type="image/png" href="/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f2ec;
+      --surface: #fffdf9;
+      --surface-2: #f1ebe3;
+      --ink: #1f1a17;
+      --muted: #7a6f66;
+      --faint: #a79d93;
+      --line: #e7dfd4;
+      --accent: #b4533a;
+      --accent-ink: #fff;
+      --accent-soft: #f5e3db;
+      --c-birthday: #c0564b;
+      --c-anniversary: #8a5a83;
+      --c-event: #3b6e8f;
+      --c-other: #6b7d4f;
+      --shadow: 0 1px 2px rgb(60 40 20 / .05), 0 8px 24px -12px rgb(60 40 20 / .18);
+      --radius: 16px;
+      --ease: cubic-bezier(.2, .8, .2, 1);
+      --serif: "Fraunces", Georgia, serif;
+      --sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+      color-scheme: light;
+    }
 
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased; min-height: 100dvh; }
-button, input, select, textarea { font: inherit; color: inherit; }
-button { cursor: pointer; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
-.wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #141211;
+        --surface: #1d1a18;
+        --surface-2: #26221f;
+        --ink: #f1ebe4;
+        --muted: #a39a90;
+        --faint: #756c63;
+        --line: #2f2a26;
+        --accent: #e07a5f;
+        --accent-ink: #1a0f0b;
+        --accent-soft: #3a2520;
+        --c-birthday: #e57f73;
+        --c-anniversary: #c592bd;
+        --c-event: #7fb2d3;
+        --c-other: #a9bb86;
+        --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 10px 30px -12px rgb(0 0 0 / .6);
+        color-scheme: dark;
+      }
+    }
 
-/* Top bar */
-.top { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid transparent; transition: border-color .2s; padding-top: env(safe-area-inset-top); }
-.top.scrolled { border-color: var(--line); }
-.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
-.brand { display: flex; align-items: center; gap: 10px; font: italic 400 22px/1 var(--serif); letter-spacing: -.01em; }
-.logo { width: 32px; height: 32px; border-radius: 9px; display: block; box-shadow: 0 6px 16px -6px rgb(160 90 220 / .55); }
-.top-actions { display: flex; align-items: center; gap: 8px; }
-.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); padding: 5px 10px; border-radius: 999px; background: var(--surface-2); white-space: nowrap; border: 0; }
-.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
-.pill[data-s="synced"]::before { background: #4f9d69; }
-.pill[data-s="saving"]::before, .pill[data-s="connecting"]::before { background: #d49a3a; animation: pulse 1s infinite; }
-.pill[data-s="error"]::before, .pill[data-s="locked"]::before { background: var(--c-birthday); }
-@keyframes pulse { 50% { opacity: .3; } }
-.icon-btn { width: 38px; height: 38px; border-radius: 12px; border: 0; background: transparent; display: grid; place-items: center; color: var(--muted); transition: background .15s, color .15s; }
-.icon-btn:hover { background: var(--surface-2); color: var(--ink); }
-.icon-btn svg { width: 20px; height: 20px; }
+    :root[data-theme="dark"] {
+      --bg: #141211;
+      --surface: #1d1a18;
+      --surface-2: #26221f;
+      --ink: #f1ebe4;
+      --muted: #a39a90;
+      --faint: #756c63;
+      --line: #2f2a26;
+      --accent: #e07a5f;
+      --accent-ink: #1a0f0b;
+      --accent-soft: #3a2520;
+      --c-birthday: #e57f73;
+      --c-anniversary: #c592bd;
+      --c-event: #7fb2d3;
+      --c-other: #a9bb86;
+      --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 10px 30px -12px rgb(0 0 0 / .6);
+      color-scheme: dark;
+    }
 
-/* Hero */
-.hero { padding: 28px 0 8px; }
-.greet { color: var(--muted); font-size: 14px; margin: 0 0 4px; }
-.hero h1 { font: 400 clamp(28px, 6vw, 40px)/1.12 var(--serif); letter-spacing: -.02em; margin: 0; }
-.hero h1 em { color: var(--accent); }
-.next { margin-top: 22px; display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 18px 20px; box-shadow: var(--shadow); cursor: pointer; transition: transform .25s var(--ease), box-shadow .25s; text-align: left; width: 100%; }
-.next:hover { transform: translateY(-2px); }
-.next .count { font: 600 44px/1 var(--serif); color: var(--accent); min-width: 56px; text-align: center; font-variant-numeric: tabular-nums; }
-.next .count small { display: block; font: 500 11px/1.4 var(--sans); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-top: 4px; }
-.next .label { font-size: 12px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
-.next .t { font: 400 20px/1.25 var(--serif); margin: 2px 0; }
-.next .s { color: var(--muted); font-size: 13px; }
-.next .emoji { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
-.next .emoji .ic { width: 26px; height: 26px; }
-.ic { width: 15px; height: 15px; flex: none; vertical-align: -2px; }
-.today-chip { display: inline-flex; align-items: center; gap: 7px; }
-.today-chip .ic, .chip .ic { color: var(--c, currentColor); }
-.chip[data-filter="birthday"] { --c: var(--c-birthday); } .chip[data-filter="anniversary"] { --c: var(--c-anniversary); } .chip[data-filter="event"] { --c: var(--c-event); } .chip[data-filter="other"] { --c: var(--c-other); }
-.chip[aria-pressed="true"] .ic { color: inherit; }
-.seg label .ic { margin-right: 3px; }
-.today-strip { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
-.today-chip { background: var(--accent-soft); color: var(--ink); border: 0; border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 500; animation: pop .5s var(--ease) both; }
-@keyframes pop { from { transform: scale(.9); opacity: 0; } }
+    * {
+      box-sizing: border-box;
+    }
 
-/* Tabs */
-.tabs { position: relative; display: flex; gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 14px; margin: 26px 0 18px; }
-.tab { position: relative; z-index: 1; flex: 1; border: 0; background: transparent; padding: 9px 8px; border-radius: 10px; color: var(--muted); font-weight: 500; font-size: 14px; transition: color .2s; }
-.tab[aria-selected="true"] { color: var(--ink); }
-.tab-ind { position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: 10px; background: var(--surface); box-shadow: 0 1px 3px rgb(0 0 0 / .08); transition: transform .35s var(--ease), width .35s var(--ease); }
-.view { display: none; animation: fade .35s var(--ease); }
-.view.active { display: block; }
-@keyframes fade { from { opacity: 0; transform: translateY(6px); } }
+    [hidden] {
+      display: none !important;
+    }
 
-/* Lists */
-.group-h { font: 500 12px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); margin: 26px 4px 10px; }
-.group-h:first-child { margin-top: 4px; }
-.list { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-.row { display: grid; grid-template-columns: 46px 1fr auto; gap: 14px; align-items: center; padding: 12px 16px; width: 100%; border: 0; background: transparent; text-align: left; border-top: 1px solid var(--line); transition: background .15s; animation: fade .35s var(--ease) both; }
-.row:first-child { border-top: 0; }
-.row:hover { background: var(--surface-2); }
-.date-b { text-align: center; line-height: 1; }
-.date-b b { display: block; font: 600 22px/1 var(--serif); font-variant-numeric: tabular-nums; }
-.date-b span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-.row .t { font-weight: 500; display: flex; align-items: center; gap: 8px; min-width: 0; }
-.row .t span.name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.row .s { color: var(--muted); font-size: 13px; margin-top: 1px; }
-.row-ic { color: var(--c); display: inline-flex; }
-.dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--c, var(--faint)); }
-.when { font-size: 12px; color: var(--muted); white-space: nowrap; font-weight: 500; }
-.when.soon { color: var(--accent); }
-.when.today { background: var(--accent); color: var(--accent-ink); padding: 3px 9px; border-radius: 999px; }
-.ty-birthday { --c: var(--c-birthday); } .ty-anniversary { --c: var(--c-anniversary); } .ty-event { --c: var(--c-event); } .ty-other { --c: var(--c-other); }
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
 
-.empty { text-align: center; padding: 48px 24px; color: var(--muted); background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); }
-.empty .big { font: italic 400 24px/1.3 var(--serif); color: var(--ink); margin-bottom: 6px; }
-.empty .btns { display: flex; gap: 8px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.5 var(--sans);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100dvh;
+    }
 
-/* Toolbar (All view) */
-.toolbar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-.search { flex: 1 1 220px; position: relative; }
-.search input { width: 100%; padding: 11px 14px 11px 38px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); }
-.search svg { position: absolute; left: 12px; top: 50%; translate: 0 -50%; width: 17px; color: var(--faint); }
-.chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 14px; scrollbar-width: none; }
-.chips::-webkit-scrollbar { display: none; }
-.chip { border: 1px solid var(--line); background: var(--surface); padding: 7px 13px; border-radius: 999px; font-size: 13px; white-space: nowrap; color: var(--muted); transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
-.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.chip:disabled { opacity: .4; cursor: not-allowed; }
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+      color: inherit;
+    }
 
-/* Buttons */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); padding: 10px 16px; border-radius: 12px; font-weight: 500; font-size: 14px; transition: transform .1s, background .15s, border-color .15s; white-space: nowrap; text-decoration: none; }
-.btn:hover { border-color: var(--faint); }
-.btn:active { transform: scale(.97); }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
-.btn.primary:hover { filter: brightness(1.06); }
-.btn.ghost { border-color: transparent; background: transparent; color: var(--muted); }
-.btn.danger { color: var(--c-birthday); border-color: transparent; background: transparent; }
-.btn svg { width: 16px; height: 16px; }
+    button {
+      cursor: pointer;
+    }
 
-/* Calendar */
-.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.cal-head h2 { font: 400 24px/1 var(--serif); margin: 0; }
-.cal-head .nav { display: flex; gap: 4px; }
-.cal { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; }
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-.dow { text-align: center; font-size: 11px; color: var(--faint); text-transform: uppercase; letter-spacing: .06em; padding: 6px 0 8px; }
-.day { aspect-ratio: 1 / 1; border: 0; background: transparent; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 6px 2px 4px; gap: 4px; font-size: 14px; font-variant-numeric: tabular-nums; transition: background .15s; min-width: 0; }
-.day:hover { background: var(--surface-2); }
-.day.out { color: var(--faint); opacity: .45; }
-.day .n { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; }
-.day.is-today .n { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
-.day.sel { background: var(--accent-soft); }
-.day .dots { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
-.day .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
-.day .names { display: none; }
-@media (min-width: 720px) {
-  .day { aspect-ratio: auto; min-height: 92px; align-items: stretch; padding: 6px; }
-  .day .n { align-self: flex-end; width: 26px; height: 26px; font-size: 13px; }
-  .day .dots { display: none; }
-  .day .names { display: flex; flex-direction: column; gap: 2px; width: 100%; }
-  .day .names span { font-size: 11px; line-height: 1.3; padding: 2px 6px; border-radius: 6px; background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
-}
-.day-panel { margin-top: 16px; }
-.day-panel h3 { font: 400 18px/1.2 var(--serif); margin: 0 0 10px 4px; display: flex; justify-content: space-between; align-items: center; }
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
 
-/* FAB */
-.fab { position: fixed; right: max(20px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); z-index: 30; height: 56px; padding: 0 22px 0 18px; border-radius: 18px; border: 0; background: var(--accent); color: var(--accent-ink); font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 30px -8px color-mix(in srgb, var(--accent) 70%, transparent); transition: transform .2s var(--ease); }
-.fab:hover { transform: translateY(-2px) scale(1.02); }
-.fab:active { transform: scale(.96); }
-.fab svg { width: 22px; height: 22px; }
-main { padding-bottom: 110px; }
+    .wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
 
-/* Dialogs (bottom sheet on mobile) */
-dialog { border: 0; padding: 0; background: var(--surface); color: var(--ink); width: 100%; max-width: 560px; max-height: 92dvh; border-radius: 22px 22px 0 0; margin: auto auto 0; box-shadow: 0 -10px 40px rgb(0 0 0 / .2); overflow: hidden; }
-dialog[open] { animation: sheet .38s var(--ease); display: flex; flex-direction: column; }
-dialog::backdrop { background: rgb(20 14 10 / .45); backdrop-filter: blur(3px); animation: fadeIn .3s; }
-@keyframes sheet { from { transform: translateY(40px); opacity: 0; } }
-@keyframes fadeIn { from { opacity: 0; } }
-@media (min-width: 640px) { dialog { margin: auto; border-radius: 22px; } }
-.sheet-h { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px 6px; }
-.sheet-h h2 { font: 400 22px/1.2 var(--serif); margin: 0; }
-.sheet-b { padding: 8px 20px 12px; overflow-y: auto; flex: 1; min-height: 0; }
-.sheet-f { display: flex; gap: 8px; padding: 12px 20px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); align-items: center; flex-wrap: wrap; }
-.sheet-f .spacer { flex: 1; }
-.grab { width: 38px; height: 4px; border-radius: 4px; background: var(--line); margin: 8px auto 0; }
-@media (min-width: 640px) { .grab { display: none; } }
+    /* Top bar */
+    .top {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid transparent;
+      transition: border-color .2s;
+      padding-top: env(safe-area-inset-top);
+    }
 
-.field { margin: 14px 0; }
-.field > label, .field > .lbl { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; letter-spacing: .02em; }
-.input { width: 100%; padding: 11px 13px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); transition: border-color .15s, box-shadow .15s; }
-.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-textarea.input { resize: vertical; min-height: 76px; }
-.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 12px; }
-#typeSeg { grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); }
-@media (max-width: 460px) { #typeSeg { grid-template-columns: 1fr 1fr; } }
-.seg input { position: absolute; opacity: 0; pointer-events: none; }
-.seg label { text-align: center; padding: 8px 4px; border-radius: 9px; font-size: 13px; color: var(--muted); cursor: pointer; transition: all .15s; font-weight: 500; white-space: nowrap; }
-.seg input:checked + label { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgb(0 0 0 / .08); }
-.seg input:focus-visible + label { outline: 2px solid var(--accent); }
-.check { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin-top: 8px; cursor: pointer; }
-.check input { accent-color: var(--accent); width: 16px; height: 16px; }
-.hint { font-size: 12px; color: var(--faint); margin-top: 6px; }
-.note { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; font-size: 13px; color: var(--muted); }
-.note b { color: var(--ink); font-weight: 500; }
-.settings-sec { padding: 14px 0; border-top: 1px solid var(--line); }
-.settings-sec:first-child { border-top: 0; }
-.settings-sec h3 { font-size: 14px; margin: 0 0 4px; font-weight: 600; }
-.settings-sec p { margin: 0 0 10px; color: var(--muted); font-size: 13px; }
-.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .top.scrolled {
+      border-color: var(--line);
+    }
 
-/* Auth */
-.auth { position: fixed; inset: 0; z-index: 60; overflow-y: auto; background: radial-gradient(1200px 600px at 50% -10%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 60%), var(--bg); display: grid; place-items: center; padding: 32px 16px; }
-.auth-card { width: 100%; max-width: 380px; animation: fade .5s var(--ease); }
-.auth-logo { display: block; width: 88px; height: 88px; border-radius: 22px; margin: 0 auto 18px; box-shadow: 0 18px 44px -14px rgb(160 90 220 / .7); animation: bob 3s ease-in-out infinite; }
-@keyframes bob { 50% { transform: translateY(-5px) rotate(-3deg); } }
-.auth h1 { text-align: center; font: italic 400 40px/1 var(--serif); margin: 0; letter-spacing: -.02em; }
-.auth-sub { text-align: center; color: var(--muted); margin: 10px 0 26px; }
-.auth form { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 18px 18px 20px; margin-top: 14px; box-shadow: var(--shadow); }
-.auth .btn.primary { width: 100%; padding: 13px; margin-top: 6px; font-size: 15px; }
-.auth .err { color: var(--c-birthday); min-height: 18px; }
-body.authing { overflow: hidden; }
-.acct { display: flex; align-items: center; gap: 12px; }
-.avatar { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font: 600 17px/1 var(--serif); color: #fff; background: linear-gradient(135deg, #e07a5f, #8a5a83); flex: none; }
-.email-row { display: flex; gap: 8px; }
-.email-row .input { flex: 1; min-width: 0; }
+    .top .wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
 
-/* Toasts */
-#toasts { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); translate: -50% 0; z-index: 100; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; width: calc(100% - 32px); }
-.toast { background: var(--ink); color: var(--bg); padding: 11px 16px; border-radius: 12px; font-size: 14px; box-shadow: var(--shadow); animation: toastIn .35s var(--ease); pointer-events: auto; display: flex; gap: 12px; align-items: center; max-width: 100%; }
-.toast.error { background: var(--c-birthday); color: #fff; }
-.toast button { background: none; border: 0; color: inherit; font-weight: 600; text-decoration: underline; padding: 0; }
-.toast.out { animation: toastOut .25s forwards; }
-@keyframes toastIn { from { transform: translateY(12px); opacity: 0; } }
-@keyframes toastOut { to { transform: translateY(8px); opacity: 0; } }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font: italic 400 22px/1 var(--serif);
+      letter-spacing: -.01em;
+    }
 
-.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 200; overflow: hidden; }
-.confetti i { position: absolute; top: -12px; width: 8px; height: 12px; border-radius: 2px; animation: fall linear forwards; }
-@keyframes fall { to { transform: translateY(105vh) rotate(720deg); } }
+    .logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: block;
+      box-shadow: 0 6px 16px -6px rgb(160 90 220 / .55);
+    }
 
-@media (max-width: 420px) {
-  .next { grid-template-columns: auto 1fr; }
-  .next .emoji { display: none; }
-  .fab span { display: none; }
-  .fab { padding: 0; width: 56px; justify-content: center; }
-}
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
-</style>
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .pill::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--faint);
+    }
+
+    .pill[data-s="synced"]::before {
+      background: #4f9d69;
+    }
+
+    .pill[data-s="saving"]::before,
+    .pill[data-s="connecting"]::before {
+      background: #d49a3a;
+      animation: pulse 1s infinite;
+    }
+
+    .pill[data-s="error"]::before,
+    .pill[data-s="locked"]::before {
+      background: var(--c-birthday);
+    }
+
+    @keyframes pulse {
+      50% {
+        opacity: .3;
+      }
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: 0;
+      background: transparent;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      transition: background .15s, color .15s;
+    }
+
+    .icon-btn:hover {
+      background: var(--surface-2);
+      color: var(--ink);
+    }
+
+    .icon-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 28px 0 8px;
+    }
+
+    .greet {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0 0 4px;
+    }
+
+    .hero h1 {
+      font: 400 clamp(28px, 6vw, 40px)/1.12 var(--serif);
+      letter-spacing: -.02em;
+      margin: 0;
+    }
+
+    .hero h1 em {
+      color: var(--accent);
+    }
+
+    .next {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 16px;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform .25s var(--ease), box-shadow .25s;
+      text-align: left;
+      width: 100%;
+    }
+
+    .next:hover {
+      transform: translateY(-2px);
+    }
+
+    .next .count {
+      font: 600 44px/1 var(--serif);
+      color: var(--accent);
+      min-width: 56px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .next .count small {
+      display: block;
+      font: 500 11px/1.4 var(--sans);
+      color: var(--muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .next .label {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .next .t {
+      font: 400 20px/1.25 var(--serif);
+      margin: 2px 0;
+    }
+
+    .next .s {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .next .emoji {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: var(--c);
+      background: color-mix(in srgb, var(--c) 14%, transparent);
+    }
+
+    .next .emoji .ic {
+      width: 26px;
+      height: 26px;
+    }
+
+    .ic {
+      width: 15px;
+      height: 15px;
+      flex: none;
+      vertical-align: -2px;
+    }
+
+    .today-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .today-chip .ic,
+    .chip .ic {
+      color: var(--c, currentColor);
+    }
+
+    .chip[data-filter="birthday"] {
+      --c: var(--c-birthday);
+    }
+
+    .chip[data-filter="anniversary"] {
+      --c: var(--c-anniversary);
+    }
+
+    .chip[data-filter="event"] {
+      --c: var(--c-event);
+    }
+
+    .chip[data-filter="other"] {
+      --c: var(--c-other);
+    }
+
+    .chip[aria-pressed="true"] .ic {
+      color: inherit;
+    }
+
+    .seg label .ic {
+      margin-right: 3px;
+    }
+
+    .today-strip {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .today-chip {
+      background: var(--accent-soft);
+      color: var(--ink);
+      border: 0;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      animation: pop .5s var(--ease) both;
+    }
+
+    @keyframes pop {
+      from {
+        transform: scale(.9);
+        opacity: 0;
+      }
+    }
+
+    /* Tabs */
+    .tabs {
+      position: relative;
+      display: flex;
+      gap: 4px;
+      background: var(--surface-2);
+      padding: 4px;
+      border-radius: 14px;
+      margin: 26px 0 18px;
+    }
+
+    .tab {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      border: 0;
+      background: transparent;
+      padding: 9px 8px;
+      border-radius: 10px;
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 14px;
+      transition: color .2s;
+    }
+
+    .tab[aria-selected="true"] {
+      color: var(--ink);
+    }
+
+    .tab-ind {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 4px;
+      border-radius: 10px;
+      background: var(--surface);
+      box-shadow: 0 1px 3px rgb(0 0 0 / .08);
+      transition: transform .35s var(--ease), width .35s var(--ease);
+    }
+
+    .view {
+      display: none;
+      animation: fade .35s var(--ease);
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes fade {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+    }
+
+    /* Lists */
+    .group-h {
+      font: 500 12px/1 var(--sans);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin: 26px 4px 10px;
+    }
+
+    .group-h:first-child {
+      margin-top: 4px;
+    }
+
+    .list {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 46px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 12px 16px;
+      width: 100%;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      border-top: 1px solid var(--line);
+      transition: background .15s;
+      animation: fade .35s var(--ease) both;
+    }
+
+    .row:first-child {
+      border-top: 0;
+    }
+
+    .row:hover {
+      background: var(--surface-2);
+    }
+
+    .date-b {
+      text-align: center;
+      line-height: 1;
+    }
+
+    .date-b b {
+      display: block;
+      font: 600 22px/1 var(--serif);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .date-b span {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .row .t {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .row .t span.name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .row .s {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 1px;
+    }
+
+    .row-ic {
+      color: var(--c);
+      display: inline-flex;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex: none;
+      background: var(--c, var(--faint));
+    }
+
+    .when {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .when.soon {
+      color: var(--accent);
+    }
+
+    .when.today {
+      background: var(--accent);
+      color: var(--accent-ink);
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .ty-birthday {
+      --c: var(--c-birthday);
+    }
+
+    .ty-anniversary {
+      --c: var(--c-anniversary);
+    }
+
+    .ty-event {
+      --c: var(--c-event);
+    }
+
+    .ty-other {
+      --c: var(--c-other);
+    }
+
+    .empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+    }
+
+    .empty .big {
+      font: italic 400 24px/1.3 var(--serif);
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .empty .btns {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    /* Toolbar (All view) */
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .search {
+      flex: 1 1 220px;
+      position: relative;
+    }
+
+    .search input {
+      width: 100%;
+      padding: 11px 14px 11px 38px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .search svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      translate: 0 -50%;
+      width: 17px;
+      color: var(--faint);
+    }
+
+    .chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      margin-bottom: 14px;
+      scrollbar-width: none;
+    }
+
+    .chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      padding: 7px 13px;
+      border-radius: 999px;
+      font-size: 13px;
+      white-space: nowrap;
+      color: var(--muted);
+      transition: all .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip[aria-pressed="true"] {
+      background: var(--ink);
+      color: var(--bg);
+      border-color: var(--ink);
+    }
+
+    .chip:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-weight: 500;
+      font-size: 14px;
+      transition: transform .1s, background .15s, border-color .15s;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      border-color: var(--faint);
+    }
+
+    .btn:active {
+      transform: scale(.97);
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      color: var(--accent-ink);
+      border-color: transparent;
+    }
+
+    .btn.primary:hover {
+      filter: brightness(1.06);
+    }
+
+    .btn.ghost {
+      border-color: transparent;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .btn.danger {
+      color: var(--c-birthday);
+      border-color: transparent;
+      background: transparent;
+    }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Calendar */
+    .cal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .cal-head h2 {
+      font: 400 24px/1 var(--serif);
+      margin: 0;
+    }
+
+    .cal-head .nav {
+      display: flex;
+      gap: 4px;
+    }
+
+    .cal {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 8px;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+
+    .dow {
+      text-align: center;
+      font-size: 11px;
+      color: var(--faint);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      padding: 6px 0 8px;
+    }
+
+    .day {
+      aspect-ratio: 1 / 1;
+      border: 0;
+      background: transparent;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 6px 2px 4px;
+      gap: 4px;
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+      transition: background .15s;
+      min-width: 0;
+    }
+
+    .day:hover {
+      background: var(--surface-2);
+    }
+
+    .day.out {
+      color: var(--faint);
+      opacity: .45;
+    }
+
+    .day .n {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+    }
+
+    .day.is-today .n {
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-weight: 600;
+    }
+
+    .day.sel {
+      background: var(--accent-soft);
+    }
+
+    .day .dots {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .day .dots i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--c);
+    }
+
+    .day .names {
+      display: none;
+    }
+
+    @media (min-width: 720px) {
+      .day {
+        aspect-ratio: auto;
+        min-height: 92px;
+        align-items: stretch;
+        padding: 6px;
+      }
+
+      .day .n {
+        align-self: flex-end;
+        width: 26px;
+        height: 26px;
+        font-size: 13px;
+      }
+
+      .day .dots {
+        display: none;
+      }
+
+      .day .names {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        width: 100%;
+      }
+
+      .day .names span {
+        font-size: 11px;
+        line-height: 1.3;
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: color-mix(in srgb, var(--c) 16%, transparent);
+        color: var(--ink);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: left;
+      }
+    }
+
+    .day-panel {
+      margin-top: 16px;
+    }
+
+    .day-panel h3 {
+      font: 400 18px/1.2 var(--serif);
+      margin: 0 0 10px 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* FAB */
+    .fab {
+      position: fixed;
+      right: max(20px, env(safe-area-inset-right));
+      bottom: max(20px, env(safe-area-inset-bottom));
+      z-index: 30;
+      height: 56px;
+      padding: 0 22px 0 18px;
+      border-radius: 18px;
+      border: 0;
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 30px -8px color-mix(in srgb, var(--accent) 70%, transparent);
+      transition: transform .2s var(--ease);
+    }
+
+    .fab:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    .fab:active {
+      transform: scale(.96);
+    }
+
+    .fab svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    main {
+      padding-bottom: 110px;
+    }
+
+    /* Dialogs (bottom sheet on mobile) */
+    dialog {
+      border: 0;
+      padding: 0;
+      background: var(--surface);
+      color: var(--ink);
+      width: 100%;
+      max-width: 560px;
+      max-height: 92dvh;
+      border-radius: 22px 22px 0 0;
+      margin: auto auto 0;
+      box-shadow: 0 -10px 40px rgb(0 0 0 / .2);
+      overflow: hidden;
+    }
+
+    dialog[open] {
+      animation: sheet .38s var(--ease);
+      display: flex;
+      flex-direction: column;
+    }
+
+    dialog::backdrop {
+      background: rgb(20 14 10 / .45);
+      backdrop-filter: blur(3px);
+      animation: fadeIn .3s;
+    }
+
+    @keyframes sheet {
+      from {
+        transform: translateY(40px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+    }
+
+    @media (min-width: 640px) {
+      dialog {
+        margin: auto;
+        border-radius: 22px;
+      }
+    }
+
+    .sheet-h {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 6px;
+    }
+
+    .sheet-h h2 {
+      font: 400 22px/1.2 var(--serif);
+      margin: 0;
+    }
+
+    .sheet-b {
+      padding: 8px 20px 12px;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .sheet-f {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px calc(16px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--line);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .sheet-f .spacer {
+      flex: 1;
+    }
+
+    .grab {
+      width: 38px;
+      height: 4px;
+      border-radius: 4px;
+      background: var(--line);
+      margin: 8px auto 0;
+    }
+
+    @media (min-width: 640px) {
+      .grab {
+        display: none;
+      }
+    }
+
+    .field {
+      margin: 14px 0;
+    }
+
+    .field>label,
+    .field>.lbl {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: .02em;
+    }
+
+    .input {
+      width: 100%;
+      padding: 11px 13px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    textarea.input {
+      resize: vertical;
+      min-height: 76px;
+    }
+
+    .row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .seg {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      gap: 4px;
+      background: var(--surface-2);
+      padding: 4px;
+      border-radius: 12px;
+    }
+
+    #typeSeg {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media (max-width: 460px) {
+      #typeSeg {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .seg input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .seg label {
+      text-align: center;
+      padding: 8px 4px;
+      border-radius: 9px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .seg input:checked+label {
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: 0 1px 3px rgb(0 0 0 / .08);
+    }
+
+    .seg input:focus-visible+label {
+      outline: 2px solid var(--accent);
+    }
+
+    .check {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+      cursor: pointer;
+    }
+
+    .check input {
+      accent-color: var(--accent);
+      width: 16px;
+      height: 16px;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--faint);
+      margin-top: 6px;
+    }
+
+    .note {
+      background: var(--surface-2);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .note b {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .settings-sec {
+      padding: 14px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .settings-sec:first-child {
+      border-top: 0;
+    }
+
+    .settings-sec h3 {
+      font-size: 14px;
+      margin: 0 0 4px;
+      font-weight: 600;
+    }
+
+    .settings-sec p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Auth */
+    .auth {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      overflow-y: auto;
+      background: radial-gradient(1200px 600px at 50% -10%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 60%), var(--bg);
+      display: grid;
+      place-items: center;
+      padding: 32px 16px;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 380px;
+      animation: fade .5s var(--ease);
+    }
+
+    .auth-logo {
+      display: block;
+      width: 88px;
+      height: 88px;
+      border-radius: 22px;
+      margin: 0 auto 18px;
+      box-shadow: 0 18px 44px -14px rgb(160 90 220 / .7);
+      animation: bob 3s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      50% {
+        transform: translateY(-5px) rotate(-3deg);
+      }
+    }
+
+    .auth h1 {
+      text-align: center;
+      font: italic 400 40px/1 var(--serif);
+      margin: 0;
+      letter-spacing: -.02em;
+    }
+
+    .auth-sub {
+      text-align: center;
+      color: var(--muted);
+      margin: 10px 0 26px;
+    }
+
+    .auth form {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px 18px 20px;
+      margin-top: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .auth .btn.primary {
+      width: 100%;
+      padding: 13px;
+      margin-top: 6px;
+      font-size: 15px;
+    }
+
+    .auth .err {
+      color: var(--c-birthday);
+      min-height: 18px;
+    }
+
+    body.authing {
+      overflow: hidden;
+    }
+
+    .acct {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font: 600 17px/1 var(--serif);
+      color: #fff;
+      background: linear-gradient(135deg, #e07a5f, #8a5a83);
+      flex: none;
+    }
+
+    .email-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .email-row .input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Toasts */
+    #toasts {
+      position: fixed;
+      left: 50%;
+      bottom: calc(92px + env(safe-area-inset-bottom));
+      translate: -50% 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      pointer-events: none;
+      width: calc(100% - 32px);
+    }
+
+    .toast {
+      background: var(--ink);
+      color: var(--bg);
+      padding: 11px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      box-shadow: var(--shadow);
+      animation: toastIn .35s var(--ease);
+      pointer-events: auto;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      max-width: 100%;
+    }
+
+    .toast.error {
+      background: var(--c-birthday);
+      color: #fff;
+    }
+
+    .toast button {
+      background: none;
+      border: 0;
+      color: inherit;
+      font-weight: 600;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    .toast.out {
+      animation: toastOut .25s forwards;
+    }
+
+    @keyframes toastIn {
+      from {
+        transform: translateY(12px);
+        opacity: 0;
+      }
+    }
+
+    @keyframes toastOut {
+      to {
+        transform: translateY(8px);
+        opacity: 0;
+      }
+    }
+
+    .confetti {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 200;
+      overflow: hidden;
+    }
+
+    .confetti i {
+      position: absolute;
+      top: -12px;
+      width: 8px;
+      height: 12px;
+      border-radius: 2px;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(105vh) rotate(720deg);
+      }
+    }
+
+    @media (max-width: 420px) {
+      .next {
+        grid-template-columns: auto 1fr;
+      }
+
+      .next .emoji {
+        display: none;
+      }
+
+      .fab span {
+        display: none;
+      }
+
+      .fab {
+        padding: 0;
+        width: 56px;
+        justify-content: center;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<header class="top" id="top">
-  <div class="wrap">
-    <div class="brand"><img class="logo" src="/icons/logo-64.png" alt="">Wishly</div>
-    <div class="top-actions">
-      <button class="pill" id="syncPill" data-s="connecting" title="Sync status">Connecting…</button>
-      <button class="icon-btn" id="btnSettings" aria-label="Settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
-    </div>
-  </div>
-</header>
-
-<main class="wrap">
-  <section class="hero" id="hero"></section>
-
-  <nav class="tabs" role="tablist" id="tabs">
-    <span class="tab-ind" id="tabInd"></span>
-    <button class="tab" role="tab" data-tab="upcoming">Upcoming</button>
-    <button class="tab" role="tab" data-tab="calendar">Calendar</button>
-    <button class="tab" role="tab" data-tab="all">Everyone</button>
-  </nav>
-
-  <section class="view" id="view-upcoming"></section>
-
-  <section class="view" id="view-calendar">
-    <div class="cal-head">
-      <h2 id="calTitle"></h2>
-      <div class="nav">
-        <button class="btn ghost" id="calToday">Today</button>
-        <button class="icon-btn" id="calPrev" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 18-6-6 6-6"/></svg></button>
-        <button class="icon-btn" id="calNext" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg></button>
+  <header class="top" id="top">
+    <div class="wrap">
+      <div class="brand"><img class="logo" src="/icons/logo-64.png" alt="">Wishly</div>
+      <div class="top-actions">
+        <button class="pill" id="syncPill" data-s="connecting" title="Sync status">Connecting…</button>
+        <button class="icon-btn" id="btnSettings" aria-label="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </button>
       </div>
     </div>
-    <div class="cal"><div class="cal-grid" id="calGrid"></div></div>
-    <div class="day-panel" id="dayPanel"></div>
-  </section>
+  </header>
 
-  <section class="view" id="view-all">
-    <div class="toolbar">
-      <label class="search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input type="search" id="q" placeholder="Search names, events, notes…" aria-label="Search">
-      </label>
-      <button class="btn" id="btnBulk">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Bulk add
-      </button>
-    </div>
-    <div class="chips" id="filters"></div>
-    <div id="allList"></div>
-  </section>
-</main>
+  <main class="wrap">
+    <section class="hero" id="hero"></section>
 
-<button class="fab" id="fab" aria-label="Add a date">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span>Add date</span>
-</button>
+    <nav class="tabs" role="tablist" id="tabs">
+      <span class="tab-ind" id="tabInd"></span>
+      <button class="tab" role="tab" data-tab="upcoming">Upcoming</button>
+      <button class="tab" role="tab" data-tab="calendar">Calendar</button>
+      <button class="tab" role="tab" data-tab="all">Everyone</button>
+    </nav>
 
-<!-- Add / edit -->
-<dialog id="editDlg" aria-labelledby="editTitle">
-  <form method="dialog" id="editForm" style="display:contents">
+    <section class="view" id="view-upcoming"></section>
+
+    <section class="view" id="view-calendar">
+      <div class="cal-head">
+        <h2 id="calTitle"></h2>
+        <div class="nav">
+          <button class="btn ghost" id="calToday">Today</button>
+          <button class="icon-btn" id="calPrev" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="m15 18-6-6 6-6" />
+            </svg></button>
+          <button class="icon-btn" id="calNext" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="m9 18 6-6-6-6" />
+            </svg></button>
+        </div>
+      </div>
+      <div class="cal">
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+      <div class="day-panel" id="dayPanel"></div>
+    </section>
+
+    <section class="view" id="view-all">
+      <div class="toolbar">
+        <label class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+          <input type="search" id="q" placeholder="Search names, events, notes…" aria-label="Search">
+        </label>
+        <button class="btn" id="btnBulk">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+          </svg>Bulk add
+        </button>
+      </div>
+      <div class="chips" id="filters"></div>
+      <div id="allList"></div>
+    </section>
+  </main>
+
+  <button class="fab" id="fab" aria-label="Add a date">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+      <path d="M12 5v14M5 12h14" />
+    </svg><span>Add date</span>
+  </button>
+
+  <!-- Add / edit -->
+  <dialog id="editDlg" aria-labelledby="editTitle">
+    <form method="dialog" id="editForm" style="display:contents">
+      <div class="grab"></div>
+      <div class="sheet-h">
+        <h2 id="editTitle">New date</h2>
+        <button type="button" class="icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg></button>
+      </div>
+      <div class="sheet-b">
+        <div class="seg" id="typeSeg"></div>
+        <div class="field">
+          <label for="fTitle" id="fTitleLbl">Name</label>
+          <input class="input" id="fTitle" required maxlength="120" autocomplete="off">
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="fDate">Date</label>
+            <input class="input" type="date" id="fDate" required>
+            <label class="check" id="yearWrap"><input type="checkbox" id="fYearUnknown"> Don't know the year</label>
+          </div>
+          <div class="field" id="timeWrap">
+            <label for="fTime">Time <span style="color:var(--faint)">(optional)</span></label>
+            <input class="input" type="time" id="fTime">
+          </div>
+        </div>
+        <div class="field">
+          <span class="lbl">Repeats</span>
+          <div class="seg">
+            <input type="radio" name="repeat" id="rOnce" value="once"><label for="rOnce">Just once</label>
+            <input type="radio" name="repeat" id="rYearly" value="yearly"><label for="rYearly">Every year</label>
+          </div>
+        </div>
+        <div class="field">
+          <span class="lbl">Email me</span>
+          <div class="chips" id="remindChips" style="flex-wrap:wrap;margin:0"></div>
+          <div class="hint" id="remindHint"></div>
+        </div>
+        <div class="field">
+          <label for="fNotes">Notes</label>
+          <textarea class="input" id="fNotes" maxlength="1000"
+            placeholder="Gift ideas, where to meet, who to call…"></textarea>
+        </div>
+      </div>
+      <div class="sheet-f">
+        <button type="button" class="btn danger" id="btnDelete">Delete</button>
+        <a class="btn" id="btnGcal" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="3" y="5" width="18" height="16" rx="2" />
+            <path d="M16 3v4M8 3v4M3 11h18M12 14v4M10 16h4" />
+          </svg>Google Calendar
+        </a>
+        <span class="spacer"></span>
+        <button type="submit" class="btn primary" id="btnSave">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Bulk add -->
+  <dialog id="bulkDlg" aria-labelledby="bulkTitle">
     <div class="grab"></div>
-    <div class="sheet-h"><h2 id="editTitle">New date</h2>
-      <button type="button" class="icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div class="sheet-h">
+      <h2 id="bulkTitle">Add many birthdays</h2>
+      <button type="button" class="icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg></button>
     </div>
     <div class="sheet-b">
-      <div class="seg" id="typeSeg"></div>
+      <p class="note">One person per line — <b>Name, date</b>. The year is optional.<br>
+        Works with <b>14/03/1995</b>, <b>14-03</b>, <b>14 Mar</b>, <b>March 14 1995</b> or <b>1995-03-14</b>.</p>
       <div class="field">
-        <label for="fTitle" id="fTitleLbl">Name</label>
-        <input class="input" id="fTitle" required maxlength="120" autocomplete="off">
-      </div>
-      <div class="row2">
-        <div class="field">
-          <label for="fDate">Date</label>
-          <input class="input" type="date" id="fDate" required>
-          <label class="check" id="yearWrap"><input type="checkbox" id="fYearUnknown"> Don't know the year</label>
-        </div>
-        <div class="field" id="timeWrap">
-          <label for="fTime">Time <span style="color:var(--faint)">(optional)</span></label>
-          <input class="input" type="time" id="fTime">
-        </div>
+        <textarea class="input" id="bulkText" rows="9"
+          placeholder="Riya Sen, 14/03/1995&#10;Arjun, 2 Aug&#10;Priya Das - 21-11"></textarea>
       </div>
       <div class="field">
-        <span class="lbl">Repeats</span>
+        <span class="lbl">Add as</span>
         <div class="seg">
-          <input type="radio" name="repeat" id="rOnce" value="once"><label for="rOnce">Just once</label>
-          <input type="radio" name="repeat" id="rYearly" value="yearly"><label for="rYearly">Every year</label>
+          <input type="radio" name="bulkType" id="bB" value="birthday" checked><label for="bB">Birthdays</label>
+          <input type="radio" name="bulkType" id="bA" value="anniversary"><label for="bA">Anniversaries</label>
         </div>
       </div>
-      <div class="field">
-        <span class="lbl">Email me</span>
-        <div class="chips" id="remindChips" style="flex-wrap:wrap;margin:0"></div>
-        <div class="hint" id="remindHint"></div>
-      </div>
-      <div class="field">
-        <label for="fNotes">Notes</label>
-        <textarea class="input" id="fNotes" maxlength="1000" placeholder="Gift ideas, where to meet, who to call…"></textarea>
-      </div>
+      <div class="hint" id="bulkPreview">Paste or type to see a preview.</div>
     </div>
-    <div class="sheet-f">
-      <button type="button" class="btn danger" id="btnDelete">Delete</button>
-      <a class="btn" id="btnGcal" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18M12 14v4M10 16h4"/></svg>Google Calendar
-      </a>
-      <span class="spacer"></span>
-      <button type="submit" class="btn primary" id="btnSave">Save</button>
+    <div class="sheet-f"><span class="spacer"></span><button class="btn primary" id="bulkAdd" disabled>Add</button>
     </div>
-  </form>
-</dialog>
+  </dialog>
 
-<!-- Bulk add -->
-<dialog id="bulkDlg" aria-labelledby="bulkTitle">
-  <div class="grab"></div>
-  <div class="sheet-h"><h2 id="bulkTitle">Add many birthdays</h2>
-    <button type="button" class="icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-  </div>
-  <div class="sheet-b">
-    <p class="note">One person per line — <b>Name, date</b>. The year is optional.<br>
-      Works with <b>14/03/1995</b>, <b>14-03</b>, <b>14 Mar</b>, <b>March 14 1995</b> or <b>1995-03-14</b>.</p>
-    <div class="field">
-      <textarea class="input" id="bulkText" rows="9" placeholder="Riya Sen, 14/03/1995&#10;Arjun, 2 Aug&#10;Priya Das - 21-11"></textarea>
+  <!-- Settings -->
+  <dialog id="settingsDlg" aria-labelledby="setTitle">
+    <div class="grab"></div>
+    <div class="sheet-h">
+      <h2 id="setTitle">Settings</h2>
+      <button type="button" class="icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg></button>
     </div>
-    <div class="field">
-      <span class="lbl">Add as</span>
-      <div class="seg">
-        <input type="radio" name="bulkType" id="bB" value="birthday" checked><label for="bB">Birthdays</label>
-        <input type="radio" name="bulkType" id="bA" value="anniversary"><label for="bA">Anniversaries</label>
+    <div class="sheet-b">
+      <div class="settings-sec" id="acctSec">
+        <div class="acct"><span class="avatar" id="acctAvatar"></span>
+          <div><b id="acctName"></b>
+            <div class="hint" style="margin:0">Your own space — only you see these dates.</div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-sec">
+        <h3>Email reminders</h3>
+        <p id="mailStatus">…</p>
+        <form class="email-row" id="emailForm">
+          <input class="input" type="email" id="fEmail" placeholder="you@gmail.com" autocomplete="email"
+            aria-label="Reminder email">
+          <button class="btn primary" type="submit">Save</button>
+        </form>
+      </div>
+      <div class="settings-sec">
+        <h3>Google Calendar</h3>
+        <p>Download everything as one file, then in Google Calendar go to <b>Settings → Import &amp; export →
+            Import</b>. Birthdays repeat every year automatically.</p>
+        <div class="btn-row"><button class="btn primary" id="btnIcs">Download .ics for Google Calendar</button></div>
+      </div>
+      <div class="settings-sec">
+        <h3>Backup</h3>
+        <p>Save a copy of all your dates, or restore one.</p>
+        <div class="btn-row">
+          <button class="btn" id="btnExport">Export backup</button>
+          <label class="btn" for="importFile">Restore backup</label>
+          <input type="file" id="importFile" accept="application/json,.json" hidden>
+        </div>
+      </div>
+      <div class="settings-sec" id="installSec">
+        <h3>Put Wishly on your home screen</h3>
+        <p><b>iPhone:</b> open this page in Safari → tap <b>Share</b> → <b>Add to Home Screen</b>.<br>
+          <b>Android:</b> in Chrome tap <b>⋮</b> → <b>Install app</b> (or <b>Add to Home screen</b>).
+        </p>
+        <div class="btn-row"><button class="btn primary" id="btnInstall" hidden>Install Wishly</button></div>
+      </div>
+      <div class="settings-sec">
+        <h3>Appearance</h3>
+        <div class="seg" id="themeSeg">
+          <input type="radio" name="theme" id="thA" value="auto"><label for="thA">Auto</label>
+          <input type="radio" name="theme" id="thL" value="light"><label for="thL">Light</label>
+          <input type="radio" name="theme" id="thD" value="dark"><label for="thD">Dark</label>
+        </div>
+      </div>
+      <div class="settings-sec">
+        <h3>This device</h3>
+        <p id="deviceStatus"></p>
+        <div class="btn-row"><button class="btn" id="btnSignOut">Sign out</button></div>
       </div>
     </div>
-    <div class="hint" id="bulkPreview">Paste or type to see a preview.</div>
-  </div>
-  <div class="sheet-f"><span class="spacer"></span><button class="btn primary" id="bulkAdd" disabled>Add</button></div>
-</dialog>
+  </dialog>
 
-<!-- Settings -->
-<dialog id="settingsDlg" aria-labelledby="setTitle">
-  <div class="grab"></div>
-  <div class="sheet-h"><h2 id="setTitle">Settings</h2>
-    <button type="button" class="icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-  </div>
-  <div class="sheet-b">
-    <div class="settings-sec" id="acctSec">
-      <div class="acct"><span class="avatar" id="acctAvatar"></span><div><b id="acctName"></b><div class="hint" style="margin:0">Your own space — only you see these dates.</div></div></div>
-    </div>
-    <div class="settings-sec">
-      <h3>Email reminders</h3>
-      <p id="mailStatus">…</p>
-      <form class="email-row" id="emailForm">
-        <input class="input" type="email" id="fEmail" placeholder="you@gmail.com" autocomplete="email" aria-label="Reminder email">
-        <button class="btn primary" type="submit">Save</button>
+  <!-- Sign in / sign up -->
+  <div class="auth" id="auth" hidden>
+    <div class="auth-card">
+      <img class="auth-logo" src="/icons/icon-192.png" alt="Wishly">
+      <h1>Wishly</h1>
+      <div class="seg" id="authSeg">
+        <input type="radio" name="authMode" id="amLogin" value="login" checked><label for="amLogin">Sign in</label>
+        <input type="radio" name="authMode" id="amSignup" value="signup"><label for="amSignup">Create account</label>
+      </div>
+      <form id="authForm" novalidate>
+        <div class="field" style="margin-top:0">
+          <label for="authName">Your name</label>
+          <input class="input" id="authName" autocomplete="username" maxlength="32" placeholder="e.g. Akash">
+        </div>
+        <div class="field">
+          <label for="authPass">Password</label>
+          <input class="input" type="password" id="authPass" autocomplete="current-password"
+            placeholder="At least 6 characters">
+        </div>
+        <div class="hint err" id="authErr"></div>
+        <button class="btn primary" type="submit" id="authBtn">Sign in</button>
       </form>
     </div>
-    <div class="settings-sec">
-      <h3>Google Calendar</h3>
-      <p>Download everything as one file, then in Google Calendar go to <b>Settings → Import &amp; export → Import</b>. Birthdays repeat every year automatically.</p>
-      <div class="btn-row"><button class="btn primary" id="btnIcs">Download .ics for Google Calendar</button></div>
-    </div>
-    <div class="settings-sec">
-      <h3>Backup</h3>
-      <p>Save a copy of all your dates, or restore one.</p>
-      <div class="btn-row">
-        <button class="btn" id="btnExport">Export backup</button>
-        <label class="btn" for="importFile">Restore backup</label>
-        <input type="file" id="importFile" accept="application/json,.json" hidden>
-      </div>
-    </div>
-    <div class="settings-sec" id="installSec">
-      <h3>Put Wishly on your home screen</h3>
-      <p><b>iPhone:</b> open this page in Safari → tap <b>Share</b> → <b>Add to Home Screen</b>.<br>
-         <b>Android:</b> in Chrome tap <b>⋮</b> → <b>Install app</b> (or <b>Add to Home screen</b>).</p>
-      <div class="btn-row"><button class="btn primary" id="btnInstall" hidden>Install Wishly</button></div>
-    </div>
-    <div class="settings-sec">
-      <h3>Appearance</h3>
-      <div class="seg" id="themeSeg">
-        <input type="radio" name="theme" id="thA" value="auto"><label for="thA">Auto</label>
-        <input type="radio" name="theme" id="thL" value="light"><label for="thL">Light</label>
-        <input type="radio" name="theme" id="thD" value="dark"><label for="thD">Dark</label>
-      </div>
-    </div>
-    <div class="settings-sec">
-      <h3>This device</h3>
-      <p id="deviceStatus"></p>
-      <div class="btn-row"><button class="btn" id="btnSignOut">Sign out</button></div>
-    </div>
   </div>
-</dialog>
 
-<!-- Sign in / sign up -->
-<div class="auth" id="auth" hidden>
-  <div class="auth-card">
-    <img class="auth-logo" src="/icons/icon-192.png" alt="Wishly">
-    <h1>Wishly</h1>
-    <p class="auth-sub">Never miss a birthday again.<br>Your own little space for the dates that matter.</p>
-    <div class="seg" id="authSeg">
-      <input type="radio" name="authMode" id="amLogin" value="login" checked><label for="amLogin">Sign in</label>
-      <input type="radio" name="authMode" id="amSignup" value="signup"><label for="amSignup">Create account</label>
-    </div>
-    <form id="authForm" novalidate>
-      <div class="field" style="margin-top:0">
-        <label for="authName">Your name</label>
-        <input class="input" id="authName" autocomplete="username" maxlength="32" placeholder="e.g. Souvik Ghosh">
-      </div>
-      <div class="field">
-        <label for="authPass">Password</label>
-        <input class="input" type="password" id="authPass" autocomplete="current-password" placeholder="At least 6 characters">
-      </div>
-      <div class="hint err" id="authErr"></div>
-      <button class="btn primary" type="submit" id="authBtn">Sign in</button>
-    </form>
-  </div>
-</div>
+  <div id="toasts" aria-live="polite"></div>
 
-<div id="toasts" aria-live="polite"></div>
+  <script>
+    (() => {
+      "use strict";
 
-<script>
-(() => {
-"use strict";
+      // ---------- constants & storage ----------
+      const TYPES = {
+        birthday: { label: "Birthday", plural: "Birthdays", title: "Whose birthday?", repeat: "yearly", remind: ["eve9"] },
+        anniversary: { label: "Anniversary", plural: "Anniversaries", title: "Whose anniversary?", repeat: "yearly", remind: ["eve9"] },
+        event: { label: "Event", plural: "Events", title: "What's happening?", repeat: "once", remind: ["eve9"] },
+        other: { label: "Reminder", plural: "Reminders", title: "What to remember?", repeat: "once", remind: ["morn8"] },
+      };
+      const ICON_PATHS = {
+        birthday: '<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3M12 8v3M17 8v3"/><path d="M7 4h.01M12 4h.01M17 4h.01"/>',
+        anniversary: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+        event: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>',
+        other: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+      };
+      const icon = (type, cls = "ic") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON_PATHS[type] || ICON_PATHS.other}</svg>`;
+      const REMIND = { week: "1 week before", eve9: "Day before · 9 PM", morn8: "Same day · 8 AM", hour1: "1 hour before" };
+      const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+      const LS = { events: "wishly.events.", token: "wishly.token", user: "wishly.user", tab: "wishly.tab", theme: "wishly.theme" };
 
-// ---------- constants & storage ----------
-const TYPES = {
-  birthday:    { label: "Birthday",    plural: "Birthdays",     title: "Whose birthday?",      repeat: "yearly", remind: ["eve9"] },
-  anniversary: { label: "Anniversary", plural: "Anniversaries", title: "Whose anniversary?",   repeat: "yearly", remind: ["eve9"] },
-  event:       { label: "Event",       plural: "Events",        title: "What's happening?",    repeat: "once",   remind: ["eve9"] },
-  other:       { label: "Reminder",    plural: "Reminders",     title: "What to remember?",    repeat: "once",   remind: ["morn8"] },
-};
-const ICON_PATHS = {
-  birthday: '<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3M12 8v3M17 8v3"/><path d="M7 4h.01M12 4h.01M17 4h.01"/>',
-  anniversary: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
-  event: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>',
-  other: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
-};
-const icon = (type, cls = "ic") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON_PATHS[type] || ICON_PATHS.other}</svg>`;
-const REMIND = { week: "1 week before", eve9: "Day before · 9 PM", morn8: "Same day · 8 AM", hour1: "1 hour before" };
-const MONTHS = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
-const LS = { events: "wishly.events.", token: "wishly.token", user: "wishly.user", tab: "wishly.tab", theme: "wishly.theme" };
+      const ls = {
+        get(k, f) { try { const v = localStorage.getItem(k); return v == null ? f : JSON.parse(v); } catch { return f; } },
+        set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { } },
+        del(k) { try { localStorage.removeItem(k); } catch { } },
+      };
 
-const ls = {
-  get(k, f) { try { const v = localStorage.getItem(k); return v == null ? f : JSON.parse(v); } catch { return f; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
-  del(k) { try { localStorage.removeItem(k); } catch {} },
-};
+      const $ = (s, r = document) => r.querySelector(s);
+      const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+      const pad = (n) => String(n).padStart(2, "0");
 
-const $ = (s, r = document) => r.querySelector(s);
-const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
-const pad = (n) => String(n).padStart(2, "0");
+      const state = {
+        token: ls.get(LS.token, ""),
+        user: ls.get(LS.user, null),
+        events: [],
+        mode: "connecting",       // connecting | remote | local | locked
+        server: null,
+        tab: ls.get(LS.tab, "upcoming"),
+        filter: "all",
+        q: "",
+        calMonth: startOfMonth(today()),
+        selDay: null,
+        editing: null,
+      };
 
-const state = {
-  token: ls.get(LS.token, ""),
-  user: ls.get(LS.user, null),
-  events: [],
-  mode: "connecting",       // connecting | remote | local | locked
-  server: null,
-  tab: ls.get(LS.tab, "upcoming"),
-  filter: "all",
-  q: "",
-  calMonth: startOfMonth(today()),
-  selDay: null,
-  editing: null,
-};
+      // Each account gets its own cache on a shared device.
+      const cacheKey = () => LS.events + (state.user ? state.user.name.toLowerCase() : "local");
+      state.events = ls.get(cacheKey(), []);
 
-// Each account gets its own cache on a shared device.
-const cacheKey = () => LS.events + (state.user ? state.user.name.toLowerCase() : "local");
-state.events = ls.get(cacheKey(), []);
+      // ---------- dates ----------
+      function today() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+      function startOfMonth(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
+      function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+      function mk(y, m, d) { return new Date(y, m - 1, Math.min(d, new Date(y, m, 0).getDate())); } // Feb 29 -> 28
+      function parts(ev) { const [y, m, d] = ev.date.split("-").map(Number); return { y, m, d }; }
+      function iso(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+      function compact(d) { return iso(d).replaceAll("-", ""); }
+      function sameDay(a, b) { return a.getTime() === b.getTime(); }
+      function daysBetween(a, b) { return Math.round((b - a) / 864e5); }
 
-// ---------- dates ----------
-function today() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
-function startOfMonth(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
-function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
-function mk(y, m, d) { return new Date(y, m - 1, Math.min(d, new Date(y, m, 0).getDate())); } // Feb 29 -> 28
-function parts(ev) { const [y, m, d] = ev.date.split("-").map(Number); return { y, m, d }; }
-function iso(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
-function compact(d) { return iso(d).replaceAll("-", ""); }
-function sameDay(a, b) { return a.getTime() === b.getTime(); }
-function daysBetween(a, b) { return Math.round((b - a) / 864e5); }
+      function nextOcc(ev, from = today()) {
+        const { y, m, d } = parts(ev);
+        if (ev.repeat !== "yearly") return mk(y, m, d);
+        let o = mk(from.getFullYear(), m, d);
+        if (o < from) o = mk(from.getFullYear() + 1, m, d);
+        return o;
+      }
+      function occInYear(ev, year) {
+        const { y, m, d } = parts(ev);
+        if (ev.repeat !== "yearly") return y === year ? mk(y, m, d) : null;
+        if (!ev.yearUnknown && year < y) return null;
+        return mk(year, m, d);
+      }
+      function heading(ev) { return ev.type === "birthday" ? `${ev.title}’s birthday` : ev.title; }
+      function detail(ev, occ) {
+        const { y } = parts(ev);
+        const n = occ.getFullYear() - y;
+        if (ev.yearUnknown || n <= 0) return "";
+        if (ev.type === "birthday") return `turns ${n}`;
+        if (ev.type === "anniversary") return `${n} year${n === 1 ? "" : "s"}`;
+        return "";
+      }
+      function fmtTime(t) {
+        if (!t) return "";
+        const [h, m] = t.split(":").map(Number);
+        return new Date(2000, 0, 1, h, m).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      }
+      function relLabel(n) {
+        if (n === 0) return "Today";
+        if (n === 1) return "Tomorrow";
+        if (n < 0) return `${-n}d ago`;
+        if (n < 7) return `in ${n} days`;
+        if (n < 60) return `in ${Math.round(n / 7)} wk`;
+        return `in ${Math.round(n / 30)} mo`;
+      }
 
-function nextOcc(ev, from = today()) {
-  const { y, m, d } = parts(ev);
-  if (ev.repeat !== "yearly") return mk(y, m, d);
-  let o = mk(from.getFullYear(), m, d);
-  if (o < from) o = mk(from.getFullYear() + 1, m, d);
-  return o;
-}
-function occInYear(ev, year) {
-  const { y, m, d } = parts(ev);
-  if (ev.repeat !== "yearly") return y === year ? mk(y, m, d) : null;
-  if (!ev.yearUnknown && year < y) return null;
-  return mk(year, m, d);
-}
-function heading(ev) { return ev.type === "birthday" ? `${ev.title}’s birthday` : ev.title; }
-function detail(ev, occ) {
-  const { y } = parts(ev);
-  const n = occ.getFullYear() - y;
-  if (ev.yearUnknown || n <= 0) return "";
-  if (ev.type === "birthday") return `turns ${n}`;
-  if (ev.type === "anniversary") return `${n} year${n === 1 ? "" : "s"}`;
-  return "";
-}
-function fmtTime(t) {
-  if (!t) return "";
-  const [h, m] = t.split(":").map(Number);
-  return new Date(2000, 0, 1, h, m).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-}
-function relLabel(n) {
-  if (n === 0) return "Today";
-  if (n === 1) return "Tomorrow";
-  if (n < 0) return `${-n}d ago`;
-  if (n < 7) return `in ${n} days`;
-  if (n < 60) return `in ${Math.round(n / 7)} wk`;
-  return `in ${Math.round(n / 30)} mo`;
-}
+      // ---------- API & sync ----------
+      async function api(path, opts = {}) {
+        const res = await fetch(path, { ...opts, headers: { "content-type": "application/json", ...(state.token && { authorization: `Bearer ${state.token}` }) } });
+        const isJson = (res.headers.get("content-type") || "").includes("json");
+        const data = isJson ? await res.json().catch(() => null) : null;
+        if (!res.ok || !data) {
+          const err = new Error(data?.error || `HTTP ${res.status}`);
+          err.status = data ? res.status : 0; // 0 = no backend here
+          throw err;
+        }
+        return data;
+      }
 
-// ---------- API & sync ----------
-async function api(path, opts = {}) {
-  const res = await fetch(path, { ...opts, headers: { "content-type": "application/json", ...(state.token && { authorization: `Bearer ${state.token}` }) } });
-  const isJson = (res.headers.get("content-type") || "").includes("json");
-  const data = isJson ? await res.json().catch(() => null) : null;
-  if (!res.ok || !data) {
-    const err = new Error(data?.error || `HTTP ${res.status}`);
-    err.status = data ? res.status : 0; // 0 = no backend here
-    throw err;
-  }
-  return data;
-}
+      function setPill(s) {
+        const p = $("#syncPill");
+        p.dataset.s = s;
+        p.textContent = { connecting: "Connecting…", synced: "Synced", saving: "Saving…", local: "This device only", error: "Not synced", locked: "Locked" }[s];
+      }
 
-function setPill(s) {
-  const p = $("#syncPill");
-  p.dataset.s = s;
-  p.textContent = { connecting: "Connecting…", synced: "Synced", saving: "Saving…", local: "This device only", error: "Not synced", locked: "Locked" }[s];
-}
+      async function connect() {
+        if (saveTimer || pushing) return;
+        if (!state.token) return showAuth();
+        setPill("connecting");
+        try {
+          const d = await api("/api/me");
+          state.server = d;
+          state.user = d.user; ls.set(LS.user, d.user);
+          state.mode = "remote";
+          state.events = d.events; ls.set(cacheKey(), state.events);
+          setPill("synced");
+          render();
+        } catch (e) {
+          if (e.status === 401) signOut("Please sign in again.");
+          else {
+            state.mode = "local"; setPill("local");
+            if (e.status) toast(e.message, "error");
+          }
+        }
+      }
 
-async function connect() {
-  if (saveTimer || pushing) return;
-  if (!state.token) return showAuth();
-  setPill("connecting");
-  try {
-    const d = await api("/api/me");
-    state.server = d;
-    state.user = d.user; ls.set(LS.user, d.user);
-    state.mode = "remote";
-    state.events = d.events; ls.set(cacheKey(), state.events);
-    setPill("synced");
-    render();
-  } catch (e) {
-    if (e.status === 401) signOut("Please sign in again.");
-    else {
-      state.mode = "local"; setPill("local");
-      if (e.status) toast(e.message, "error");
-    }
-  }
-}
+      let saveTimer = null, pushing = false;
+      function persist() {
+        ls.set(cacheKey(), state.events);
+        render();
+        if (state.mode === "remote") {
+          setPill("saving");
+          clearTimeout(saveTimer);
+          saveTimer = setTimeout(() => { saveTimer = null; pushNow(); }, 450);
+        }
+      }
+      async function pushNow() {
+        pushing = true;
+        try { await api("/api/events", { method: "PUT", body: JSON.stringify({ events: state.events }) }); setPill("synced"); }
+        catch (e) { if (e.status === 401) return signOut("Please sign in again."); setPill("error"); toast("Couldn't sync — your changes are saved on this device.", "error", { label: "Retry", fn: pushNow }); }
+        finally { pushing = false; }
+      }
 
-let saveTimer = null, pushing = false;
-function persist() {
-  ls.set(cacheKey(), state.events);
-  render();
-  if (state.mode === "remote") {
-    setPill("saving");
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => { saveTimer = null; pushNow(); }, 450);
-  }
-}
-async function pushNow() {
-  pushing = true;
-  try { await api("/api/events", { method: "PUT", body: JSON.stringify({ events: state.events }) }); setPill("synced"); }
-  catch (e) { if (e.status === 401) return signOut("Please sign in again."); setPill("error"); toast("Couldn't sync — your changes are saved on this device.", "error", { label: "Retry", fn: pushNow }); }
-  finally { pushing = false; }
-}
+      // ---------- rendering ----------
+      function render() {
+        renderHero();
+        renderUpcoming();
+        renderCalendar();
+        renderAll();
+      }
 
-// ---------- rendering ----------
-function render() {
-  renderHero();
-  renderUpcoming();
-  renderCalendar();
-  renderAll();
-}
+      function renderHero() {
+        const now = new Date(), t = today();
+        const h = now.getHours();
+        const greet = h < 5 ? "Up late" : h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+        const dateStr = now.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
+        const todays = state.events.filter((ev) => sameDay(nextOcc(ev, t), t));
+        const upcoming = state.events.map((ev) => ({ ev, occ: nextOcc(ev, addDays(t, 1)) }))
+          .filter((x) => x.occ > t).sort((a, b) => a.occ - b.occ);
+        const nx = upcoming[0];
 
-function renderHero() {
-  const now = new Date(), t = today();
-  const h = now.getHours();
-  const greet = h < 5 ? "Up late" : h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
-  const dateStr = now.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
-  const todays = state.events.filter((ev) => sameDay(nextOcc(ev, t), t));
-  const upcoming = state.events.map((ev) => ({ ev, occ: nextOcc(ev, addDays(t, 1)) }))
-    .filter((x) => x.occ > t).sort((a, b) => a.occ - b.occ);
-  const nx = upcoming[0];
+        let title;
+        if (!state.events.length) title = `Never forget <em>a date</em> again.`;
+        else if (todays.length) title = `Today is <em>${esc(todays.length === 1 ? heading(todays[0]) : `${todays.length} special days`)}</em>`;
+        else if (nx) {
+          const n = daysBetween(t, nx.occ);
+          title = n <= 7 ? `<em>${esc(heading(nx.ev))}</em> is ${n === 1 ? "tomorrow" : `in ${n} days`}.` : `A quiet week ahead.`;
+        } else title = `Nothing coming up.`;
 
-  let title;
-  if (!state.events.length) title = `Never forget <em>a date</em> again.`;
-  else if (todays.length) title = `Today is <em>${esc(todays.length === 1 ? heading(todays[0]) : `${todays.length} special days`)}</em>`;
-  else if (nx) {
-    const n = daysBetween(t, nx.occ);
-    title = n <= 7 ? `<em>${esc(heading(nx.ev))}</em> is ${n === 1 ? "tomorrow" : `in ${n} days`}.` : `A quiet week ahead.`;
-  } else title = `Nothing coming up.`;
-
-  const first = state.user?.name.split(" ")[0];
-  let html = `<p class="greet">${greet}${first ? `, ${esc(first)}` : ""} · ${esc(dateStr)}</p><h1>${title}</h1>`;
-  if (todays.length) html += `<div class="today-strip">${todays.map((ev) => `<button class="today-chip ty-${ev.type}" data-id="${ev.id}">${icon(ev.type)} ${esc(heading(ev))}${detail(ev, t) ? ` · ${detail(ev, t)}` : ""}</button>`).join("")}</div>`;
-  if (nx) {
-    const n = daysBetween(t, nx.occ), d = detail(nx.ev, nx.occ);
-    html += `<button class="next" data-id="${nx.ev.id}">
+        const first = state.user?.name.split(" ")[0];
+        let html = `<p class="greet">${greet}${first ? `, ${esc(first)}` : ""} · ${esc(dateStr)}</p><h1>${title}</h1>`;
+        if (todays.length) html += `<div class="today-strip">${todays.map((ev) => `<button class="today-chip ty-${ev.type}" data-id="${ev.id}">${icon(ev.type)} ${esc(heading(ev))}${detail(ev, t) ? ` · ${detail(ev, t)}` : ""}</button>`).join("")}</div>`;
+        if (nx) {
+          const n = daysBetween(t, nx.occ), d = detail(nx.ev, nx.occ);
+          html += `<button class="next" data-id="${nx.ev.id}">
       <div class="count">${n}<small>${n === 1 ? "day" : "days"}</small></div>
       <div><div class="label">Next up</div><div class="t">${esc(heading(nx.ev))}</div>
       <div class="s">${nx.occ.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}${nx.ev.time ? ` · ${fmtTime(nx.ev.time)}` : ""}${d ? ` · ${d}` : ""}</div></div>
       <div class="emoji ty-${nx.ev.type}">${icon(nx.ev.type)}</div></button>`;
-  }
-  $("#hero").innerHTML = html;
-}
+        }
+        $("#hero").innerHTML = html;
+      }
 
-function rowHtml(ev, occ, i = 0) {
-  const t = today();
-  const n = occ ? daysBetween(t, occ) : null;
-  const d = occ ? detail(ev, occ) : "";
-  const sub = [TYPES[ev.type].label, d, ev.time && fmtTime(ev.time), ev.repeat === "yearly" && !occ ? "every year" : ""].filter(Boolean).join(" · ");
-  const shown = occ || nextOcc(ev);
-  const whenCls = n === 0 ? "today" : n != null && n >= 0 && n <= 7 ? "soon" : "";
-  return `<button class="row ty-${ev.type}" data-id="${ev.id}" style="animation-delay:${Math.min(i, 12) * 25}ms">
+      function rowHtml(ev, occ, i = 0) {
+        const t = today();
+        const n = occ ? daysBetween(t, occ) : null;
+        const d = occ ? detail(ev, occ) : "";
+        const sub = [TYPES[ev.type].label, d, ev.time && fmtTime(ev.time), ev.repeat === "yearly" && !occ ? "every year" : ""].filter(Boolean).join(" · ");
+        const shown = occ || nextOcc(ev);
+        const whenCls = n === 0 ? "today" : n != null && n >= 0 && n <= 7 ? "soon" : "";
+        return `<button class="row ty-${ev.type}" data-id="${ev.id}" style="animation-delay:${Math.min(i, 12) * 25}ms">
     <div class="date-b"><b>${shown.getDate()}</b><span>${shown.toLocaleDateString(undefined, { month: "short" })}</span></div>
     <div style="min-width:0"><div class="t"><span class="row-ic">${icon(ev.type)}</span><span class="name">${esc(heading(ev))}</span></div><div class="s">${esc(sub)}</div></div>
     <div class="when ${whenCls}">${n == null ? "" : relLabel(n)}</div>
   </button>`;
-}
+      }
 
-function emptyHtml(big, small, withBulk = true) {
-  return `<div class="empty"><div class="big">${big}</div>${small}
+      function emptyHtml(big, small, withBulk = true) {
+        return `<div class="empty"><div class="big">${big}</div>${small}
     <div class="btns"><button class="btn primary" data-act="new">Add a date</button>${withBulk ? `<button class="btn" data-act="bulk">Paste a list</button>` : ""}</div></div>`;
-}
+      }
 
-function renderUpcoming() {
-  const el = $("#view-upcoming");
-  if (!state.events.length) { el.innerHTML = emptyHtml("Your year, remembered.", "Add friends' birthdays, anniversaries and plans — we'll email you the night before."); return; }
-  const t = today(), end = addDays(t, 366);
-  const items = state.events.map((ev) => ({ ev, occ: nextOcc(ev, t) }))
-    .filter((x) => x.occ >= t && x.occ < end).sort((a, b) => a.occ - b.occ || a.ev.title.localeCompare(b.ev.title));
-  if (!items.length) { el.innerHTML = emptyHtml("All clear.", "Nothing in the next 12 months."); return; }
-  const groups = [];
-  for (const it of items) {
-    const n = daysBetween(t, it.occ);
-    const g = n < 7 ? "This week" : n < 31 ? "Coming soon" : it.occ.toLocaleDateString(undefined, { month: "long", year: it.occ.getFullYear() === t.getFullYear() ? undefined : "numeric" });
-    if (!groups.length || groups.at(-1).g !== g) groups.push({ g, items: [] });
-    groups.at(-1).items.push(it);
-  }
-  let i = 0;
-  el.innerHTML = groups.map((gr) => `<div class="group-h">${esc(gr.g)}</div><div class="list">${gr.items.map((x) => rowHtml(x.ev, x.occ, i++)).join("")}</div>`).join("");
-}
+      function renderUpcoming() {
+        const el = $("#view-upcoming");
+        if (!state.events.length) { el.innerHTML = emptyHtml("Your year, remembered.", "Add friends' birthdays, anniversaries and plans — we'll email you the night before."); return; }
+        const t = today(), end = addDays(t, 366);
+        const items = state.events.map((ev) => ({ ev, occ: nextOcc(ev, t) }))
+          .filter((x) => x.occ >= t && x.occ < end).sort((a, b) => a.occ - b.occ || a.ev.title.localeCompare(b.ev.title));
+        if (!items.length) { el.innerHTML = emptyHtml("All clear.", "Nothing in the next 12 months."); return; }
+        const groups = [];
+        for (const it of items) {
+          const n = daysBetween(t, it.occ);
+          const g = n < 7 ? "This week" : n < 31 ? "Coming soon" : it.occ.toLocaleDateString(undefined, { month: "long", year: it.occ.getFullYear() === t.getFullYear() ? undefined : "numeric" });
+          if (!groups.length || groups.at(-1).g !== g) groups.push({ g, items: [] });
+          groups.at(-1).items.push(it);
+        }
+        let i = 0;
+        el.innerHTML = groups.map((gr) => `<div class="group-h">${esc(gr.g)}</div><div class="list">${gr.items.map((x) => rowHtml(x.ev, x.occ, i++)).join("")}</div>`).join("");
+      }
 
-function renderCalendar() {
-  const m = state.calMonth, t = today();
-  $("#calTitle").textContent = m.toLocaleDateString(undefined, { month: "long", year: "numeric" });
-  const start = addDays(m, -m.getDay());
-  const byDay = new Map();
-  for (const ev of state.events) {
-    for (const y of [m.getFullYear() - 1, m.getFullYear(), m.getFullYear() + 1]) {
-      const o = occInYear(ev, y);
-      if (o) { const k = iso(o); (byDay.get(k) || byDay.set(k, []).get(k)).push(ev); }
-    }
-  }
-  const dows = [...Array(7)].map((_, i) => `<div class="dow">${addDays(start, i).toLocaleDateString(undefined, { weekday: "narrow" })}</div>`).join("");
-  let cells = "";
-  for (let i = 0; i < 42; i++) {
-    const d = addDays(start, i);
-    if (i === 35 && d.getMonth() !== m.getMonth()) break;
-    const evs = byDay.get(iso(d)) || [];
-    const cls = ["day", d.getMonth() !== m.getMonth() && "out", sameDay(d, t) && "is-today", state.selDay && sameDay(d, state.selDay) && "sel"].filter(Boolean).join(" ");
-    cells += `<button class="${cls}" data-day="${iso(d)}" aria-label="${d.toDateString()}${evs.length ? `, ${evs.length} event${evs.length > 1 ? "s" : ""}` : ""}">
+      function renderCalendar() {
+        const m = state.calMonth, t = today();
+        $("#calTitle").textContent = m.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+        const start = addDays(m, -m.getDay());
+        const byDay = new Map();
+        for (const ev of state.events) {
+          for (const y of [m.getFullYear() - 1, m.getFullYear(), m.getFullYear() + 1]) {
+            const o = occInYear(ev, y);
+            if (o) { const k = iso(o); (byDay.get(k) || byDay.set(k, []).get(k)).push(ev); }
+          }
+        }
+        const dows = [...Array(7)].map((_, i) => `<div class="dow">${addDays(start, i).toLocaleDateString(undefined, { weekday: "narrow" })}</div>`).join("");
+        let cells = "";
+        for (let i = 0; i < 42; i++) {
+          const d = addDays(start, i);
+          if (i === 35 && d.getMonth() !== m.getMonth()) break;
+          const evs = byDay.get(iso(d)) || [];
+          const cls = ["day", d.getMonth() !== m.getMonth() && "out", sameDay(d, t) && "is-today", state.selDay && sameDay(d, state.selDay) && "sel"].filter(Boolean).join(" ");
+          cells += `<button class="${cls}" data-day="${iso(d)}" aria-label="${d.toDateString()}${evs.length ? `, ${evs.length} event${evs.length > 1 ? "s" : ""}` : ""}">
       <span class="n">${d.getDate()}</span>
       <span class="dots">${evs.slice(0, 3).map((e) => `<i class="ty-${e.type}"></i>`).join("")}</span>
       <span class="names">${evs.slice(0, 3).map((e) => `<span class="ty-${e.type}">${esc(e.title)}</span>`).join("")}${evs.length > 3 ? `<span>+${evs.length - 3} more</span>` : ""}</span>
     </button>`;
-  }
-  $("#calGrid").innerHTML = dows + cells;
+        }
+        $("#calGrid").innerHTML = dows + cells;
 
-  const sel = state.selDay;
-  const panel = $("#dayPanel");
-  if (!sel) { panel.innerHTML = `<p class="hint" style="text-align:center">Tap a day to see or add dates.</p>`; return; }
-  const evs = byDay.get(iso(sel)) || [];
-  panel.innerHTML = `<h3>${sel.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
+        const sel = state.selDay;
+        const panel = $("#dayPanel");
+        if (!sel) { panel.innerHTML = `<p class="hint" style="text-align:center">Tap a day to see or add dates.</p>`; return; }
+        const evs = byDay.get(iso(sel)) || [];
+        panel.innerHTML = `<h3>${sel.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })}
       <button class="btn" data-act="new-on" data-day="${iso(sel)}">+ Add</button></h3>
     ${evs.length ? `<div class="list">${evs.map((ev, i) => rowHtml(ev, sel, i)).join("")}</div>` : `<p class="hint" style="margin-left:4px">Nothing on this day.</p>`}`;
-}
+      }
 
-function renderAll() {
-  const counts = { all: state.events.length };
-  for (const ev of state.events) counts[ev.type] = (counts[ev.type] || 0) + 1;
-  $("#filters").innerHTML = [["all", "All"], ...Object.entries(TYPES).map(([k, v]) => [k, `${icon(k)} ${v.plural}`])]
-    .map(([k, l]) => `<button class="chip" data-filter="${k}" aria-pressed="${state.filter === k}">${l}<span style="opacity:.6">${counts[k] || 0}</span></button>`).join("");
+      function renderAll() {
+        const counts = { all: state.events.length };
+        for (const ev of state.events) counts[ev.type] = (counts[ev.type] || 0) + 1;
+        $("#filters").innerHTML = [["all", "All"], ...Object.entries(TYPES).map(([k, v]) => [k, `${icon(k)} ${v.plural}`])]
+          .map(([k, l]) => `<button class="chip" data-filter="${k}" aria-pressed="${state.filter === k}">${l}<span style="opacity:.6">${counts[k] || 0}</span></button>`).join("");
 
-  const q = state.q.trim().toLowerCase();
-  const list = state.events
-    .filter((ev) => state.filter === "all" || ev.type === state.filter)
-    .filter((ev) => !q || `${ev.title} ${ev.notes} ${TYPES[ev.type].label}`.toLowerCase().includes(q))
-    .sort((a, b) => a.date.slice(5).localeCompare(b.date.slice(5)) || a.title.localeCompare(b.title));
-  const el = $("#allList");
-  if (!state.events.length) { el.innerHTML = emptyHtml("No one here yet.", "Paste a whole list of birthdays at once — it takes a minute."); return; }
-  if (!list.length) { el.innerHTML = `<div class="empty"><div class="big">No matches</div>Try a different name.</div>`; return; }
-  el.innerHTML = `<div class="list">${list.map((ev, i) => rowHtml(ev, null, i)).join("")}</div>`;
-}
+        const q = state.q.trim().toLowerCase();
+        const list = state.events
+          .filter((ev) => state.filter === "all" || ev.type === state.filter)
+          .filter((ev) => !q || `${ev.title} ${ev.notes} ${TYPES[ev.type].label}`.toLowerCase().includes(q))
+          .sort((a, b) => a.date.slice(5).localeCompare(b.date.slice(5)) || a.title.localeCompare(b.title));
+        const el = $("#allList");
+        if (!state.events.length) { el.innerHTML = emptyHtml("No one here yet.", "Paste a whole list of birthdays at once — it takes a minute."); return; }
+        if (!list.length) { el.innerHTML = `<div class="empty"><div class="big">No matches</div>Try a different name.</div>`; return; }
+        el.innerHTML = `<div class="list">${list.map((ev, i) => rowHtml(ev, null, i)).join("")}</div>`;
+      }
 
-// ---------- tabs ----------
-function setTab(tab) {
-  state.tab = tab; ls.set(LS.tab, tab);
-  document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === tab));
-  document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === `view-${tab}`));
-  moveInd();
-}
-function moveInd() {
-  const b = $(`.tab[data-tab="${state.tab}"]`), ind = $("#tabInd");
-  ind.style.width = `${b.offsetWidth}px`;
-  ind.style.transform = `translateX(${b.offsetLeft - 4}px)`;
-}
+      // ---------- tabs ----------
+      function setTab(tab) {
+        state.tab = tab; ls.set(LS.tab, tab);
+        document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === tab));
+        document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === `view-${tab}`));
+        moveInd();
+      }
+      function moveInd() {
+        const b = $(`.tab[data-tab="${state.tab}"]`), ind = $("#tabInd");
+        ind.style.width = `${b.offsetWidth}px`;
+        ind.style.transform = `translateX(${b.offsetLeft - 4}px)`;
+      }
 
-// ---------- edit dialog ----------
-const editDlg = $("#editDlg");
-$("#typeSeg").innerHTML = Object.entries(TYPES).map(([k, v]) =>
-  `<input type="radio" name="type" id="t_${k}" value="${k}"><label for="t_${k}">${icon(k)} ${v.label}</label>`).join("");
+      // ---------- edit dialog ----------
+      const editDlg = $("#editDlg");
+      $("#typeSeg").innerHTML = Object.entries(TYPES).map(([k, v]) =>
+        `<input type="radio" name="type" id="t_${k}" value="${k}"><label for="t_${k}">${icon(k)} ${v.label}</label>`).join("");
 
-function openEdit(ev, preset = {}) {
-  const isNew = !ev;
-  const type = ev?.type || preset.type || "birthday";
-  state.editing = ev ? ev.id : null;
-  $("#editTitle").textContent = isNew ? "New date" : "Edit";
-  $(`#t_${type}`).checked = true;
-  $("#fTitle").value = ev?.title || "";
-  $("#fDate").value = ev?.date || preset.date || "";
-  $("#fYearUnknown").checked = !!ev?.yearUnknown;
-  $("#fTime").value = ev?.time || "";
-  $("#fNotes").value = ev?.notes || "";
-  $(ev ? (ev.repeat === "yearly" ? "#rYearly" : "#rOnce") : (TYPES[type].repeat === "yearly" ? "#rYearly" : "#rOnce")).checked = true;
-  editDlg.dataset.remind = JSON.stringify(ev?.remind || TYPES[type].remind);
-  editDlg.dataset.touchedRemind = ev ? "1" : "";
-  $("#btnDelete").hidden = isNew;
-  syncForm();
-  editDlg.showModal();
-  if (isNew) setTimeout(() => $("#fTitle").focus(), 50);
-}
+      function openEdit(ev, preset = {}) {
+        const isNew = !ev;
+        const type = ev?.type || preset.type || "birthday";
+        state.editing = ev ? ev.id : null;
+        $("#editTitle").textContent = isNew ? "New date" : "Edit";
+        $(`#t_${type}`).checked = true;
+        $("#fTitle").value = ev?.title || "";
+        $("#fDate").value = ev?.date || preset.date || "";
+        $("#fYearUnknown").checked = !!ev?.yearUnknown;
+        $("#fTime").value = ev?.time || "";
+        $("#fNotes").value = ev?.notes || "";
+        $(ev ? (ev.repeat === "yearly" ? "#rYearly" : "#rOnce") : (TYPES[type].repeat === "yearly" ? "#rYearly" : "#rOnce")).checked = true;
+        editDlg.dataset.remind = JSON.stringify(ev?.remind || TYPES[type].remind);
+        editDlg.dataset.touchedRemind = ev ? "1" : "";
+        $("#btnDelete").hidden = isNew;
+        syncForm();
+        editDlg.showModal();
+        if (isNew) setTimeout(() => $("#fTitle").focus(), 50);
+      }
 
-function formType() { return $('input[name="type"]:checked').value; }
-function formRemind() { return JSON.parse(editDlg.dataset.remind || "[]"); }
+      function formType() { return $('input[name="type"]:checked').value; }
+      function formRemind() { return JSON.parse(editDlg.dataset.remind || "[]"); }
 
-function syncForm() {
-  const type = formType();
-  const annual = type === "birthday" || type === "anniversary";
-  $("#fTitleLbl").textContent = annual ? "Name" : "Title";
-  $("#fTitle").placeholder = TYPES[type].title;
-  $("#yearWrap").hidden = !annual;
-  $("#timeWrap").style.visibility = annual ? "hidden" : "visible";
-  const hasTime = !annual && $("#fTime").value;
-  let remind = formRemind();
-  if (!hasTime) remind = remind.filter((r) => r !== "hour1");
-  editDlg.dataset.remind = JSON.stringify(remind);
-  $("#remindChips").innerHTML = Object.entries(REMIND).map(([k, l]) =>
-    `<button type="button" class="chip" data-remind="${k}" aria-pressed="${remind.includes(k)}" ${k === "hour1" && !hasTime ? "disabled title='Set a time first'" : ""}>${l}</button>`).join("");
-  const hint = $("#remindHint");
-  if (state.mode !== "remote") hint.textContent = "Email reminders need an account — sign in to turn them on.";
-  else if (!state.server?.mail) hint.textContent = "Email sending isn't switched on for this site yet.";
-  else if (!state.user?.email) hint.textContent = "Add your email in Settings to receive these.";
-  else hint.textContent = remind.length ? `Sent to ${state.user.email}` : "No emails for this one.";
-  updateGcal();
-}
+      function syncForm() {
+        const type = formType();
+        const annual = type === "birthday" || type === "anniversary";
+        $("#fTitleLbl").textContent = annual ? "Name" : "Title";
+        $("#fTitle").placeholder = TYPES[type].title;
+        $("#yearWrap").hidden = !annual;
+        $("#timeWrap").style.visibility = annual ? "hidden" : "visible";
+        const hasTime = !annual && $("#fTime").value;
+        let remind = formRemind();
+        if (!hasTime) remind = remind.filter((r) => r !== "hour1");
+        editDlg.dataset.remind = JSON.stringify(remind);
+        $("#remindChips").innerHTML = Object.entries(REMIND).map(([k, l]) =>
+          `<button type="button" class="chip" data-remind="${k}" aria-pressed="${remind.includes(k)}" ${k === "hour1" && !hasTime ? "disabled title='Set a time first'" : ""}>${l}</button>`).join("");
+        const hint = $("#remindHint");
+        if (state.mode !== "remote") hint.textContent = "Email reminders need an account — sign in to turn them on.";
+        else if (!state.server?.mail) hint.textContent = "Email sending isn't switched on for this site yet.";
+        else if (!state.user?.email) hint.textContent = "Add your email in Settings to receive these.";
+        else hint.textContent = remind.length ? `Sent to ${state.user.email}` : "No emails for this one.";
+        updateGcal();
+      }
 
-function formEvent() {
-  const type = formType();
-  const annual = type === "birthday" || type === "anniversary";
-  return {
-    id: state.editing || uid(),
-    type,
-    title: $("#fTitle").value.trim(),
-    date: $("#fDate").value,
-    yearUnknown: annual && $("#fYearUnknown").checked,
-    time: annual ? "" : $("#fTime").value,
-    repeat: $('input[name="repeat"]:checked').value,
-    remind: formRemind(),
-    notes: $("#fNotes").value.trim(),
-    updated: Date.now(),
-  };
-}
+      function formEvent() {
+        const type = formType();
+        const annual = type === "birthday" || type === "anniversary";
+        return {
+          id: state.editing || uid(),
+          type,
+          title: $("#fTitle").value.trim(),
+          date: $("#fDate").value,
+          yearUnknown: annual && $("#fYearUnknown").checked,
+          time: annual ? "" : $("#fTime").value,
+          repeat: $('input[name="repeat"]:checked').value,
+          remind: formRemind(),
+          notes: $("#fNotes").value.trim(),
+          updated: Date.now(),
+        };
+      }
 
-function updateGcal() {
-  const ev = formEvent();
-  const a = $("#btnGcal");
-  if (!ev.title || !ev.date) { a.removeAttribute("href"); a.style.opacity = .5; return; }
-  a.href = gcalUrl(ev); a.style.opacity = 1;
-}
+      function updateGcal() {
+        const ev = formEvent();
+        const a = $("#btnGcal");
+        if (!ev.title || !ev.date) { a.removeAttribute("href"); a.style.opacity = .5; return; }
+        a.href = gcalUrl(ev); a.style.opacity = 1;
+      }
 
-$("#typeSeg").addEventListener("change", () => {
-  const type = formType();
-  if (!state.editing) {
-    $(TYPES[type].repeat === "yearly" ? "#rYearly" : "#rOnce").checked = true;
-    if (!editDlg.dataset.touchedRemind) editDlg.dataset.remind = JSON.stringify(TYPES[type].remind);
-  }
-  syncForm();
-});
-["#fTime"].forEach((s) => $(s).addEventListener("input", syncForm));
-["#fTitle", "#fDate", "#fYearUnknown", "#fNotes"].forEach((s) => $(s).addEventListener("input", updateGcal));
-$("#editForm").addEventListener("change", (e) => { if (e.target.name === "repeat") updateGcal(); });
-$("#remindChips").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-remind]"); if (!b || b.disabled) return;
-  const set = new Set(formRemind());
-  set.has(b.dataset.remind) ? set.delete(b.dataset.remind) : set.add(b.dataset.remind);
-  editDlg.dataset.remind = JSON.stringify([...set]);
-  editDlg.dataset.touchedRemind = "1";
-  b.setAttribute("aria-pressed", set.has(b.dataset.remind));
-  syncForm();
-});
+      $("#typeSeg").addEventListener("change", () => {
+        const type = formType();
+        if (!state.editing) {
+          $(TYPES[type].repeat === "yearly" ? "#rYearly" : "#rOnce").checked = true;
+          if (!editDlg.dataset.touchedRemind) editDlg.dataset.remind = JSON.stringify(TYPES[type].remind);
+        }
+        syncForm();
+      });
+      ["#fTime"].forEach((s) => $(s).addEventListener("input", syncForm));
+      ["#fTitle", "#fDate", "#fYearUnknown", "#fNotes"].forEach((s) => $(s).addEventListener("input", updateGcal));
+      $("#editForm").addEventListener("change", (e) => { if (e.target.name === "repeat") updateGcal(); });
+      $("#remindChips").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-remind]"); if (!b || b.disabled) return;
+        const set = new Set(formRemind());
+        set.has(b.dataset.remind) ? set.delete(b.dataset.remind) : set.add(b.dataset.remind);
+        editDlg.dataset.remind = JSON.stringify([...set]);
+        editDlg.dataset.touchedRemind = "1";
+        b.setAttribute("aria-pressed", set.has(b.dataset.remind));
+        syncForm();
+      });
 
-$("#editForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const ev = formEvent();
-  if (!ev.title) { $("#fTitle").focus(); return; }
-  if (!ev.date) { $("#fDate").focus(); return; }
-  const i = state.events.findIndex((x) => x.id === ev.id);
-  const isNew = i < 0;
-  if (isNew) state.events.push(ev); else state.events[i] = ev;
-  editDlg.close();
-  persist();
-  toast(isNew ? `Added ${heading(ev)}` : "Saved");
-  if (sameDay(nextOcc(ev), today()) && ev.type === "birthday") confetti();
-});
+      $("#editForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const ev = formEvent();
+        if (!ev.title) { $("#fTitle").focus(); return; }
+        if (!ev.date) { $("#fDate").focus(); return; }
+        const i = state.events.findIndex((x) => x.id === ev.id);
+        const isNew = i < 0;
+        if (isNew) state.events.push(ev); else state.events[i] = ev;
+        editDlg.close();
+        persist();
+        toast(isNew ? `Added ${heading(ev)}` : "Saved");
+        if (sameDay(nextOcc(ev), today()) && ev.type === "birthday") confetti();
+      });
 
-$("#btnDelete").addEventListener("click", () => {
-  const i = state.events.findIndex((x) => x.id === state.editing);
-  if (i < 0) return;
-  const [removed] = state.events.splice(i, 1);
-  editDlg.close();
-  persist();
-  toast(`Deleted ${removed.title}`, "", { label: "Undo", fn: () => { state.events.splice(i, 0, removed); persist(); } });
-});
+      $("#btnDelete").addEventListener("click", () => {
+        const i = state.events.findIndex((x) => x.id === state.editing);
+        if (i < 0) return;
+        const [removed] = state.events.splice(i, 1);
+        editDlg.close();
+        persist();
+        toast(`Deleted ${removed.title}`, "", { label: "Undo", fn: () => { state.events.splice(i, 0, removed); persist(); } });
+      });
 
-// ---------- Google Calendar ----------
-function gcalUrl(ev) {
-  const o = ev.repeat === "yearly" ? nextOcc(ev) : mk(...ev.date.split("-").map(Number));
-  const d = detail(ev, o);
-  const p = new URLSearchParams({ action: "TEMPLATE", text: heading(ev) });
-  if (ev.time) {
-    const [h, m] = ev.time.split(":").map(Number);
-    const s = new Date(o.getFullYear(), o.getMonth(), o.getDate(), h, m), e = new Date(s.getTime() + 3600e3);
-    const f = (x) => `${compact(x)}T${pad(x.getHours())}${pad(x.getMinutes())}00`;
-    p.set("dates", `${f(s)}/${f(e)}`);
-    p.set("ctz", Intl.DateTimeFormat().resolvedOptions().timeZone);
-  } else p.set("dates", `${compact(o)}/${compact(addDays(o, 1))}`);
-  const details = [d && `${heading(ev)} — ${d}`, ev.notes].filter(Boolean).join("\n\n");
-  if (details) p.set("details", details);
-  if (ev.repeat === "yearly") p.set("recur", "RRULE:FREQ=YEARLY");
-  return `https://calendar.google.com/calendar/render?${p}`;
-}
+      // ---------- Google Calendar ----------
+      function gcalUrl(ev) {
+        const o = ev.repeat === "yearly" ? nextOcc(ev) : mk(...ev.date.split("-").map(Number));
+        const d = detail(ev, o);
+        const p = new URLSearchParams({ action: "TEMPLATE", text: heading(ev) });
+        if (ev.time) {
+          const [h, m] = ev.time.split(":").map(Number);
+          const s = new Date(o.getFullYear(), o.getMonth(), o.getDate(), h, m), e = new Date(s.getTime() + 3600e3);
+          const f = (x) => `${compact(x)}T${pad(x.getHours())}${pad(x.getMinutes())}00`;
+          p.set("dates", `${f(s)}/${f(e)}`);
+          p.set("ctz", Intl.DateTimeFormat().resolvedOptions().timeZone);
+        } else p.set("dates", `${compact(o)}/${compact(addDays(o, 1))}`);
+        const details = [d && `${heading(ev)} — ${d}`, ev.notes].filter(Boolean).join("\n\n");
+        if (details) p.set("details", details);
+        if (ev.repeat === "yearly") p.set("recur", "RRULE:FREQ=YEARLY");
+        return `https://calendar.google.com/calendar/render?${p}`;
+      }
 
-function icsText() {
-  const e = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
-  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
-  const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Wishly//EN", "CALSCALE:GREGORIAN", "X-WR-CALNAME:Wishly"];
-  for (const ev of state.events) {
-    const { y, m, d } = parts(ev);
-    const start = ev.yearUnknown ? mk(today().getFullYear(), m, d) : mk(y, m, d);
-    out.push("BEGIN:VEVENT", `UID:${ev.id}@wishly`, `DTSTAMP:${stamp}`, `SUMMARY:${e(heading(ev))}`);
-    if (ev.time) {
-      const [h, mi] = ev.time.split(":").map(Number);
-      const s = new Date(start.getFullYear(), start.getMonth(), start.getDate(), h, mi), en = new Date(s.getTime() + 3600e3);
-      const f = (x) => `${compact(x)}T${pad(x.getHours())}${pad(x.getMinutes())}00`;
-      out.push(`DTSTART:${f(s)}`, `DTEND:${f(en)}`);
-    } else {
-      out.push(`DTSTART;VALUE=DATE:${compact(start)}`, `DTEND;VALUE=DATE:${compact(addDays(start, 1))}`, "TRANSP:TRANSPARENT");
-    }
-    if (ev.repeat === "yearly") out.push(`RRULE:FREQ=YEARLY${m === 2 && d === 29 ? ";BYMONTH=2;BYMONTHDAY=-1" : ""}`);
-    if (ev.notes) out.push(`DESCRIPTION:${e(ev.notes)}`);
-    // All-day: 3h before midnight = 9 PM the evening before.
-    out.push("BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${e(heading(ev))}`, `TRIGGER:${ev.time ? "-PT1H" : "-PT3H"}`, "END:VALARM", "END:VEVENT");
-  }
-  out.push("END:VCALENDAR");
-  return out.join("\r\n");
-}
+      function icsText() {
+        const e = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+        const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+        const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Wishly//EN", "CALSCALE:GREGORIAN", "X-WR-CALNAME:Wishly"];
+        for (const ev of state.events) {
+          const { y, m, d } = parts(ev);
+          const start = ev.yearUnknown ? mk(today().getFullYear(), m, d) : mk(y, m, d);
+          out.push("BEGIN:VEVENT", `UID:${ev.id}@wishly`, `DTSTAMP:${stamp}`, `SUMMARY:${e(heading(ev))}`);
+          if (ev.time) {
+            const [h, mi] = ev.time.split(":").map(Number);
+            const s = new Date(start.getFullYear(), start.getMonth(), start.getDate(), h, mi), en = new Date(s.getTime() + 3600e3);
+            const f = (x) => `${compact(x)}T${pad(x.getHours())}${pad(x.getMinutes())}00`;
+            out.push(`DTSTART:${f(s)}`, `DTEND:${f(en)}`);
+          } else {
+            out.push(`DTSTART;VALUE=DATE:${compact(start)}`, `DTEND;VALUE=DATE:${compact(addDays(start, 1))}`, "TRANSP:TRANSPARENT");
+          }
+          if (ev.repeat === "yearly") out.push(`RRULE:FREQ=YEARLY${m === 2 && d === 29 ? ";BYMONTH=2;BYMONTHDAY=-1" : ""}`);
+          if (ev.notes) out.push(`DESCRIPTION:${e(ev.notes)}`);
+          // All-day: 3h before midnight = 9 PM the evening before.
+          out.push("BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${e(heading(ev))}`, `TRIGGER:${ev.time ? "-PT1H" : "-PT3H"}`, "END:VALARM", "END:VEVENT");
+        }
+        out.push("END:VCALENDAR");
+        return out.join("\r\n");
+      }
 
-function download(name, text, type) {
-  const url = URL.createObjectURL(new Blob([text], { type }));
-  const a = Object.assign(document.createElement("a"), { href: url, download: name });
-  document.body.append(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
+      function download(name, text, type) {
+        const url = URL.createObjectURL(new Blob([text], { type }));
+        const a = Object.assign(document.createElement("a"), { href: url, download: name });
+        document.body.append(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
 
-// ---------- bulk add ----------
-function parseDate(s) {
-  s = s.trim().toLowerCase().replace(/(\d)(st|nd|rd|th)\b/g, "$1").replace(/[,.]/g, " ").replace(/\s+/g, " ");
-  let y = null, m, d, r;
-  if ((r = s.match(/^(\d{4})[-/ ](\d{1,2})[-/ ](\d{1,2})$/))) [, y, m, d] = r;
-  else if ((r = s.match(/^(\d{1,2})[-/ ](\d{1,2})(?:[-/ ](\d{2,4}))?$/))) [, d, m, y] = r;
-  else if ((r = s.match(/^(\d{1,2}) ([a-z]+)(?: (\d{4}))?$/))) { d = r[1]; m = MONTHS.indexOf(r[2].slice(0, 3)) + 1; y = r[3]; }
-  else if ((r = s.match(/^([a-z]+) (\d{1,2})(?: (\d{4}))?$/))) { m = MONTHS.indexOf(r[1].slice(0, 3)) + 1; d = r[2]; y = r[3]; }
-  else return null;
-  m = +m; d = +d; y = y ? +y : null;
-  if (y != null && y < 100) y += y > (today().getFullYear() % 100) ? 1900 : 2000;
-  if (!(m >= 1 && m <= 12 && d >= 1 && d <= new Date(2000, m, 0).getDate())) return null;
-  return { date: `${y || 2000}-${pad(m)}-${pad(d)}`, yearUnknown: !y };
-}
-function parseBulk(text) {
-  const ok = [], bad = [];
-  text.split(/\n/).forEach((line, i) => {
-    const l = line.trim(); if (!l) return;
-    const r = l.match(/^(.+?)\s*(?:,|\t|\s-\s|:)\s*(.+)$/) || l.match(/^(.+?)\s+(\d.*)$/);
-    const pd = r && parseDate(r[2]);
-    if (r && pd) ok.push({ title: r[1].trim(), ...pd }); else bad.push(i + 1);
-  });
-  return { ok, bad };
-}
-$("#bulkText").addEventListener("input", () => {
-  const { ok, bad } = parseBulk($("#bulkText").value);
-  $("#bulkPreview").innerHTML = ok.length || bad.length
-    ? `<b style="color:var(--ink)">${ok.length} ready</b>${ok.length ? ` — ${ok.slice(0, 3).map((x) => esc(x.title)).join(", ")}${ok.length > 3 ? "…" : ""}` : ""}${bad.length ? ` · <span style="color:var(--c-birthday)">couldn't read line ${bad.join(", ")}</span>` : ""}`
-    : "Paste or type to see a preview.";
-  $("#bulkAdd").disabled = !ok.length;
-  $("#bulkAdd").textContent = ok.length ? `Add ${ok.length}` : "Add";
-});
-$("#bulkAdd").addEventListener("click", () => {
-  const { ok } = parseBulk($("#bulkText").value);
-  const type = $('input[name="bulkType"]:checked').value;
-  for (const x of ok) state.events.push({ id: uid(), type, ...x, time: "", repeat: "yearly", remind: ["eve9"], notes: "", updated: Date.now() });
-  $("#bulkText").value = ""; $("#bulkText").dispatchEvent(new Event("input"));
-  $("#bulkDlg").close();
-  persist();
-  toast(`Added ${ok.length} ${type === "birthday" ? "birthdays" : "anniversaries"}`);
-  confetti();
-});
+      // ---------- bulk add ----------
+      function parseDate(s) {
+        s = s.trim().toLowerCase().replace(/(\d)(st|nd|rd|th)\b/g, "$1").replace(/[,.]/g, " ").replace(/\s+/g, " ");
+        let y = null, m, d, r;
+        if ((r = s.match(/^(\d{4})[-/ ](\d{1,2})[-/ ](\d{1,2})$/))) [, y, m, d] = r;
+        else if ((r = s.match(/^(\d{1,2})[-/ ](\d{1,2})(?:[-/ ](\d{2,4}))?$/))) [, d, m, y] = r;
+        else if ((r = s.match(/^(\d{1,2}) ([a-z]+)(?: (\d{4}))?$/))) { d = r[1]; m = MONTHS.indexOf(r[2].slice(0, 3)) + 1; y = r[3]; }
+        else if ((r = s.match(/^([a-z]+) (\d{1,2})(?: (\d{4}))?$/))) { m = MONTHS.indexOf(r[1].slice(0, 3)) + 1; d = r[2]; y = r[3]; }
+        else return null;
+        m = +m; d = +d; y = y ? +y : null;
+        if (y != null && y < 100) y += y > (today().getFullYear() % 100) ? 1900 : 2000;
+        if (!(m >= 1 && m <= 12 && d >= 1 && d <= new Date(2000, m, 0).getDate())) return null;
+        return { date: `${y || 2000}-${pad(m)}-${pad(d)}`, yearUnknown: !y };
+      }
+      function parseBulk(text) {
+        const ok = [], bad = [];
+        text.split(/\n/).forEach((line, i) => {
+          const l = line.trim(); if (!l) return;
+          const r = l.match(/^(.+?)\s*(?:,|\t|\s-\s|:)\s*(.+)$/) || l.match(/^(.+?)\s+(\d.*)$/);
+          const pd = r && parseDate(r[2]);
+          if (r && pd) ok.push({ title: r[1].trim(), ...pd }); else bad.push(i + 1);
+        });
+        return { ok, bad };
+      }
+      $("#bulkText").addEventListener("input", () => {
+        const { ok, bad } = parseBulk($("#bulkText").value);
+        $("#bulkPreview").innerHTML = ok.length || bad.length
+          ? `<b style="color:var(--ink)">${ok.length} ready</b>${ok.length ? ` — ${ok.slice(0, 3).map((x) => esc(x.title)).join(", ")}${ok.length > 3 ? "…" : ""}` : ""}${bad.length ? ` · <span style="color:var(--c-birthday)">couldn't read line ${bad.join(", ")}</span>` : ""}`
+          : "Paste or type to see a preview.";
+        $("#bulkAdd").disabled = !ok.length;
+        $("#bulkAdd").textContent = ok.length ? `Add ${ok.length}` : "Add";
+      });
+      $("#bulkAdd").addEventListener("click", () => {
+        const { ok } = parseBulk($("#bulkText").value);
+        const type = $('input[name="bulkType"]:checked').value;
+        for (const x of ok) state.events.push({ id: uid(), type, ...x, time: "", repeat: "yearly", remind: ["eve9"], notes: "", updated: Date.now() });
+        $("#bulkText").value = ""; $("#bulkText").dispatchEvent(new Event("input"));
+        $("#bulkDlg").close();
+        persist();
+        toast(`Added ${ok.length} ${type === "birthday" ? "birthdays" : "anniversaries"}`);
+        confetti();
+      });
 
-// ---------- settings ----------
-function openSettings() {
-  const remote = state.mode === "remote", s = state.server;
-  $("#acctSec").hidden = !remote;
-  if (remote) {
-    $("#acctName").textContent = state.user.name;
-    $("#acctAvatar").textContent = state.user.name.trim()[0].toUpperCase();
-  }
-  let mail;
-  if (!remote) mail = "Sign in to get email reminders.";
-  else if (!s.mail) mail = "Email sending isn't switched on for this site yet.";
-  else mail = `Where should we send your reminders? Birthdays arrive at 9 PM the evening before (${esc(s.tz)}).`;
-  $("#mailStatus").innerHTML = mail;
-  $("#emailForm").hidden = !remote;
-  $("#fEmail").value = state.user?.email || "";
-  $("#deviceStatus").textContent = remote
-    ? `Signed in as ${state.user.name}. Your dates sync across all your devices.`
-    : `Saved in this browser only (${state.events.length} dates).`;
-  $("#btnSignOut").hidden = !remote;
-  $(`#themeSeg input[value="${ls.get(LS.theme, "dark")}"]`).checked = true;
-  $("#settingsDlg").showModal();
-}
-$("#emailForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const btn = e.target.querySelector("button");
-  btn.disabled = true;
-  try {
-    const r = await api("/api/profile", { method: "PUT", body: JSON.stringify({ email: $("#fEmail").value }) });
-    state.user = r.user; ls.set(LS.user, r.user);
-    toast(r.user.email ? `Reminders will go to ${r.user.email}` : "Email reminders turned off");
-  } catch (err) { toast(err.message, "error"); }
-  btn.disabled = false;
-});
-$("#btnIcs").addEventListener("click", () => {
-  if (!state.events.length) return toast("Add some dates first.");
-  download("wishly.ics", icsText(), "text/calendar");
-  toast("Downloaded — now import it in Google Calendar settings.");
-});
-$("#btnExport").addEventListener("click", () => download(`wishly-backup-${iso(today())}.json`, JSON.stringify({ events: state.events }, null, 2), "application/json"));
-$("#importFile").addEventListener("change", async (e) => {
-  const f = e.target.files[0]; if (!f) return;
-  try {
-    const data = JSON.parse(await f.text());
-    const list = Array.isArray(data) ? data : data.events;
-    if (!Array.isArray(list)) throw new Error();
-    const byId = new Map(state.events.map((x) => [x.id, x]));
-    let n = 0;
-    for (const ev of list) if (ev?.date && ev?.title) { byId.set(ev.id || uid(), { ...ev, id: ev.id || uid() }); n++; }
-    state.events = [...byId.values()];
-    persist();
-    toast(`Restored ${n} dates`);
-  } catch { toast("That file doesn't look like a Wishly backup.", "error"); }
-  e.target.value = "";
-});
-$("#themeSeg").addEventListener("change", (e) => { ls.set(LS.theme, e.target.value); applyTheme(); });
-function applyTheme() {
-  const t = ls.get(LS.theme, "dark");
-  if (t === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
-}
-// Android/desktop Chrome: offer a one-tap install button.
-let installPrompt = null;
-addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; $("#btnInstall").hidden = false; });
-$("#btnInstall").addEventListener("click", async () => {
-  if (!installPrompt) return;
-  installPrompt.prompt();
-  await installPrompt.userChoice;
-  installPrompt = null; $("#btnInstall").hidden = true;
-});
-if (matchMedia("(display-mode: standalone)").matches || navigator.standalone) $("#installSec").hidden = true;
-$("#btnSignOut").addEventListener("click", () => { $("#settingsDlg").close(); signOut(); });
+      // ---------- settings ----------
+      function openSettings() {
+        const remote = state.mode === "remote", s = state.server;
+        $("#acctSec").hidden = !remote;
+        if (remote) {
+          $("#acctName").textContent = state.user.name;
+          $("#acctAvatar").textContent = state.user.name.trim()[0].toUpperCase();
+        }
+        let mail;
+        if (!remote) mail = "Sign in to get email reminders.";
+        else if (!s.mail) mail = "Email sending isn't switched on for this site yet.";
+        else mail = `Where should we send your reminders? Birthdays arrive at 9 PM the evening before (${esc(s.tz)}).`;
+        $("#mailStatus").innerHTML = mail;
+        $("#emailForm").hidden = !remote;
+        $("#fEmail").value = state.user?.email || "";
+        $("#deviceStatus").textContent = remote
+          ? `Signed in as ${state.user.name}. Your dates sync across all your devices.`
+          : `Saved in this browser only (${state.events.length} dates).`;
+        $("#btnSignOut").hidden = !remote;
+        $(`#themeSeg input[value="${ls.get(LS.theme, "dark")}"]`).checked = true;
+        $("#settingsDlg").showModal();
+      }
+      $("#emailForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector("button");
+        btn.disabled = true;
+        try {
+          const r = await api("/api/profile", { method: "PUT", body: JSON.stringify({ email: $("#fEmail").value }) });
+          state.user = r.user; ls.set(LS.user, r.user);
+          toast(r.user.email ? `Reminders will go to ${r.user.email}` : "Email reminders turned off");
+        } catch (err) { toast(err.message, "error"); }
+        btn.disabled = false;
+      });
+      $("#btnIcs").addEventListener("click", () => {
+        if (!state.events.length) return toast("Add some dates first.");
+        download("wishly.ics", icsText(), "text/calendar");
+        toast("Downloaded — now import it in Google Calendar settings.");
+      });
+      $("#btnExport").addEventListener("click", () => download(`wishly-backup-${iso(today())}.json`, JSON.stringify({ events: state.events }, null, 2), "application/json"));
+      $("#importFile").addEventListener("change", async (e) => {
+        const f = e.target.files[0]; if (!f) return;
+        try {
+          const data = JSON.parse(await f.text());
+          const list = Array.isArray(data) ? data : data.events;
+          if (!Array.isArray(list)) throw new Error();
+          const byId = new Map(state.events.map((x) => [x.id, x]));
+          let n = 0;
+          for (const ev of list) if (ev?.date && ev?.title) { byId.set(ev.id || uid(), { ...ev, id: ev.id || uid() }); n++; }
+          state.events = [...byId.values()];
+          persist();
+          toast(`Restored ${n} dates`);
+        } catch { toast("That file doesn't look like a Wishly backup.", "error"); }
+        e.target.value = "";
+      });
+      $("#themeSeg").addEventListener("change", (e) => { ls.set(LS.theme, e.target.value); applyTheme(); });
+      function applyTheme() {
+        const t = ls.get(LS.theme, "dark");
+        if (t === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
+      }
+      // Android/desktop Chrome: offer a one-tap install button.
+      let installPrompt = null;
+      addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; $("#btnInstall").hidden = false; });
+      $("#btnInstall").addEventListener("click", async () => {
+        if (!installPrompt) return;
+        installPrompt.prompt();
+        await installPrompt.userChoice;
+        installPrompt = null; $("#btnInstall").hidden = true;
+      });
+      if (matchMedia("(display-mode: standalone)").matches || navigator.standalone) $("#installSec").hidden = true;
+      $("#btnSignOut").addEventListener("click", () => { $("#settingsDlg").close(); signOut(); });
 
-// ---------- sign in / sign up ----------
-function showAuth(err = "") {
-  state.mode = "locked"; setPill("locked");
-  $("#authErr").textContent = err;
-  $("#auth").hidden = false;
-  document.body.classList.add("authing");
-  setTimeout(() => $("#authName").focus(), 50);
-}
-function hideAuth() {
-  $("#auth").hidden = true;
-  document.body.classList.remove("authing");
-  $("#authPass").value = "";
-}
-function signOut(msg = "") {
-  ls.del(LS.token); ls.del(LS.user);
-  Object.assign(state, { token: "", user: null, server: null, events: [] });
-  render();
-  showAuth(msg);
-}
-$("#authSeg").addEventListener("change", () => {
-  const signup = $("#amSignup").checked;
-  $("#authBtn").textContent = signup ? "Create my space" : "Sign in";
-  $("#authPass").autocomplete = signup ? "new-password" : "current-password";
-  $("#authName").placeholder = signup ? "Pick a name your friends know you by" : "e.g. Souvik Ghosh";
-  $("#authErr").textContent = "";
-});
-$("#authForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const mode = $("#amSignup").checked ? "signup" : "login";
-  const name = $("#authName").value.trim(), password = $("#authPass").value;
-  if (name.length < 2) { $("#authErr").textContent = "Enter your name."; return $("#authName").focus(); }
-  if (password.length < 6) { $("#authErr").textContent = "Password needs at least 6 characters."; return $("#authPass").focus(); }
-  const btn = $("#authBtn"), label = btn.textContent;
-  btn.disabled = true; btn.textContent = mode === "signup" ? "Creating…" : "Signing in…";
-  try {
-    const r = await api(`/api/${mode}`, { method: "POST", body: JSON.stringify({ name, password }) });
-    state.token = r.token; ls.set(LS.token, r.token);
-    state.user = r.user; ls.set(LS.user, r.user);
-    state.events = ls.get(cacheKey(), []);
-    hideAuth();
-    await connect();
-    const first = r.user.name.split(" ")[0];
-    if (mode === "signup") {
-      confetti();
-      toast(`Welcome to Wishly, ${first}!`, "", { label: "Add email for reminders", fn: openSettings });
-    } else toast(`Welcome back, ${first}`);
-  } catch (err) {
-    $("#authErr").textContent = err.status === 0 ? "Can't reach the server. Check your connection and try again." : err.message;
-  } finally { btn.disabled = false; btn.textContent = label; }
-});
+      // ---------- sign in / sign up ----------
+      function showAuth(err = "") {
+        state.mode = "locked"; setPill("locked");
+        $("#authErr").textContent = err;
+        $("#auth").hidden = false;
+        document.body.classList.add("authing");
+        setTimeout(() => $("#authName").focus(), 50);
+      }
+      function hideAuth() {
+        $("#auth").hidden = true;
+        document.body.classList.remove("authing");
+        $("#authPass").value = "";
+      }
+      function signOut(msg = "") {
+        ls.del(LS.token); ls.del(LS.user);
+        Object.assign(state, { token: "", user: null, server: null, events: [] });
+        render();
+        showAuth(msg);
+      }
+      $("#authSeg").addEventListener("change", () => {
+        const signup = $("#amSignup").checked;
+        $("#authBtn").textContent = signup ? "Create my space" : "Sign in";
+        $("#authPass").autocomplete = signup ? "new-password" : "current-password";
+        $("#authName").placeholder = signup ? "Pick a name your friends know you by" : "e.g. Akash";
+        $("#authErr").textContent = "";
+      });
+      $("#authForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const mode = $("#amSignup").checked ? "signup" : "login";
+        const name = $("#authName").value.trim(), password = $("#authPass").value;
+        if (name.length < 2) { $("#authErr").textContent = "Enter your name."; return $("#authName").focus(); }
+        if (password.length < 6) { $("#authErr").textContent = "Password needs at least 6 characters."; return $("#authPass").focus(); }
+        const btn = $("#authBtn"), label = btn.textContent;
+        btn.disabled = true; btn.textContent = mode === "signup" ? "Creating…" : "Signing in…";
+        try {
+          const r = await api(`/api/${mode}`, { method: "POST", body: JSON.stringify({ name, password }) });
+          state.token = r.token; ls.set(LS.token, r.token);
+          state.user = r.user; ls.set(LS.user, r.user);
+          state.events = ls.get(cacheKey(), []);
+          hideAuth();
+          await connect();
+          const first = r.user.name.split(" ")[0];
+          if (mode === "signup") {
+            confetti();
+            toast(`Welcome to Wishly, ${first}!`, "", { label: "Add email for reminders", fn: openSettings });
+          } else toast(`Welcome back, ${first}`);
+        } catch (err) {
+          $("#authErr").textContent = err.status === 0 ? "Can't reach the server. Check your connection and try again." : err.message;
+        } finally { btn.disabled = false; btn.textContent = label; }
+      });
 
-// ---------- toasts & delight ----------
-function toast(msg, kind = "", action) {
-  const t = document.createElement("div");
-  t.className = `toast ${kind}`;
-  t.innerHTML = `<span>${esc(msg)}</span>`;
-  if (action) {
-    const b = document.createElement("button"); b.textContent = action.label;
-    b.onclick = () => { action.fn(); dismiss(); }; t.append(b);
-  }
-  $("#toasts").append(t);
-  const dismiss = () => { t.classList.add("out"); setTimeout(() => t.remove(), 250); };
-  setTimeout(dismiss, action ? 5000 : 2600);
-}
-function confetti() {
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const box = document.createElement("div"); box.className = "confetti";
-  const cs = ["#c0564b", "#e0a458", "#8a5a83", "#3b6e8f", "#6b7d4f", "#e07a5f"];
-  for (let i = 0; i < 70; i++) {
-    const p = document.createElement("i");
-    p.style.cssText = `left:${Math.random() * 100}%;background:${cs[i % cs.length]};animation-duration:${1.6 + Math.random() * 1.6}s;animation-delay:${Math.random() * .4}s;transform:rotate(${Math.random() * 360}deg)`;
-    box.append(p);
-  }
-  document.body.append(box); setTimeout(() => box.remove(), 3800);
-}
+      // ---------- toasts & delight ----------
+      function toast(msg, kind = "", action) {
+        const t = document.createElement("div");
+        t.className = `toast ${kind}`;
+        t.innerHTML = `<span>${esc(msg)}</span>`;
+        if (action) {
+          const b = document.createElement("button"); b.textContent = action.label;
+          b.onclick = () => { action.fn(); dismiss(); }; t.append(b);
+        }
+        $("#toasts").append(t);
+        const dismiss = () => { t.classList.add("out"); setTimeout(() => t.remove(), 250); };
+        setTimeout(dismiss, action ? 5000 : 2600);
+      }
+      function confetti() {
+        if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const box = document.createElement("div"); box.className = "confetti";
+        const cs = ["#c0564b", "#e0a458", "#8a5a83", "#3b6e8f", "#6b7d4f", "#e07a5f"];
+        for (let i = 0; i < 70; i++) {
+          const p = document.createElement("i");
+          p.style.cssText = `left:${Math.random() * 100}%;background:${cs[i % cs.length]};animation-duration:${1.6 + Math.random() * 1.6}s;animation-delay:${Math.random() * .4}s;transform:rotate(${Math.random() * 360}deg)`;
+          box.append(p);
+        }
+        document.body.append(box); setTimeout(() => box.remove(), 3800);
+      }
 
-// ---------- global events ----------
-document.addEventListener("click", (e) => {
-  const row = e.target.closest("[data-id]");
-  if (row) { const ev = state.events.find((x) => x.id === row.dataset.id); if (ev) openEdit(ev); return; }
-  const act = e.target.closest("[data-act]");
-  if (act?.dataset.act === "new") return openEdit(null);
-  if (act?.dataset.act === "bulk") return $("#bulkDlg").showModal();
-  if (act?.dataset.act === "new-on") return openEdit(null, { date: act.dataset.day, type: "event" });
-  const day = e.target.closest("[data-day]");
-  if (day) {
-    const [y, m, d] = day.dataset.day.split("-").map(Number);
-    const picked = new Date(y, m - 1, d);
-    if (state.selDay && sameDay(picked, state.selDay)) return openEdit(null, { date: day.dataset.day, type: "event" });
-    state.selDay = picked;
-    if (picked.getMonth() !== state.calMonth.getMonth()) state.calMonth = startOfMonth(picked);
-    return renderCalendar();
-  }
-  const f = e.target.closest("[data-filter]");
-  if (f) { state.filter = f.dataset.filter; return renderAll(); }
-  if (e.target.closest("[data-close]")) return e.target.closest("dialog").close();
-  const tab = e.target.closest("[data-tab]");
-  if (tab) return setTab(tab.dataset.tab);
-});
-document.querySelectorAll("dialog").forEach((d) => d.addEventListener("click", (e) => { if (e.target === d) d.close(); }));
-$("#fab").addEventListener("click", () => openEdit(null, state.tab === "calendar" && state.selDay ? { date: iso(state.selDay), type: "event" } : {}));
-$("#btnBulk").addEventListener("click", () => $("#bulkDlg").showModal());
-$("#btnSettings").addEventListener("click", openSettings);
-$("#syncPill").addEventListener("click", () => state.mode === "locked" ? showAuth() : state.mode === "error" || $("#syncPill").dataset.s === "error" ? pushNow() : openSettings());
-$("#q").addEventListener("input", (e) => { state.q = e.target.value; renderAll(); });
-$("#calPrev").addEventListener("click", () => { state.calMonth = new Date(state.calMonth.getFullYear(), state.calMonth.getMonth() - 1, 1); renderCalendar(); });
-$("#calNext").addEventListener("click", () => { state.calMonth = new Date(state.calMonth.getFullYear(), state.calMonth.getMonth() + 1, 1); renderCalendar(); });
-$("#calToday").addEventListener("click", () => { state.calMonth = startOfMonth(today()); state.selDay = today(); renderCalendar(); });
-document.addEventListener("keydown", (e) => {
-  if (document.querySelector("dialog[open]") || !$("#auth").hidden || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
-  if (e.key === "n") { e.preventDefault(); openEdit(null); }
-  if (e.key === "/") { e.preventDefault(); setTab("all"); $("#q").focus(); }
-  if (state.tab === "calendar" && e.key === "ArrowLeft") $("#calPrev").click();
-  if (state.tab === "calendar" && e.key === "ArrowRight") $("#calNext").click();
-});
-addEventListener("scroll", () => $("#top").classList.toggle("scrolled", scrollY > 8), { passive: true });
-addEventListener("resize", moveInd);
-document.addEventListener("visibilitychange", () => { if (!document.hidden) { render(); if (state.mode === "remote") connect(); } });
+      // ---------- global events ----------
+      document.addEventListener("click", (e) => {
+        const row = e.target.closest("[data-id]");
+        if (row) { const ev = state.events.find((x) => x.id === row.dataset.id); if (ev) openEdit(ev); return; }
+        const act = e.target.closest("[data-act]");
+        if (act?.dataset.act === "new") return openEdit(null);
+        if (act?.dataset.act === "bulk") return $("#bulkDlg").showModal();
+        if (act?.dataset.act === "new-on") return openEdit(null, { date: act.dataset.day, type: "event" });
+        const day = e.target.closest("[data-day]");
+        if (day) {
+          const [y, m, d] = day.dataset.day.split("-").map(Number);
+          const picked = new Date(y, m - 1, d);
+          if (state.selDay && sameDay(picked, state.selDay)) return openEdit(null, { date: day.dataset.day, type: "event" });
+          state.selDay = picked;
+          if (picked.getMonth() !== state.calMonth.getMonth()) state.calMonth = startOfMonth(picked);
+          return renderCalendar();
+        }
+        const f = e.target.closest("[data-filter]");
+        if (f) { state.filter = f.dataset.filter; return renderAll(); }
+        if (e.target.closest("[data-close]")) return e.target.closest("dialog").close();
+        const tab = e.target.closest("[data-tab]");
+        if (tab) return setTab(tab.dataset.tab);
+      });
+      document.querySelectorAll("dialog").forEach((d) => d.addEventListener("click", (e) => { if (e.target === d) d.close(); }));
+      $("#fab").addEventListener("click", () => openEdit(null, state.tab === "calendar" && state.selDay ? { date: iso(state.selDay), type: "event" } : {}));
+      $("#btnBulk").addEventListener("click", () => $("#bulkDlg").showModal());
+      $("#btnSettings").addEventListener("click", openSettings);
+      $("#syncPill").addEventListener("click", () => state.mode === "locked" ? showAuth() : state.mode === "error" || $("#syncPill").dataset.s === "error" ? pushNow() : openSettings());
+      $("#q").addEventListener("input", (e) => { state.q = e.target.value; renderAll(); });
+      $("#calPrev").addEventListener("click", () => { state.calMonth = new Date(state.calMonth.getFullYear(), state.calMonth.getMonth() - 1, 1); renderCalendar(); });
+      $("#calNext").addEventListener("click", () => { state.calMonth = new Date(state.calMonth.getFullYear(), state.calMonth.getMonth() + 1, 1); renderCalendar(); });
+      $("#calToday").addEventListener("click", () => { state.calMonth = startOfMonth(today()); state.selDay = today(); renderCalendar(); });
+      document.addEventListener("keydown", (e) => {
+        if (document.querySelector("dialog[open]") || !$("#auth").hidden || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+        if (e.key === "n") { e.preventDefault(); openEdit(null); }
+        if (e.key === "/") { e.preventDefault(); setTab("all"); $("#q").focus(); }
+        if (state.tab === "calendar" && e.key === "ArrowLeft") $("#calPrev").click();
+        if (state.tab === "calendar" && e.key === "ArrowRight") $("#calNext").click();
+      });
+      addEventListener("scroll", () => $("#top").classList.toggle("scrolled", scrollY > 8), { passive: true });
+      addEventListener("resize", moveInd);
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) { render(); if (state.mode === "remote") connect(); } });
 
-// ---------- boot ----------
-applyTheme();
-setTab(["upcoming", "calendar", "all"].includes(state.tab) ? state.tab : "upcoming");
-render();
-document.fonts?.ready.then(moveInd);
-if (location.protocol === "file:") { state.mode = "local"; setPill("local"); } else connect();
-if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("/sw.js").catch(() => {});
-})();
-</script>
+      // ---------- boot ----------
+      applyTheme();
+      setTab(["upcoming", "calendar", "all"].includes(state.tab) ? state.tab : "upcoming");
+      render();
+      document.fonts?.ready.then(moveInd);
+      if (location.protocol === "file:") { state.mode = "local"; setPill("local"); } else connect();
+      if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("/sw.js").catch(() => { });
+    })();
+  </script>
 </body>
+
 </html>
