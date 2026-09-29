@@ -46,6 +46,8 @@ Build command: *(empty)* · Publish directory: `.` · Functions directory is rea
 | `REMINDER_TZ` | optional fallback time zone, default `Asia/Kolkata` (each user's own zone is used when known) |
 | `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` | phone notifications — copy from `.env` (or `npx web-push generate-vapid-keys`) |
 | `VAPID_SUBJECT` | `mailto:` + your email |
+| `FIREBASE_API_KEY` | Google sign-in (optional): the web app `apiKey` from Firebase → Project settings. Public, not a secret |
+| `FIREBASE_PROJECT_ID` | Firebase project id (defaults to `device-streaming-a4f3601d`) |
 
 Redeploy after adding them.
 
@@ -58,6 +60,14 @@ npm run dev
 - App: http://localhost:8888 · Admin: http://localhost:8888/admin (password = `ADMIN_PASSWORD` in `.env`)
 - http://localhost:8888/__remind runs the reminder job immediately (sends real emails for anything due)
 - Local data lives in `.netlify/local-blobs/` (delete it to start fresh)
+
+## Smoke-test a deployment
+After deploying, run `npm run smoke -- --url https://wishlyme.netlify.app`. The script prompts for an
+existing account name and a hidden password, checks the site/API/login and account data, then briefly
+saves and removes one uniquely named test date. It preserves the account's other dates. To also send
+a real email and/or phone notification, add `--send-reminder`; this is opt-in because it contacts
+the account's configured channels. For non-interactive runs, set `WISHLY_TEST_NAME` and
+`WISHLY_TEST_PASSWORD` in the shell environment rather than committing them to the repository.
 
 ## Circles (shared spaces + encrypted chat)
 A circle is a shared space for 5–50 friends or colleagues: everyone adds dates, everyone sees them and gets the

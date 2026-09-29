@@ -6,6 +6,7 @@ import {
   appendLog, circleEventsKey, circleKey, deliver, getJSON, inviteKey, messagePrefix, patchUser, updateJSON, userEvents,
 } from "../shared/deliver.mjs";
 import { mailConfigured } from "../shared/mail.mjs";
+import { googleConfig, verifyGoogleToken } from "../shared/google.mjs";
 import { pushConfigured, pushToAll, validSubscription, vapidPublicKey } from "../shared/push.mjs";
 import { normRemind, remindKey, tzName, validTz } from "../shared/schedule.mjs";
 
@@ -116,6 +117,25 @@ async function handle(req, { url, path, method, store, body, session }) {
     if (q.get("n")) L.push(`DESCRIPTION:${esc(q.get("n").slice(0, 500))}`);
     L.push("BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:Reminder", "TRIGGER:-PT15H", "END:VALARM", "END:VEVENT", "END:VCALENDAR");
     return new Response(L.join("\r\n") + "\r\n", { headers: { "content-type": "text/calendar; charset=utf-8", "content-disposition": 'inline; filename="wishly.ics"', "cache-control": "no-store" } });
+  }
+
+  // What the sign-in screen needs before anyone is signed in.
+  if (path === "/public" && method === "GET") return json({ google: googleConfig() });
+
+  // Google sign-in: the browser sends a Firebase ID token; we verify it and open (or create) that person's space.
+  if (path === "/google" && method === "POST") {
+    let g;
+    try { g = await verifyGoogleToken(body.idToken); } catch { await sleep(400); return json({ error: "Google sign-in couldn't be verified. Please try again." }, 401); }
+    const k = `g:${g.sub}`, now = Date.now();
+    let user = await getJSON(store, userKey(k)), isNew = false;
+    if (!user) {
+      const name = (g.name || g.email.split("@")[0] || "Friend").replace(/[^\p{L}\p{N} ._'-]/gu, "").trim().slice(0, 32) || "Friend";
+      user = { name, key: k, google: true, email: g.verified ? g.email : "", push: [], circles: [], tz: validTz(body.tz) ? body.tz : tzName(), created: now, lastSeen: now };
+      const made = await store.setJSON(userKey(k), user, { onlyIfNew: true });
+      if (made.modified) { isNew = true; await store.setJSON(eventsKey(k), []); await logActivity(store, [{ user: name, action: "joined", at: now }]); }
+      else user = await getJSON(store, userKey(k));
+    }
+    return json({ token: sign({ u: k }), user: publicUser(user), isNew });
   }
 
   // ---------- accounts ----------

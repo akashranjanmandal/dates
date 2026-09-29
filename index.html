@@ -1282,7 +1282,7 @@ body.in-chat main { padding-bottom: 0; }
       left: 50%;
       bottom: calc(92px + env(safe-area-inset-bottom));
       translate: -50% 0;
-      z-index: 100;
+      z-index: 3000;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -1678,6 +1678,16 @@ body.in-chat main { padding-bottom: 0; }
     details.more > summary::after { content: "  +"; }
     details.more[open] > summary::after { content: "  \2212"; }
     #btnGcal:disabled { opacity: .5; }
+    body.sheet-open #toasts { top: calc(14px + env(safe-area-inset-top)); bottom: auto; }
+    .toast { font-weight: 500; }
+    .toast.error { background: #3a1d1f; color: #f2c6c0; border-color: rgba(217,169,160,.5); }
+    .or { display: flex; align-items: center; gap: 10px; color: var(--faint); font-size: 12px; margin: 14px 0 12px; }
+    .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+    .btn.google { width: 100%; justify-content: center; gap: 10px; }
+    .btn.google svg { width: 18px; height: 18px; }
+    .auth-install { margin-top: 16px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 16px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .auth-install b { color: var(--ink); }
+    .auth-install .btn { margin-top: 8px; width: 100%; justify-content: center; }
     /* Credit */
     .credit { text-align: center; padding: 34px 16px calc(96px + env(safe-area-inset-bottom)); color: var(--faint); font: 500 12px/1.6 var(--mono); letter-spacing: .04em; }
     .credit b { color: var(--muted); font-weight: 600; }
@@ -2006,6 +2016,14 @@ body.in-chat main { padding-bottom: 0; }
         <div class="hint err" id="authErr"></div>
         <button class="btn primary" type="submit" id="authBtn">Sign in</button>
       </form>
+      <div id="googleBox" hidden>
+        <div class="or">or</div>
+        <button type="button" class="btn google" id="btnGoogle"><svg viewBox="0 0 24 24"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.4-1.7 4-5.5 4a6.1 6.1 0 0 1 0-12.2c1.9 0 3.2.8 3.9 1.5l2.7-2.6A9.8 9.8 0 0 0 12 2.2a9.8 9.8 0 1 0 0 19.6c5.7 0 9.4-4 9.4-9.6 0-.6-.1-1.1-.2-1.6H12Z"/></svg>Continue with Google</button>
+      </div>
+      <div class="auth-install" id="authInstall" hidden>
+        <span id="authInstallText"></span>
+        <button type="button" class="btn primary" id="btnInstall2" hidden>Install Wishly</button>
+      </div>
     </div>
   </div>
 
@@ -2870,13 +2888,17 @@ body.in-chat main { padding-bottom: 0; }
       });
       // Android/desktop Chrome: offer a one-tap install button.
       let installPrompt = null;
-      addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; $("#btnInstall").hidden = false; });
-      $("#btnInstall").addEventListener("click", async () => {
+      addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; $("#btnInstall").hidden = false; $("#btnInstall2").hidden = false; $("#authInstall").hidden = standalone; $("#authInstallText").innerHTML = "Install Wishly on your phone for one-tap access and reminders."; });
+      const doInstall = async () => {
         if (!installPrompt) return;
         installPrompt.prompt();
         await installPrompt.userChoice;
-        installPrompt = null; $("#btnInstall").hidden = true;
-      });
+        installPrompt = null; $("#btnInstall").hidden = true; $("#authInstall").hidden = true;
+      };
+      $("#btnInstall").addEventListener("click", doInstall);
+      $("#btnInstall2").addEventListener("click", doInstall);
+      if (!standalone && isIOS) { $("#authInstall").hidden = false; $("#authInstallText").innerHTML = "Get the app: tap <b>Share</b> in Safari, then <b>Add to Home Screen</b>. You'll need this for phone reminders."; }
+      else if (!standalone && /android/i.test(navigator.userAgent)) { $("#authInstall").hidden = false; $("#authInstallText").innerHTML = "Get the app: tap the <b>menu (three dots)</b>, then <b>Install app</b>."; }
       if (matchMedia("(display-mode: standalone)").matches || navigator.standalone) $("#installSec").hidden = true;
       $("#btnSignOut").addEventListener("click", () => { $("#settingsDlg").close(); signOut(); });
 
@@ -2945,6 +2967,27 @@ body.in-chat main { padding-bottom: 0; }
         } catch (err) {
           $("#authErr").textContent = err.status === 0 ? "Can't reach the server. Check your connection and try again." : err.message;
         } finally { btn.disabled = false; btn.textContent = label; }
+      });
+
+      // ---------- Google sign-in (Firebase Authentication) ----------
+      fetch("/api/public").then((r) => r.json()).then((c) => { if (c.google) { state.google = c.google; $("#googleBox").hidden = false; } }).catch(() => { });
+      $("#btnGoogle").addEventListener("click", async () => {
+        const btn = $("#btnGoogle"); btn.disabled = true; $("#authErr").textContent = "";
+        try {
+          const V = "10.12.2", g = state.google;
+          const [{ initializeApp }, A] = await Promise.all([import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`), import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`)]);
+          const auth = A.getAuth(initializeApp(g));
+          const cred = await A.signInWithPopup(auth, new A.GoogleAuthProvider());
+          const r = await api("/api/google", { method: "POST", body: JSON.stringify({ idToken: await cred.user.getIdToken(), tz: browserTz() }) });
+          state.token = r.token; ls.set(LS.token, r.token);
+          state.user = r.user; ls.set(LS.user, r.user);
+          state.personal = state.events = ls.get(cacheKey(), []);
+          hideAuth(); await connect();
+          toast(r.isNew ? `Welcome to Wishly, ${r.user.name.split(" ")[0]}!` : `Welcome back, ${r.user.name.split(" ")[0]}`);
+        } catch (err) {
+          const c = err.code || "";
+          $("#authErr").textContent = /popup-closed|cancelled/.test(c) ? "" : /popup-blocked/.test(c) ? "Your browser blocked the Google window. Allow pop-ups for this site and try again." : /unauthorized-domain/.test(c) ? "This website isn't approved for Google sign-in yet." : err.status === 0 ? "Can't reach the server. Check your connection." : (err.message || "Google sign-in didn't work. Please try again.");
+        } finally { btn.disabled = false; }
       });
 
       // ---------- circles: shared spaces with end-to-end encrypted chat ----------

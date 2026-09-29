@@ -21,8 +21,8 @@ export function validSubscription(s) {
 
 // Sends to every device; returns { sent, failed, gone } where `gone` lists endpoints to forget.
 export async function pushToAll(subscriptions, payload) {
-  setup();
   const result = { sent: 0, failed: 0, gone: [], error: "" };
+  try { setup(); } catch (e) { result.failed = (subscriptions || []).length; result.error = `Notification keys on the server are invalid: ${e.message}`.slice(0, 200); return result; }
   await Promise.all((subscriptions || []).map(async (sub) => {
     try {
       await webpush.sendNotification(sub, JSON.stringify(payload), { TTL: 12 * 3600, urgency: "high" });

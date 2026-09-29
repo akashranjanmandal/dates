@@ -8,6 +8,7 @@
     "web-push": "^3.6.7"
   },
   "scripts": {
-    "dev": "node --env-file=.env scripts/dev.mjs"
+    "dev": "node --env-file=.env scripts/dev.mjs",
+    "smoke": "node scripts/smoke.mjs"
   }
 }
