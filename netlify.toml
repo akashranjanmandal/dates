@@ -4,7 +4,7 @@
 
 # These three aren't secrets (the code ships them as defaults), so don't let secret scanning fail the build.
 [build.environment]
-  SECRETS_SCAN_OMIT_KEYS = "EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,REMINDER_TZ"
+  SECRETS_SCAN_OMIT_KEYS = "EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,REMINDER_TZ,FIREBASE_PROJECT_ID,FIREBASE_API_KEY"
 
 [functions]
   node_bundler = "esbuild"
