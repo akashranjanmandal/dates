@@ -392,18 +392,27 @@ function derive() {
 }
 
 // ---------- views ----------
-const VIEWS = ["overview", "users", "dates", "activity", "deliveries"];
+const VIEWS = ["overview", "users", "circles", "dates", "activity", "deliveries"];
 let view = ss.get("wishly.adminTab", "overview");
 
 function renderTabs() {
   const d = derive();
-  const counts = { users: d.users.length, dates: d.events.length, activity: data.activity.length, deliveries: data.deliveries.length };
+  const counts = { users: d.users.length, circles: data.circles.length, dates: d.events.length, activity: data.activity.length, deliveries: data.deliveries.length };
   $("#tabs").innerHTML = VIEWS.map((v) => `<button class="tab" role="tab" data-tab="${v}" aria-selected="${v === view}">${v[0].toUpperCase() + v.slice(1)}${counts[v] != null ? `<span class="n">${counts[v]}</span>` : ""}</button>`).join("");
 }
 $("#tabs").addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b) { view = b.dataset.tab; ss.set("wishly.adminTab", view); renderTabs(); renderView(); scrollTo({ top: 0 }); } });
 
 function renderView() {
-  ({ overview, users: usersView, dates: datesView, activity: activityView, deliveries: deliveriesView })[view]();
+  ({ overview, users: usersView, circles: circlesView, dates: datesView, activity: activityView, deliveries: deliveriesView })[view]();
+}
+
+// The reminder job runs every 5 minutes and leaves a heartbeat — if it's stale, reminders aren't going out.
+function schedulerStatus() {
+  const h = data.heartbeat;
+  if (!h) return status("bad", "never ran");
+  const mins = Math.round((Date.now() - h.at) / 60000);
+  if (mins > 15) return status("bad", `stalled — last ran ${ago(h.at)}`);
+  return h.error ? status("bad", `error ${ago(h.at)}`) : status("good", `ran ${ago(h.at)}`);
 }
 
 function overview() {
@@ -428,6 +437,8 @@ function overview() {
         <li><span class="k">Users with email</span><span>${d.withEmail} of ${d.users.length}</span></li>
         <li><span class="k">Users with notifications</span><span>${d.withPush} of ${d.users.length}</span></li>
         <li><span class="k">Last delivery</span>${data.deliveries[0] ? (data.deliveries[0].ok ? status("good", ago(data.deliveries[0].at)) : status("bad", `failed ${ago(data.deliveries[0].at)}`)) : '<span class="k">none yet</span>'}</li>
+        <li><span class="k">Reminder scheduler</span>${schedulerStatus()}</li>
+        <li><span class="k">Circles</span><span>${data.circles.length}</span></li>
         <li><span class="k">Default time zone</span><span>${esc(data.tz)}</span></li>
       </ul></div></div>
     </div>
@@ -508,6 +519,7 @@ function usersView() {
       { key: "name", label: "Name", primary: true, get: (u) => u.name, html: (u) => `<div class="who"><span class="av">${esc(u.name[0].toUpperCase())}</span><span class="nm">${esc(u.name)}</span></div>` },
       { key: "dates", label: "Dates", num: true, get: (u) => u.events.length, html: (u) => u.events.length },
       { key: "email", label: "Email", get: (u) => u.email, html: (u) => u.email ? `<span class="mut">${esc(u.email)}</span>` : status("off", "none") },
+      { key: "circles", label: "Circles", num: true, get: (u) => u.circles || 0, html: (u) => u.circles || "—" },
       { key: "devices", label: "Phones", num: true, get: (u) => u.devices, html: (u) => u.devices || "—" },
       { key: "delivery", label: "Last reminder", get: (u) => u.lastDelivery?.at || 0, html: (u) => !u.lastDelivery ? '<span class="mut">—</span>' : u.lastDelivery.ok ? status("good", ago(u.lastDelivery.at)) : status("bad", `failed ${ago(u.lastDelivery.at)}`) },
       { key: "created", label: "Joined", get: (u) => u.created, html: (u) => `<span class="mut" title="${fullDate(u.created)}">${ago(u.created)}</span>` },
@@ -515,6 +527,32 @@ function usersView() {
     ], { onRow: openUser, empty: data.users.length ? "No users match." : "No one has signed up yet — share your Wishly link!" });
   };
   wireToolbar("users", draw); draw();
+}
+
+function circlesView() {
+  tableState("circles", { sort: "created", dir: "desc" });
+  $("#main").innerHTML = `<div class="view">${toolbar("circles", "Search circles or members…")}</div>`;
+  const draw = () => {
+    const st = tables.circles;
+    const rows = data.circles.filter((c) => !st.q || `${c.name} ${c.owner} ${c.members.join(" ")}`.toLowerCase().includes(st.q));
+    renderTable($("#t-circles"), "circles", rows, [
+      { key: "name", label: "Circle", primary: true, get: (c) => c.name, html: (c) => esc(c.name) },
+      { key: "members", label: "Members", num: true, get: (c) => c.members.length, html: (c) => `<span title="${esc(c.members.join(", "))}">${c.members.length}</span>` },
+      { key: "events", label: "Shared dates", num: true, get: (c) => c.events, html: (c) => c.events },
+      { key: "messages", label: "Messages", num: true, get: (c) => c.messages, html: (c) => c.messages },
+      { key: "owner", label: "Owner", get: (c) => c.owner, html: (c) => `<span class="mut">${esc(c.owner)}</span>` },
+      { key: "lastMsgAt", label: "Last chat", get: (c) => c.lastMsgAt, html: (c) => c.lastMsgAt ? `<span class="mut">${ago(c.lastMsgAt)}</span>` : '<span class="mut">—</span>' },
+      { key: "created", label: "Created", get: (c) => c.created, html: (c) => `<span class="mut" title="${fullDate(c.created)}">${ago(c.created)}</span>` },
+      { key: "del", label: "", full: true, html: (c) => `<button class="btn danger" data-delcircle="${esc(c.id)}" data-name="${esc(c.name)}">Delete</button>` },
+    ], { empty: "No circles yet." });
+  };
+  wireToolbar("circles", draw); draw();
+  $("#t-circles").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-delcircle]"); if (!b) return;
+    if (!confirm(`Delete the circle "${b.dataset.name}", its shared dates and its chat? This can't be undone.`)) return;
+    try { await api(`/api/admin/circles/${b.dataset.delcircle}`, { method: "DELETE" }); toast("Circle deleted"); await load(); }
+    catch (err) { toast(err.message, "error"); }
+  });
 }
 
 function datesView() {

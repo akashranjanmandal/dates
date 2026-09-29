@@ -10,21 +10,36 @@ const cfg = () => ({
 
 export const mailConfigured = () => Boolean(cfg().publicKey);
 
-// `to` is the signed-in user's own reminder address (set in their Settings).
+// EmailJS rejects bursts (HTTP 429), so sends are spaced out and a rate-limited one is retried.
+let lastSend = 0;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// `to` is the person's own reminder address (set in their Settings).
 export async function sendMail(params, to) {
   const c = cfg();
-  const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      service_id: c.service,
-      template_id: c.template,
-      user_id: c.publicKey,
-      ...(c.privateKey && { accessToken: c.privateKey }),
-      template_params: { to_email: to, app_url: (process.env.URL || "").replace(/\/$/, ""), ...params },
-    }),
+  const body = JSON.stringify({
+    service_id: c.service,
+    template_id: c.template,
+    user_id: c.publicKey,
+    ...(c.privateKey && { accessToken: c.privateKey }),
+    template_params: { to_email: to, app_url: (process.env.URL || "").replace(/\/$/, ""), ...params },
   });
-  if (!res.ok) throw new Error(`EmailJS ${res.status}: ${await res.text()}`);
+  let lastErr;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const wait = lastSend + 1200 - Date.now();
+    if (wait > 0) await sleep(wait);
+    lastSend = Date.now();
+    let res;
+    try {
+      res = await fetch("https://api.emailjs.com/api/v1.0/email/send", { method: "POST", headers: { "content-type": "application/json" }, body });
+    } catch (e) { lastErr = new Error(`Couldn't reach EmailJS: ${e.message}`); await sleep(1500); continue; }
+    if (res.ok) return;
+    const text = (await res.text()).slice(0, 300);
+    lastErr = new Error(`EmailJS ${res.status}: ${text}`);
+    if (res.status !== 429 && res.status < 500) break; // a real rejection — retrying won't help
+    await sleep(1500 * (attempt + 1));
+  }
+  throw lastErr;
 }
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));

@@ -1272,6 +1272,45 @@
 @media (max-width: 480px) { .rem-custom { flex-wrap: wrap; } .rem-custom select { flex: 1 1 100%; } }
 .status-ok { color: #4f9d69; } .status-bad { color: var(--c-birthday); }
 
+/* Spaces: my dates + circles */
+.spaces { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 16px 16px 0; }
+.spaces::-webkit-scrollbar { display: none; }
+.space { flex: none; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); padding: 6px 12px 6px 6px; border-radius: 999px; font-size: 13px; font-weight: 500; transition: all .15s; }
+.space .sav { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 600 11px/1 var(--sans); color: #fff; background: linear-gradient(135deg, #e07a5f, #8a5a83); }
+.space[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.space .dot-new { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.space.add { color: var(--accent); border-style: dashed; padding-left: 12px; }
+.circle-head { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 12px 12px 12px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; animation: fade .35s var(--ease); }
+.circle-head .avs { display: flex; flex: none; }
+.circle-head .avs span { width: 30px; height: 30px; border-radius: 50%; margin-left: -9px; border: 2px solid var(--surface); display: grid; place-items: center; font: 600 11px/1 var(--sans); color: #fff; background: linear-gradient(135deg, #e07a5f, #8a5a83); }
+.circle-head .avs span:first-child { margin-left: 0; }
+.circle-head .ci { flex: 1; min-width: 0; }
+.circle-head .ci b { display: block; font: 400 18px/1.2 var(--serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.circle-head .ci span { color: var(--muted); font-size: 12px; }
+.circle-head .icon-btn svg { width: 18px; height: 18px; }
+@media (max-width: 420px) { .circle-head .avs { display: none; } }
+.badge { background: var(--accent); color: var(--accent-ink); font-size: 10px; font-weight: 600; border-radius: 999px; padding: 1px 6px; margin-left: 6px; vertical-align: 1px; }
+.member-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.member-row:first-of-type { border-top: 0; }
+
+/* Chat */
+.chat-note { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; margin-bottom: 12px; }
+.chat-note svg { width: 16px; height: 16px; flex: none; color: var(--accent); margin-top: 1px; }
+.msgs { display: flex; flex-direction: column; gap: 6px; min-height: 30vh; padding-bottom: 8px; }
+.day-sep { text-align: center; font-size: 11px; color: var(--faint); margin: 12px 0 4px; text-transform: uppercase; letter-spacing: .08em; }
+.msg { max-width: 80%; align-self: flex-start; background: var(--surface); border: 1px solid var(--line); padding: 8px 12px 6px; border-radius: 16px 16px 16px 4px; animation: pop .25s var(--ease) both; }
+.msg.me { align-self: flex-end; background: var(--accent-soft); border-color: transparent; border-radius: 16px 16px 4px 16px; }
+.msg .who { font-size: 12px; font-weight: 600; color: var(--accent); margin-bottom: 2px; }
+.msg .txt { white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg .tm { font-size: 10px; color: var(--faint); margin-top: 3px; text-align: right; }
+.msg.locked .txt { color: var(--faint); font-style: italic; }
+.composer { position: sticky; bottom: 0; z-index: 5; display: flex; gap: 8px; align-items: flex-end; padding: 10px 0 calc(14px + env(safe-area-inset-bottom)); background: linear-gradient(to top, var(--bg) 75%, transparent); }
+.composer textarea { flex: 1; resize: none; max-height: 140px; min-height: 44px; line-height: 1.4; }
+.composer .btn { height: 44px; width: 48px; padding: 0; }
+.composer .btn svg { width: 18px; height: 18px; }
+body.in-chat .fab { display: none; }
+body.in-chat main { padding-bottom: 0; }
+
 /* Toasts */
     #toasts {
       position: fixed;
@@ -1409,6 +1448,8 @@
   </header>
 
   <main class="wrap">
+    <nav class="spaces" id="spaces" hidden aria-label="Your spaces"></nav>
+    <div id="circleHead"></div>
     <section class="hero" id="hero"></section>
 
     <nav class="tabs" role="tablist" id="tabs">
@@ -1416,6 +1457,7 @@
       <button class="tab" role="tab" data-tab="upcoming">Upcoming</button>
       <button class="tab" role="tab" data-tab="calendar">Calendar</button>
       <button class="tab" role="tab" data-tab="all">Everyone</button>
+      <button class="tab" role="tab" data-tab="chat" id="chatTab" hidden>Chat<span class="badge" id="chatBadge" hidden>new</span></button>
     </nav>
 
     <section class="view" id="view-upcoming"></section>
@@ -1458,6 +1500,21 @@
       </div>
       <div class="chips" id="filters"></div>
       <div id="allList"></div>
+    </section>
+
+    <section class="view" id="view-chat">
+      <div class="chat-note" id="chatNote"></div>
+      <form class="email-row" id="unlockForm" hidden style="margin-bottom:12px">
+        <input class="input" id="unlockInput" placeholder="Paste the circle's invite link" aria-label="Invite link">
+        <button class="btn primary">Unlock</button>
+      </form>
+      <div class="msgs" id="msgs"></div>
+      <form class="composer" id="composer">
+        <textarea class="input" id="msgInput" rows="1" maxlength="4000" aria-label="Message"></textarea>
+        <button class="btn primary" id="sendBtn" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </button>
+      </form>
     </section>
   </main>
 
@@ -1615,6 +1672,12 @@
         <p id="pushStatus">…</p>
         <div class="btn-row"><button class="btn primary" id="btnPush">Turn on for this device</button></div>
       </div>
+      <div class="settings-sec" id="testSec">
+        <h3>Check your reminders</h3>
+        <p>Sends a test right now to your email and phone(s) and shows exactly what happened.</p>
+        <div class="btn-row"><button class="btn" id="btnTest">Send me a test reminder</button></div>
+        <p class="hint" id="testResult" style="margin-top:8px"></p>
+      </div>
       <div class="settings-sec" id="lastSec" hidden>
         <h3>Last reminder</h3>
         <p id="lastDelivery"></p>
@@ -1682,6 +1745,59 @@
     </div>
   </div>
 
+  <!-- Circles: create / join -->
+  <dialog id="circleDlg" aria-labelledby="circleDlgTitle">
+    <div class="grab"></div>
+    <div class="sheet-h">
+      <h2 id="circleDlgTitle">Circles</h2>
+      <button type="button" class="icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg></button>
+    </div>
+    <div class="sheet-b">
+      <p class="note">A circle is a shared space for a group of friends or colleagues. Everyone adds the dates they know,
+        everyone sees them and gets the reminders, and you can chat — end-to-end encrypted.</p>
+      <form class="field" id="newCircleForm">
+        <label for="circleName">Start a new circle</label>
+        <div class="email-row"><input class="input" id="circleName" maxlength="40" placeholder="e.g. College Gang" autocomplete="off"><button class="btn primary">Create</button></div>
+      </form>
+      <form class="field" id="joinCircleForm">
+        <label for="joinInput">Or join one with an invite link</label>
+        <div class="email-row"><input class="input" id="joinInput" placeholder="Paste the invite link" autocomplete="off"><button class="btn">Join</button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Circles: invite -->
+  <dialog id="inviteDlg" aria-labelledby="inviteTitle">
+    <div class="grab"></div>
+    <div class="sheet-h">
+      <h2 id="inviteTitle">Invite</h2>
+      <button type="button" class="icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg></button>
+    </div>
+    <div class="sheet-b">
+      <p style="color:var(--muted);margin-top:0">Send this link to your friends. They open it, sign in (or create an account) and they're in —
+        with access to the shared dates and the encrypted chat.</p>
+      <input class="input" id="inviteLink" readonly aria-label="Invite link" onclick="this.select()">
+      <div class="btn-row" style="margin-top:10px">
+        <button class="btn primary" id="btnCopy">Copy link</button>
+        <button class="btn" id="btnShare">Share…</button>
+      </div>
+      <p class="note" style="margin-top:14px"><b>Keep this link within the group.</b> The part after <b>#</b> is the chat's secret key — it never reaches
+        our server, so anyone who has the link can join and read the chat.</p>
+      <p class="note" id="inviteNoKey" hidden style="margin-top:8px;color:var(--c-birthday)">This device doesn't have the chat key, so this link lets
+        people join but not read the chat. Unlock the chat on this device first (circle settings → paste the original invite link).</p>
+    </div>
+  </dialog>
+
+  <!-- Circles: settings -->
+  <dialog id="circleInfoDlg" aria-labelledby="circleInfoTitle">
+    <div class="grab"></div>
+    <div class="sheet-h">
+      <h2 id="circleInfoTitle">Circle settings</h2>
+      <button type="button" class="icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg></button>
+    </div>
+    <div class="sheet-b" id="circleInfo"></div>
+  </dialog>
+
   <div id="toasts" aria-live="polite"></div>
 
   <script>
@@ -1737,6 +1853,11 @@
         token: ls.get(LS.token, ""),
         user: ls.get(LS.user, null),
         events: [],
+        personal: [],            // my own dates
+        circles: [],             // circles I'm in
+        circleEvents: {},        // circle id -> shared dates
+        snap: {},                // circle id -> last server version (for merging edits)
+        space: ls.get("wishly.space", "me"),
         mode: "connecting",       // connecting | remote | local | locked
         server: null,
         tab: ls.get(LS.tab, "upcoming"),
@@ -1749,7 +1870,7 @@
 
       // Each account gets its own cache on a shared device.
       const cacheKey = () => LS.events + (state.user ? state.user.name.toLowerCase() : "local");
-      state.events = ls.get(cacheKey(), []);
+      state.personal = state.events = ls.get(cacheKey(), []);
 
       // ---------- dates ----------
       function today() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
@@ -1828,9 +1949,11 @@
           const tz = browserTz();
           if (tz && tz !== d.user.tz) api("/api/profile", { method: "PUT", body: JSON.stringify({ tz }) }).then((r) => { state.user = r.user; ls.set(LS.user, r.user); }).catch(() => { });
           state.mode = "remote";
-          state.events = d.events; ls.set(cacheKey(), state.events);
+          state.personal = d.events; ls.set(cacheKey(), d.events);
+          state.circles = d.circles || [];
+          if (state.space === "me") state.events = state.personal;
           setPill("synced");
-          render();
+          await afterConnect();
         } catch (e) {
           if (e.status === 401) signOut("Please sign in again.");
           else {
@@ -1842,6 +1965,14 @@
 
       let saveTimer = null, pushing = false;
       function persist() {
+        if (state.space !== "me") {
+          const id = state.space;
+          state.circleEvents[id] = state.events; ls.set(`wishly.cev.${id}`, state.events);
+          render();
+          if (state.mode === "remote") queueCircleSync(id);
+          return;
+        }
+        state.personal = state.events;
         ls.set(cacheKey(), state.events);
         render();
         if (state.mode === "remote") {
@@ -1901,7 +2032,7 @@
         const t = today();
         const n = occ ? daysBetween(t, occ) : null;
         const d = occ ? detail(ev, occ) : "";
-        const sub = [TYPES[ev.type].label, d, ev.time && fmtTime(ev.time), ev.repeat === "yearly" && !occ ? "every year" : ""].filter(Boolean).join(" · ");
+        const sub = [TYPES[ev.type].label, d, ev.time && fmtTime(ev.time), ev.repeat === "yearly" && !occ ? "every year" : "", ev.by && state.space !== "me" ? `added by ${ev.by.split(" ")[0]}` : ""].filter(Boolean).join(" · ");
         const shown = occ || nextOcc(ev);
         const whenCls = n === 0 ? "today" : n != null && n >= 0 && n <= 7 ? "soon" : "";
         return `<button class="row ty-${ev.type}" data-id="${ev.id}" style="animation-delay:${Math.min(i, 12) * 25}ms">
@@ -1918,7 +2049,12 @@
 
       function renderUpcoming() {
         const el = $("#view-upcoming");
-        if (!state.events.length) { el.innerHTML = emptyHtml("Your year, remembered.", "Add friends' birthdays, anniversaries and plans — we'll email you the night before."); return; }
+        if (!state.events.length) {
+          el.innerHTML = state.space !== "me"
+            ? emptyHtml("Nothing shared yet.", "Add the birthdays and plans this group should remember — everyone in the circle sees them and gets reminded.")
+            : emptyHtml("Your year, remembered.", "Add friends' birthdays, anniversaries and plans — we'll remind you before each one.");
+          return;
+        }
         const t = today(), end = addDays(t, 366);
         const items = state.events.map((ev) => ({ ev, occ: nextOcc(ev, t) }))
           .filter((x) => x.occ >= t && x.occ < end).sort((a, b) => a.occ - b.occ || a.ev.title.localeCompare(b.ev.title));
@@ -1988,7 +2124,13 @@
 
       // ---------- tabs ----------
       function setTab(tab) {
+        if (tab === "chat" && !inCircle()) tab = "upcoming";
+        const wasChat = state.tab === "chat";
         state.tab = tab; ls.set(LS.tab, tab);
+        document.body.classList.toggle("in-chat", tab === "chat");
+        if (tab === "chat") { markRead(state.space); renderChat(true); renderSpaces(); }
+        if (inCircle() && (tab === "chat") !== wasChat) startChatPoll();
+        if (inCircle() && tab !== "chat") loadCircle(state.space);
         document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === tab));
         document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === `view-${tab}`));
         moveInd();
@@ -2235,7 +2377,8 @@
         const ch = [];
         if (state.server?.mail && state.user?.email) ch.push(`email (${state.user.email})`);
         if (state.server?.push && state.user?.devices) ch.push(`phone notification`);
-        return ch.length ? `You'll get ${ch.join(" + ")}.` : "Add your email or turn on phone notifications in Settings to receive these.";
+        const shared = state.space !== "me" ? ` Everyone in ${inCircle()?.name || "the circle"} gets reminded too.` : "";
+        return ch.length ? `You'll get ${ch.join(" + ")}.${shared}` : `Add your email or turn on phone notifications in Settings to receive these.${shared}`;
       }
       function ago(ts) {
         const m = Math.round((Date.now() - ts) / 60000);
@@ -2330,6 +2473,7 @@
           ? `Signed in as ${state.user.name}. Your dates sync across all your devices.`
           : `Saved in this browser only (${state.events.length} dates).`;
         $("#btnSignOut").hidden = !remote;
+        $("#testSec").hidden = !remote;
         $(`#themeSeg input[value="${ls.get(LS.theme, "dark")}"]`).checked = true;
         $("#settingsDlg").showModal();
       }
@@ -2404,7 +2548,10 @@
       }
       function signOut(msg = "") {
         ls.del(LS.token); ls.del(LS.user);
-        Object.assign(state, { token: "", user: null, server: null, events: [] });
+        stopChatPoll();
+        Object.assign(state, { token: "", user: null, server: null, events: [], personal: [], circles: [], circleEvents: {}, snap: {}, space: "me" });
+        ls.set("wishly.space", "me");
+        $("#chatTab").hidden = true; renderSpaces();
         render();
         showAuth(msg);
       }
@@ -2427,7 +2574,7 @@
           const r = await api(`/api/${mode}`, { method: "POST", body: JSON.stringify({ name, password, tz: browserTz() }) });
           state.token = r.token; ls.set(LS.token, r.token);
           state.user = r.user; ls.set(LS.user, r.user);
-          state.events = ls.get(cacheKey(), []);
+          state.personal = state.events = ls.get(cacheKey(), []);
           hideAuth();
           await connect();
           const first = r.user.name.split(" ")[0];
@@ -2438,6 +2585,433 @@
         } catch (err) {
           $("#authErr").textContent = err.status === 0 ? "Can't reach the server. Check your connection and try again." : err.message;
         } finally { btn.disabled = false; btn.textContent = label; }
+      });
+
+      // ---------- circles: shared spaces with end-to-end encrypted chat ----------
+      // The chat key is created on the device that makes the circle and travels only inside the
+      // invite link's #fragment (browsers never send that part to the server). The server stores
+      // ciphertext it cannot read.
+      const b64u = {
+        enc: (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""),
+        dec: (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - s.length % 4) % 4)), (c) => c.charCodeAt(0)),
+      };
+      const te = new TextEncoder(), td = new TextDecoder();
+      const keyCache = new Map();
+      const rawKey = (id) => ls.get(`wishly.ck.${id}`, "");
+      const importAes = (raw) => crypto.subtle.importKey("raw", b64u.dec(raw), "AES-GCM", false, ["encrypt", "decrypt"]);
+      async function cryptoKey(id) {
+        const raw = rawKey(id);
+        if (!raw) return null;
+        if (!keyCache.has(id)) keyCache.set(id, await importAes(raw));
+        return keyCache.get(id);
+      }
+      async function seal(key, text, aad) {
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv, additionalData: te.encode(aad) }, key, te.encode(text));
+        return { iv: b64u.enc(iv), ct: b64u.enc(ct) };
+      }
+      async function unseal(key, box, aad) {
+        try { return td.decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64u.dec(box.iv), additionalData: te.encode(aad) }, key, b64u.dec(box.ct))); }
+        catch { return null; }
+      }
+      async function keyMatches(circle, raw) {
+        if (!circle.keyCheck) return true;
+        try { return (await unseal(await importAes(raw), circle.keyCheck, "check")) === "wishly-key-check"; } catch { return false; }
+      }
+      async function saveKey(circle, raw) {
+        if (!raw || !(await keyMatches(circle, raw))) return false;
+        ls.set(`wishly.ck.${circle.id}`, raw); keyCache.delete(circle.id);
+        return true;
+      }
+      const inviteLink = (c) => `${location.origin}/?join=${c.invite}${rawKey(c.id) ? `#k=${rawKey(c.id)}` : ""}`;
+      function parseInvite(text) {
+        const s = String(text || "").trim();
+        try {
+          const u = new URL(s);
+          return { code: u.searchParams.get("join") || "", k: new URLSearchParams(u.hash.slice(1)).get("k") || "" };
+        } catch { return { code: /^[A-Za-z0-9]{6,20}$/.test(s) ? s : "", k: "" }; }
+      }
+      const myKey = () => (state.user?.name || "").trim().replace(/\s+/g, " ").toLowerCase();
+      const initial = (n) => esc(String(n || "?").trim()[0].toUpperCase());
+      const SVG = {
+        more: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>',
+        lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+      };
+
+      const circleById = (id) => state.circles.find((c) => c.id === id);
+      const inCircle = () => (state.space !== "me" ? circleById(state.space) : null);
+      const lastRead = (id) => ls.get(`wishly.read.${id}`, 0);
+      const markRead = (id) => { ls.set(`wishly.read.${id}`, Date.now()); };
+      const core = (e) => JSON.stringify([e.type, e.title, e.date, !!e.yearUnknown, e.time || "", e.repeat, e.remind || [], e.notes || ""]);
+
+      function setSpace(id) {
+        if (id !== "me" && !circleById(id)) id = "me";
+        state.space = id; ls.set("wishly.space", id);
+        state.selDay = null;
+        state.events = id === "me" ? state.personal : (state.circleEvents[id] ||= ls.get(`wishly.cev.${id}`, []));
+        $("#chatTab").hidden = id === "me";
+        if (id === "me" && state.tab === "chat") setTab("upcoming");
+        renderSpaces(); render(); moveInd();
+        stopChatPoll();
+        if (id !== "me") { loadCircle(id); startChatPoll(); if (state.tab === "chat") renderChat(true); }
+      }
+
+      function renderSpaces() {
+        const nav = $("#spaces");
+        nav.hidden = state.mode !== "remote" || !state.user;
+        if (nav.hidden) { $("#circleHead").innerHTML = ""; return; }
+        nav.innerHTML = `<button class="space" data-space="me" aria-pressed="${state.space === "me"}"><span class="sav">${initial(state.user.name)}</span>My dates</button>` +
+          state.circles.map((c) => `<button class="space" data-space="${c.id}" aria-pressed="${state.space === c.id}"><span class="sav">${initial(c.name)}</span>${esc(c.name)}${c.lastMsgAt > lastRead(c.id) && !(state.space === c.id && state.tab === "chat") ? '<span class="dot-new" aria-label="new messages"></span>' : ""}</button>`).join("") +
+          `<button class="space add" data-act="circle-new">+ Circle</button>`;
+        const c = inCircle();
+        $("#circleHead").innerHTML = c ? `<div class="circle-head">
+            <div class="avs">${c.members.slice(0, 4).map((m) => `<span title="${esc(m.name)}">${initial(m.name)}</span>`).join("")}${c.members.length > 4 ? `<span>+${c.members.length - 4}</span>` : ""}</div>
+            <div class="ci"><b>${esc(c.name)}</b><span>${c.members.length} member${c.members.length > 1 ? "s" : ""} · shared dates${c.muted ? " · reminders muted" : ""}</span></div>
+            <button class="btn" data-act="circle-invite">Invite</button>
+            <button class="icon-btn" data-act="circle-info" aria-label="Circle settings">${SVG.more}</button>
+          </div>` : "";
+        const n = c && (c.lastMsgAt > lastRead(c.id)) && state.tab !== "chat";
+        $("#chatBadge").hidden = !n;
+      }
+
+      function upsertCircle(c) {
+        const i = state.circles.findIndex((x) => x.id === c.id);
+        if (i < 0) state.circles.push(c); else state.circles[i] = c;
+        renderSpaces();
+      }
+      function dropCircle(id) {
+        state.circles = state.circles.filter((c) => c.id !== id);
+        delete state.circleEvents[id];
+        if (state.space === id) setSpace("me"); else renderSpaces();
+      }
+
+      const circleTimers = {}, circleSyncing = {};
+      function applyCircleEvents(id, events, { keepLocal = false } = {}) {
+        state.snap[id] = new Map(events.map((e) => [e.id, core(e)]));
+        if (keepLocal) return;
+        state.circleEvents[id] = events; ls.set(`wishly.cev.${id}`, events);
+        if (state.space === id) { state.events = events; render(); }
+      }
+      async function loadCircle(id) {
+        if (circleSyncing[id] || circleTimers[id]) return;
+        try {
+          const r = await api(`/api/circles/${id}`);
+          upsertCircle(r.circle);
+          if (circleSyncing[id] || circleTimers[id]) return;
+          applyCircleEvents(id, r.events);
+        } catch (e) {
+          if (e.status === 404) { dropCircle(id); toast(e.message, "error"); }
+        }
+      }
+      function queueCircleSync(id) {
+        setPill("saving");
+        clearTimeout(circleTimers[id]);
+        circleTimers[id] = setTimeout(() => { delete circleTimers[id]; syncCircle(id); }, 450);
+      }
+      async function syncCircle(id) {
+        const list = state.circleEvents[id] || [], snap = state.snap[id] || new Map();
+        const cur = new Set(list.map((e) => e.id));
+        const upsert = list.filter((e) => snap.get(e.id) !== core(e));
+        const remove = [...snap.keys()].filter((k) => !cur.has(k));
+        if (!upsert.length && !remove.length) return setPill("synced");
+        circleSyncing[id] = true;
+        try {
+          const r = await api(`/api/circles/${id}/events`, { method: "PATCH", body: JSON.stringify({ upsert, remove }) });
+          circleSyncing[id] = false;
+          applyCircleEvents(id, r.events, { keepLocal: Boolean(circleTimers[id]) });
+          setPill("synced");
+        } catch (e) {
+          circleSyncing[id] = false;
+          if (e.status === 401) return signOut("Please sign in again.");
+          setPill("error");
+          toast(e.status === 404 ? e.message : "Couldn't save to the circle.", "error", e.status === 404 ? undefined : { label: "Retry", fn: () => syncCircle(id) });
+        }
+      }
+
+      async function createCircle(name) {
+        const raw = b64u.enc(crypto.getRandomValues(new Uint8Array(32)));
+        const keyCheck = await seal(await importAes(raw), "wishly-key-check", "check");
+        const r = await api("/api/circles", { method: "POST", body: JSON.stringify({ name, keyCheck }) });
+        ls.set(`wishly.ck.${r.circle.id}`, raw);
+        state.circleEvents[r.circle.id] = []; state.snap[r.circle.id] = new Map();
+        upsertCircle(r.circle);
+        setSpace(r.circle.id);
+        confetti();
+        openInvite(r.circle);
+      }
+      async function joinCircle(code, k) {
+        try {
+          const r = await api("/api/circles/join", { method: "POST", body: JSON.stringify({ code }) });
+          upsertCircle(r.circle);
+          const unlocked = k ? await saveKey(r.circle, k) : false;
+          setSpace(r.circle.id);
+          toast(`You're in ${r.circle.name}${k && !unlocked ? " — but the chat key in that link didn't match" : ""}`);
+          confetti();
+          return true;
+        } catch (e) { toast(e.message, "error"); return false; }
+      }
+
+      // Create / join sheet
+      $("#newCircleForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = $("#circleName").value.trim();
+        if (name.length < 2) return $("#circleName").focus();
+        const btn = e.target.querySelector("button"); btn.disabled = true;
+        try { await createCircle(name); $("#circleDlg").close(); $("#circleName").value = ""; }
+        catch (err) { toast(err.message, "error"); }
+        btn.disabled = false;
+      });
+      $("#joinCircleForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const { code, k } = parseInvite($("#joinInput").value);
+        if (!code) return toast("Paste the whole invite link your friend sent.", "error");
+        const btn = e.target.querySelector("button"); btn.disabled = true;
+        if (await joinCircle(code, k)) { $("#circleDlg").close(); $("#joinInput").value = ""; }
+        btn.disabled = false;
+      });
+
+      // Invite sheet
+      function openInvite(c = inCircle()) {
+        if (!c) return;
+        $("#inviteTitle").textContent = `Invite to ${c.name}`;
+        $("#inviteLink").value = inviteLink(c);
+        $("#inviteNoKey").hidden = Boolean(rawKey(c.id));
+        $("#btnShare").hidden = !navigator.share;
+        $("#inviteDlg").showModal();
+      }
+      $("#btnCopy").addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText($("#inviteLink").value); toast("Invite link copied"); }
+        catch { $("#inviteLink").select(); document.execCommand("copy"); toast("Invite link copied"); }
+      });
+      $("#btnShare").addEventListener("click", () => {
+        const c = inCircle();
+        navigator.share({ title: `Join ${c.name} on Wishly`, text: `Join our circle "${c.name}" on Wishly so we never miss each other's birthdays:`, url: $("#inviteLink").value }).catch(() => { });
+      });
+
+      // Circle settings sheet
+      function openCircleInfo() {
+        const c = inCircle(); if (!c) return;
+        const me = myKey();
+        $("#circleInfo").innerHTML = `
+          ${c.isOwner ? `<form class="field" id="renameForm"><label for="renameInput">Circle name</label><div class="email-row"><input class="input" id="renameInput" maxlength="40" value="${esc(c.name)}"><button class="btn">Rename</button></div></form>` : `<p class="hint" style="margin-top:0">Created by ${esc(c.owner)}</p>`}
+          <div class="settings-sec">
+            <h3>Reminders</h3>
+            <label class="check" style="margin:0"><input type="checkbox" id="circleRemind" ${c.muted ? "" : "checked"}> Remind me about this circle's dates</label>
+          </div>
+          <div class="settings-sec">
+            <h3>Chat on this device</h3>
+            ${rawKey(c.id) ? `<p><span class="status-ok">Unlocked</span> — messages are end-to-end encrypted with this circle's key.</p>`
+            : `<p><span class="status-bad">Locked</span> — paste the circle's invite link to read messages here.</p><form class="email-row" id="unlockForm2"><input class="input" id="unlockInput2" placeholder="Paste invite link"><button class="btn primary">Unlock</button></form>`}
+          </div>
+          <div class="settings-sec">
+            <h3>Members (${c.members.length})</h3>
+            ${c.members.map((m) => `<div class="member-row"><span class="avatar" style="width:32px;height:32px;font-size:13px">${initial(m.name)}</span><span style="flex:1">${esc(m.name)}${m.key === me ? " (you)" : ""}${m.name === c.owner ? ' <span class="hint">· owner</span>' : ""}</span>
+              ${c.isOwner && m.key !== me ? `<button class="btn ghost" data-kick="${esc(m.key)}" data-name="${esc(m.name)}">Remove</button>` : ""}</div>`).join("")}
+            <div class="btn-row" style="margin-top:10px"><button class="btn primary" data-act="circle-invite">Invite people</button>${c.isOwner ? `<button class="btn" id="resetInvite">Reset invite link</button>` : ""}</div>
+          </div>
+          <div class="settings-sec"><button class="btn danger" id="leaveCircle">Leave ${esc(c.name)}</button></div>`;
+        $("#circleInfoDlg").showModal();
+      }
+      $("#circleInfo").addEventListener("change", async (e) => {
+        if (e.target.id !== "circleRemind") return;
+        const c = inCircle();
+        try { const r = await api(`/api/circles/${c.id}/prefs`, { method: "PUT", body: JSON.stringify({ mute: !e.target.checked }) }); upsertCircle(r.circle); toast(e.target.checked ? "You'll get this circle's reminders" : "Circle reminders muted"); }
+        catch (err) { toast(err.message, "error"); e.target.checked = !e.target.checked; }
+      });
+      $("#circleInfo").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const c = inCircle();
+        if (e.target.id === "renameForm") {
+          try { const r = await api(`/api/circles/${c.id}`, { method: "PUT", body: JSON.stringify({ name: $("#renameInput").value }) }); upsertCircle(r.circle); toast("Circle renamed"); }
+          catch (err) { toast(err.message, "error"); }
+        }
+        if (e.target.id === "unlockForm2") await unlockWith(c, $("#unlockInput2").value, () => openCircleInfo());
+      });
+      $("#circleInfo").addEventListener("click", async (e) => {
+        const c = inCircle(); if (!c) return;
+        const kick = e.target.closest("[data-kick]");
+        if (kick) {
+          if (!confirm(`Remove ${kick.dataset.name} from ${c.name}?`)) return;
+          try { const r = await api(`/api/circles/${c.id}/members/${encodeURIComponent(kick.dataset.kick)}`, { method: "DELETE" }); upsertCircle(r.circle); openCircleInfo(); }
+          catch (err) { toast(err.message, "error"); }
+        }
+        if (e.target.id === "resetInvite") {
+          if (!confirm("Make a new invite link? The old link will stop working for anyone who hasn't joined yet.")) return;
+          try { const r = await api(`/api/circles/${c.id}/invite`, { method: "POST" }); upsertCircle(r.circle); $("#circleInfoDlg").close(); openInvite(r.circle); }
+          catch (err) { toast(err.message, "error"); }
+        }
+        if (e.target.id === "leaveCircle") {
+          if (!confirm(`Leave ${c.name}? You'll stop seeing its dates and chat.`)) return;
+          try { await api(`/api/circles/${c.id}/leave`, { method: "POST" }); $("#circleInfoDlg").close(); dropCircle(c.id); toast(`You left ${c.name}`); }
+          catch (err) { toast(err.message, "error"); }
+        }
+      });
+      async function unlockWith(c, text, done) {
+        const { k } = parseInvite(text);
+        if (!k) return toast("That link doesn't include the chat key. Ask a member to send the full invite link.", "error");
+        if (!(await saveKey(c, k))) return toast("That key doesn't belong to this circle.", "error");
+        (chat.msgs[c.id] || []).forEach((m) => { m.text = undefined; });
+        await decryptAll(c.id);
+        toast("Chat unlocked on this device");
+        renderChat(true); done?.();
+      }
+
+      // ----- chat -----
+      const chat = { msgs: {}, last: {}, timer: null, busy: false, loadedAt: 0 };
+      async function decryptAll(id) {
+        const key = await cryptoKey(id);
+        for (const m of chat.msgs[id] || []) {
+          if (m.text !== undefined && m.text !== null) continue;
+          const plain = key ? await unseal(key, m, id) : null;
+          try { m.text = plain == null ? null : JSON.parse(plain).t; } catch { m.text = null; }
+        }
+      }
+      async function fetchMessages(id) {
+        if (chat.busy) return;
+        chat.busy = true;
+        try {
+          const after = chat.last[id] || "";
+          const r = await api(`/api/circles/${id}/messages${after ? `?after=${encodeURIComponent(after)}` : ""}`);
+          const list = (chat.msgs[id] ||= []);
+          const have = new Set(list.map((m) => m.id));
+          const fresh = r.messages.filter((m) => !have.has(m.id));
+          if (fresh.length) {
+            list.push(...fresh); list.sort((a, b) => a.id.localeCompare(b.id));
+            chat.last[id] = list.at(-1).id;
+            await decryptAll(id);
+            const c = circleById(id);
+            if (c) c.lastMsgAt = Math.max(c.lastMsgAt || 0, list.at(-1).at);
+          }
+          if (state.space === id && state.tab === "chat") { markRead(id); if (fresh.length || !after) renderChat(); }
+          renderSpaces();
+        } catch (e) { if (e.status === 404) dropCircle(id); }
+        finally { chat.busy = false; }
+      }
+      function stopChatPoll() { clearInterval(chat.timer); chat.timer = null; }
+      function startChatPoll() {
+        stopChatPoll();
+        const c = inCircle(); if (!c) return;
+        const tick = () => {
+          if (document.hidden || !inCircle()) return;
+          fetchMessages(state.space);
+          if (Date.now() - chat.loadedAt > 12000) { chat.loadedAt = Date.now(); loadCircle(state.space); } // shared dates
+        };
+        tick();
+        chat.timer = setInterval(tick, state.tab === "chat" ? 4000 : 8000);
+      }
+      function renderChat(scroll = false) {
+        const c = inCircle(); if (!c) return;
+        const locked = !rawKey(c.id);
+        $("#chatNote").innerHTML = `${SVG.lock}<span>${locked
+          ? "<b>Chat is locked on this device.</b> Paste the circle's invite link to unlock it."
+          : "End-to-end encrypted — only members with this circle's invite link can read messages. Not even Wishly's server can."}</span>`;
+        $("#unlockForm").hidden = !locked;
+        $("#msgInput").disabled = locked; $("#sendBtn").disabled = locked;
+        $("#msgInput").placeholder = locked ? "Unlock the chat to send messages" : `Message ${c.name}…`;
+        const list = chat.msgs[c.id] || [], me = myKey(), t = today();
+        const nearBottom = innerHeight + scrollY >= document.body.scrollHeight - 160;
+        let day = "", html = "";
+        for (const m of list) {
+          const d = new Date(m.at), dk = d.toDateString();
+          if (dk !== day) {
+            day = dk;
+            const dd = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+            html += `<div class="day-sep">${sameDay(dd, t) ? "Today" : sameDay(dd, addDays(t, -1)) ? "Yesterday" : d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}</div>`;
+          }
+          const mine = m.fromKey === me;
+          html += `<div class="msg ${mine ? "me" : ""} ${m.text == null ? "locked" : ""}">${mine ? "" : `<div class="who">${esc(m.from)}</div>`}
+            <div class="txt">${m.text == null ? "Encrypted message — unlock the chat to read it" : esc(m.text)}</div>
+            <div class="tm">${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</div></div>`;
+        }
+        $("#msgs").innerHTML = html || `<div class="empty" style="border:0;background:none"><div class="big">Say hi to ${esc(c.name)}</div>Plan gifts and surprises together — privately.</div>`;
+        if (scroll || nearBottom) requestAnimationFrame(() => scrollTo({ top: document.body.scrollHeight, behavior: scroll ? "auto" : "smooth" }));
+      }
+      const autoGrow = () => { const t = $("#msgInput"); t.style.height = "auto"; t.style.height = `${Math.min(t.scrollHeight, 140)}px`; };
+      $("#msgInput").addEventListener("input", autoGrow);
+      $("#msgInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey && !/iphone|android/i.test(navigator.userAgent)) { e.preventDefault(); $("#composer").requestSubmit(); }
+      });
+      $("#composer").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const c = inCircle(), text = $("#msgInput").value.trim();
+        if (!c || !text) return;
+        if (text.length > 4000) return toast("That message is too long.", "error");
+        const key = await cryptoKey(c.id);
+        if (!key) return toast("Unlock the chat first.", "error");
+        $("#sendBtn").disabled = true;
+        try {
+          const box = await seal(key, JSON.stringify({ t: text }), c.id);
+          const r = await api(`/api/circles/${c.id}/messages`, { method: "POST", body: JSON.stringify(box) });
+          r.message.text = text;
+          const list = (chat.msgs[c.id] ||= []);
+          if (!list.some((m) => m.id === r.message.id)) list.push(r.message);
+          $("#msgInput").value = ""; autoGrow();
+          markRead(c.id); renderChat(true);
+        } catch (err) { toast(err.message, "error"); }
+        finally { $("#sendBtn").disabled = false; $("#msgInput").focus(); }
+      });
+      $("#unlockForm").addEventListener("submit", (e) => { e.preventDefault(); unlockWith(inCircle(), $("#unlockInput").value); });
+      $("#spaces").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-space]");
+        if (b) setSpace(b.dataset.space);
+      });
+
+      // Re-register this phone with the server on every visit, and fix a subscription made with an
+      // old notification key — otherwise notifications silently stop arriving.
+      async function resyncPush() {
+        try {
+          if (!state.server?.push || !pushSupported() || Notification.permission !== "granted") return;
+          const reg = await navigator.serviceWorker.getRegistration();
+          let sub = reg && (await reg.pushManager.getSubscription());
+          if (!sub) return;
+          const want = urlB64ToUint8(state.server.vapidKey), have = new Uint8Array(sub.options?.applicationServerKey || []);
+          if (have.length && (have.length !== want.length || have.some((b, i) => b !== want[i]))) {
+            await sub.unsubscribe();
+            sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: want });
+          }
+          const r = await api("/api/push/subscribe", { method: "POST", body: JSON.stringify({ subscription: sub.toJSON() }) });
+          state.user = r.user; ls.set(LS.user, r.user);
+        } catch { /* best effort */ }
+      }
+
+      // Invite links (?join=CODE#k=KEY) and notification taps (?circle=ID&tab=chat).
+      const urlIntent = (() => {
+        const u = new URL(location.href);
+        const out = { join: u.searchParams.get("join"), k: new URLSearchParams(u.hash.slice(1)).get("k"), circle: u.searchParams.get("circle"), tab: u.searchParams.get("tab") };
+        if (out.join || out.k || out.circle || out.tab) history.replaceState(null, "", "/");
+        if (out.join) { try { sessionStorage.setItem("wishly.join", JSON.stringify({ code: out.join, k: out.k })); } catch { } }
+        return out;
+      })();
+      async function afterConnect() {
+        let pending = null;
+        try { pending = JSON.parse(sessionStorage.getItem("wishly.join") || "null"); sessionStorage.removeItem("wishly.join"); } catch { }
+        if (pending?.code) await joinCircle(pending.code, pending.k);
+        else if (urlIntent.circle && circleById(urlIntent.circle)) {
+          setSpace(urlIntent.circle);
+          if (urlIntent.tab === "chat") setTab("chat");
+          urlIntent.circle = null;
+        } else setSpace(state.space);
+        resyncPush();
+      }
+
+      // Test reminder: sends right now and shows exactly what happened on each channel.
+      $("#btnTest").addEventListener("click", async () => {
+        const btn = $("#btnTest"), out = $("#testResult");
+        btn.disabled = true; out.textContent = "Sending…";
+        try {
+          const r = await api("/api/test-reminder", { method: "POST" });
+          state.user = r.user; ls.set(LS.user, r.user);
+          const lines = [];
+          lines.push(!r.email ? "Email: not set up — add your address above."
+            : r.email.ok ? `<span class="status-ok">Email sent</span> to ${esc(state.user.email)} — check your inbox (and spam folder).`
+            : `<span class="status-bad">Email failed:</span> ${esc(r.email.error)}`);
+          lines.push(!r.push ? "Phone notifications: off — turn them on above."
+            : r.push.ok ? `<span class="status-ok">Notification sent</span> to ${r.push.sent} device${r.push.sent > 1 ? "s" : ""}. It should pop up in a few seconds.`
+            : `<span class="status-bad">Notification failed:</span> ${esc(r.push.error)}`);
+          out.innerHTML = lines.join("<br>");
+          renderPush();
+        } catch (err) { out.innerHTML = `<span class="status-bad">${esc(err.message)}</span>`; }
+        btn.disabled = false;
       });
 
       // ---------- toasts & delight ----------
@@ -2473,6 +3047,9 @@
         if (act?.dataset.act === "new") return openEdit(null);
         if (act?.dataset.act === "bulk") return $("#bulkDlg").showModal();
         if (act?.dataset.act === "new-on") return openEdit(null, { date: act.dataset.day, type: "event" });
+        if (act?.dataset.act === "circle-new") return $("#circleDlg").showModal();
+        if (act?.dataset.act === "circle-invite") { $("#circleInfoDlg").open && $("#circleInfoDlg").close(); return openInvite(); }
+        if (act?.dataset.act === "circle-info") return openCircleInfo();
         const day = e.target.closest("[data-day]");
         if (day) {
           const [y, m, d] = day.dataset.day.split("-").map(Number);

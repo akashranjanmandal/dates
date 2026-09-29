@@ -9,7 +9,7 @@ added to Google Calendar, and it installs to iPhone/Android home screens like an
 | `index.html` | The app (dark by default, installable PWA) |
 | `admin.html` → `/admin` | Admin dashboard: users, what they're adding, activity feed, remove users |
 | `netlify/functions/api.mjs` | Accounts, per-user dates, admin API — stored in **Netlify Blobs** (auto-created, no DB setup) |
-| `netlify/functions/reminders.mjs` | Runs every 5 min; sends due reminders by email (EmailJS) and phone notification (Web Push), with retry backoff and a delivery log |
+| `netlify/functions/reminders.mjs` + `netlify/shared/jobs.mjs` | Runs every 5 min; sends due reminders (personal + circle dates) by email (EmailJS) and phone notification (Web Push). Each channel is tracked separately, paced for EmailJS's rate limit, retried with backoff, and logged; a heartbeat shows in Admin |
 | `emailjs-template.html` | Paste into your EmailJS template |
 | `icons/`, `manifest.webmanifest`, `sw.js` | Home-screen app icon + offline shell |
 
@@ -58,6 +58,16 @@ npm run dev
 - App: http://localhost:8888 · Admin: http://localhost:8888/admin (password = `ADMIN_PASSWORD` in `.env`)
 - http://localhost:8888/__remind runs the reminder job immediately (sends real emails for anything due)
 - Local data lives in `.netlify/local-blobs/` (delete it to start fresh)
+
+## Circles (shared spaces + encrypted chat)
+A circle is a shared space for 5–50 friends or colleagues: everyone adds dates, everyone sees them and gets the
+reminders (each person can mute a circle), and there's a chat.
+- Tap **+ Circle** → create one → share the invite link. Friends open it, sign in/up, and they're in.
+- **Chat is end-to-end encrypted** (AES-256-GCM, Web Crypto). The key is generated on the creator's device and lives only in
+  the invite link's `#k=…` part, which browsers never send to any server; Wishly's server stores ciphertext only.
+  So: keep the invite link inside the group, and a new device must open/paste the full link once to unlock the chat.
+  If everyone loses the key, old messages can't be recovered (by design).
+- Notifications for chat messages say "X sent a message" — the server can't read the text.
 
 ## Using it
 - Everyone opens the site → **Create account** (name + password) → **Settings → Email reminders** to add their email.
