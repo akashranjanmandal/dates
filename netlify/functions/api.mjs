@@ -43,7 +43,7 @@ function clean(ev) {
 }
 
 const publicUser = (u) => ({
-  name: u.name, email: u.email || "", tz: u.tz || tzName(),
+  name: u.name, key: u.key, email: u.email || "", tz: u.tz || tzName(),
   devices: (u.push || []).length, lastDelivery: u.lastDelivery || null,
 });
 const CORE = ["type", "title", "date", "yearUnknown", "time", "repeat", "remind", "notes"];
@@ -136,35 +136,6 @@ async function handle(req, { url, path, method, store, body, session }) {
       else user = await getJSON(store, userKey(k));
     }
     return json({ token: sign({ u: k }), user: publicUser(user), isNew });
-  }
-
-  // ---------- accounts ----------
-  if (path === "/signup" && method === "POST") {
-    const name = String(body.name || "").trim().replace(/\s+/g, " ");
-    if (!validName(name)) return json({ error: "Use 2–32 letters, numbers or spaces for your name" }, 400);
-    if (String(body.password || "").length < 6) return json({ error: "Password needs at least 6 characters" }, 400);
-    const k = nameKey(name);
-    const now = Date.now();
-    const user = {
-      name, key: k, ...hashPassword(String(body.password)), email: "", push: [], circles: [],
-      tz: validTz(body.tz) ? body.tz : tzName(), created: now, lastSeen: now,
-    };
-    const made = await store.setJSON(userKey(k), user, { onlyIfNew: true });
-    if (!made.modified) return json({ error: "That name is taken — sign in instead, or add a surname" }, 409);
-    await store.setJSON(eventsKey(k), []);
-    await logActivity(store, [{ user: name, action: "joined", at: now }]);
-    return json({ token: sign({ u: k }), user: publicUser(user) });
-  }
-
-  if (path === "/login" && method === "POST") {
-    const k = nameKey(body.name);
-    const user = k && (await getJSON(store, userKey(k)));
-    if (!user || !checkPassword(String(body.password || ""), user)) {
-      await sleep(600);
-      return json({ error: "Name or password is incorrect" }, 401);
-    }
-    if (!user.tz && validTz(body.tz)) await patchUser(store, k, (u) => { u.tz = body.tz; });
-    return json({ token: sign({ u: k }), user: publicUser(user) });
   }
 
   // ---------- admin ----------

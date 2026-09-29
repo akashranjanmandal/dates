@@ -1688,6 +1688,16 @@ body.in-chat main { padding-bottom: 0; }
     .auth-install { margin-top: 16px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 16px; font-size: 13px; color: var(--muted); line-height: 1.5; }
     .auth-install b { color: var(--ink); }
     .auth-install .btn { margin-top: 8px; width: 100%; justify-content: center; }
+    .auth-card { text-align: center; }
+    .auth-tag { color: var(--muted); font-size: 16px; margin: -8px 0 22px; }
+    .auth-feats { list-style: none; padding: 0; margin: 0 0 24px; text-align: left; display: grid; gap: 12px; }
+    .auth-feats li { display: flex; gap: 12px; align-items: center; color: var(--muted); font-size: 14px; line-height: 1.4; }
+    .auth-feats svg { width: 20px; height: 20px; flex: none; color: var(--accent); }
+    .btn.google { background: #fff; color: #1f1f1f; border: 1px solid #dadce0; font-weight: 600; padding: 13px 16px; box-shadow: none; }
+    .btn.google:hover { background: #f4f4f4; border-color: #dadce0; }
+    .btn.google:disabled { opacity: .6; }
+    .auth-fine { color: var(--faint); font-size: 12px; line-height: 1.6; margin: 16px 0 0; }
+    .auth-fine a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
     /* Credit */
     .credit { text-align: center; padding: 34px 16px calc(96px + env(safe-area-inset-bottom)); color: var(--faint); font: 500 12px/1.6 var(--mono); letter-spacing: .04em; }
     .credit b { color: var(--muted); font-weight: 600; }
@@ -1999,27 +2009,15 @@ body.in-chat main { padding-bottom: 0; }
     <div class="auth-card">
       <img class="auth-logo" src="/icons/icon-192.png" alt="Wishly">
       <h1>Wishly</h1>
-      <div class="seg" id="authSeg">
-        <input type="radio" name="authMode" id="amLogin" value="login" checked><label for="amLogin">Sign in</label>
-        <input type="radio" name="authMode" id="amSignup" value="signup"><label for="amSignup">Create account</label>
-      </div>
-      <form id="authForm" novalidate>
-        <div class="field" style="margin-top:0">
-          <label for="authName">Your name</label>
-          <input class="input" id="authName" autocomplete="username" maxlength="32" placeholder="e.g. Akash">
-        </div>
-        <div class="field">
-          <label for="authPass">Password</label>
-          <div class="pw-wrap"><input class="input" type="password" id="authPass" autocomplete="current-password"
-            placeholder="At least 6 characters"><button type="button" class="pw-eye" aria-label="Show password" aria-pressed="false"><svg class="e-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><svg class="e-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A10.4 10.4 0 0 1 12 4c6.4 0 10 8 10 8a17.6 17.6 0 0 1-3.1 4.3M6.6 6.6A17.2 17.2 0 0 0 2 12s3.6 8 10 8a9.7 9.7 0 0 0 5.4-1.6"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2M2 2l20 20"/></svg></button></div>
-        </div>
-        <div class="hint err" id="authErr"></div>
-        <button class="btn primary" type="submit" id="authBtn">Sign in</button>
-      </form>
-      <div id="googleBox" hidden>
-        <div class="or">or</div>
-        <button type="button" class="btn google" id="btnGoogle"><svg viewBox="0 0 24 24"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.4-1.7 4-5.5 4a6.1 6.1 0 0 1 0-12.2c1.9 0 3.2.8 3.9 1.5l2.7-2.6A9.8 9.8 0 0 0 12 2.2a9.8 9.8 0 1 0 0 19.6c5.7 0 9.4-4 9.4-9.6 0-.6-.1-1.1-.2-1.6H12Z"/></svg>Continue with Google</button>
-      </div>
+      <p class="auth-tag">Never forget an important date again.</p>
+      <ul class="auth-feats">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Keep birthdays and special dates in one place</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>Get reminded by email and phone, at the time you pick</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>Plan group celebrations with friends</li>
+      </ul>
+      <button type="button" class="btn google" id="btnGoogle"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.2c0-.8-.1-1.5-.2-2.2H12v4.3h5.9a5 5 0 0 1-2.2 3.3v2.7h3.5c2.1-1.9 3.4-4.7 3.4-8.1Z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.5-2.7c-1 .7-2.2 1-3.8 1-2.9 0-5.4-2-6.3-4.6H2.1v2.8A11 11 0 0 0 12 23Z"/><path fill="#FBBC05" d="M5.7 14c-.2-.7-.4-1.3-.4-2s.1-1.4.4-2V7.2H2.1a11 11 0 0 0 0 9.6L5.7 14Z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.1-3.1A11 11 0 0 0 2.1 7.2L5.7 10c.9-2.6 3.4-4.6 6.3-4.6Z"/></svg>Continue with Google</button>
+      <div class="hint err" id="authErr" role="alert"></div>
+      <p class="auth-fine">We only use your name and email to send your reminders. We never post anything or share your details. By continuing you agree to our <a href="/terms.html">Terms</a> and <a href="/privacy.html">Privacy Policy</a>.</p>
       <div class="auth-install" id="authInstall" hidden>
         <span id="authInstallText"></span>
         <button type="button" class="btn primary" id="btnInstall2" hidden>Install Wishly</button>
@@ -2918,15 +2916,12 @@ body.in-chat main { padding-bottom: 0; }
       function showAuth(err = "") {
         state.mode = "locked"; setPill("locked");
         $("#authErr").textContent = err;
-        hidePasswords();
         $("#auth").hidden = false;
         document.body.classList.add("authing");
-        setTimeout(() => $("#authName").focus(), 50);
       }
       function hideAuth() {
         $("#auth").hidden = true;
         document.body.classList.remove("authing");
-        $("#authPass").value = ""; hidePasswords();
       }
       function signOut(msg = "") {
         ls.del(LS.token); ls.del(LS.user);
@@ -2937,42 +2932,12 @@ body.in-chat main { padding-bottom: 0; }
         render();
         showAuth(msg);
       }
-      $("#authSeg").addEventListener("change", () => {
-        const signup = $("#amSignup").checked;
-        $("#authBtn").textContent = signup ? "Create my space" : "Sign in";
-        $("#authPass").autocomplete = signup ? "new-password" : "current-password";
-        $("#authName").placeholder = signup ? "Pick a name your friends know you by" : "e.g. Akash";
-        $("#authErr").textContent = "";
-      });
-      $("#authForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const mode = $("#amSignup").checked ? "signup" : "login";
-        const name = $("#authName").value.trim(), password = $("#authPass").value;
-        if (name.length < 2) { $("#authErr").textContent = "Enter your name."; return $("#authName").focus(); }
-        if (password.length < 6) { $("#authErr").textContent = "Password needs at least 6 characters."; return $("#authPass").focus(); }
-        const btn = $("#authBtn"), label = btn.textContent;
-        btn.disabled = true; btn.textContent = mode === "signup" ? "Creating…" : "Signing in…";
-        try {
-          const r = await api(`/api/${mode}`, { method: "POST", body: JSON.stringify({ name, password, tz: browserTz() }) });
-          state.token = r.token; ls.set(LS.token, r.token);
-          state.user = r.user; ls.set(LS.user, r.user);
-          state.personal = state.events = ls.get(cacheKey(), []);
-          hideAuth();
-          await connect();
-          const first = r.user.name.split(" ")[0];
-          if (mode === "signup") {
-            confetti();
-            toast(`Welcome to Wishly, ${first}!`, "", { label: "Add email for reminders", fn: openSettings });
-          } else toast(`Welcome back, ${first}`);
-        } catch (err) {
-          $("#authErr").textContent = err.status === 0 ? "Can't reach the server. Check your connection and try again." : err.message;
-        } finally { btn.disabled = false; btn.textContent = label; }
-      });
-
       // ---------- Google sign-in (Firebase Authentication) ----------
-      fetch("/api/public").then((r) => r.json()).then((c) => { if (c.google) { state.google = c.google; $("#googleBox").hidden = false; } }).catch(() => { });
+      fetch("/api/public").then((r) => r.json()).then((c) => { state.google = c.google || null; }).catch(() => { });
       $("#btnGoogle").addEventListener("click", async () => {
-        const btn = $("#btnGoogle"); btn.disabled = true; $("#authErr").textContent = "";
+        const btn = $("#btnGoogle"); $("#authErr").textContent = "";
+        if (!state.google) { $("#authErr").textContent = "Sign-in isn't available right now. Please try again in a little while."; return; }
+        btn.disabled = true;
         try {
           const V = "10.12.2", g = state.google;
           const [{ initializeApp }, A] = await Promise.all([import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`), import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`)]);
@@ -3034,7 +2999,7 @@ body.in-chat main { padding-bottom: 0; }
         const code = (s.match(/[?&]join=([A-Za-z0-9]{6,20})/) || [])[1] || (/^[A-Za-z0-9]{6,20}$/.test(s) ? s : "");
         return { code, k };
       }
-      const myKey = () => (state.user?.name || "").trim().replace(/\s+/g, " ").toLowerCase();
+      const myKey = () => state.user?.key || (state.user?.name || "").trim().replace(/\s+/g, " ").toLowerCase();
       const initial = (n) => esc(String(n || "?").trim()[0].toUpperCase());
       const SVG = {
         more: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>',
