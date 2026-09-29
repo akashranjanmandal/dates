@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Wishly</title>
   <meta name="description" content="Birthdays, anniversaries and events — with email reminders and Google Calendar.">
-  <meta name="theme-color" content="#07060d">
+  <meta name="theme-color" content="#0d0d0e">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,7 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #07060d;
+      --bg: #0d0d0e;
       --solid: #0f0d1c;
       --surface: rgba(255, 255, 255, .045);
       --surface-2: rgba(255, 255, 255, .07);
@@ -1602,6 +1602,80 @@ body.in-chat main { padding-bottom: 0; }
         transition: none !important;
       }
     }
+
+    /* =====================================================================
+       Calm skin — muted monochrome, one soft accent. Also fixes iOS modals:
+       sheets are plain fixed-position elements (no top layer, no backdrop-filter).
+       ===================================================================== */
+    :root {
+      --bg: #0d0d0e; --solid: #151516; --surface: rgba(255,255,255,.035); --surface-2: rgba(255,255,255,.06);
+      --ink: #ecebe7; --muted: #a5a39d; --faint: #85837d; --line: rgba(255,255,255,.08);
+      --accent: #d6c2a3; --accent-ink: #17130c; --accent-soft: rgba(214,194,163,.12);
+      --violet: #d6c2a3; --cyan: #9db2bd;
+      --g: linear-gradient(#ecebe7, #ecebe7); --gb: linear-gradient(#d6c2a3, #d6c2a3);
+      --g-soft: rgba(214,194,163,.12);
+      --c-birthday: #d9a9a0; --c-anniversary: #b9aecb; --c-event: #97b0be; --c-other: #a8b99b;
+      --shadow: 0 20px 50px -30px rgba(0,0,0,.8);
+    }
+    ::selection { background: rgba(214,194,163,.35); color: #fff; }
+    body::before { background: var(--bg); animation: none; }
+    body::after { display: none; }
+    :focus-visible { outline-color: var(--accent); }
+    .top { background: rgba(13,13,14,.88); backdrop-filter: none; -webkit-backdrop-filter: none; }
+    .top::after { display: none; }
+    .logo, .auth-logo { box-shadow: 0 0 0 1px rgba(255,255,255,.1); }
+    .auth { background: var(--bg); }
+    .auth::before { display: none; }
+    .auth h1 { background: none; color: var(--ink); -webkit-text-fill-color: var(--ink); }
+    .auth form { background: var(--solid); backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: none; border-color: var(--line); }
+    .hero h1 em { background: none; color: var(--accent); -webkit-text-fill-color: var(--accent); }
+    .greet::before { box-shadow: none; }
+    .next { background: var(--solid); border: 1px solid var(--line); animation: none; box-shadow: none; }
+    .next::before { display: none; }
+    .next:hover { box-shadow: none; }
+    .next .count { background: none; color: var(--ink); -webkit-text-fill-color: var(--ink); filter: none; }
+    .next .emoji { box-shadow: none; background: color-mix(in srgb, var(--c) 14%, transparent); }
+    .today-chip { box-shadow: none; }
+    .chip[aria-pressed="true"], .space[aria-pressed="true"] { background: var(--accent-soft); border-color: rgba(214,194,163,.45); color: var(--ink); box-shadow: none; }
+    .space.add { color: var(--accent); }
+    .btn.primary { background: var(--accent); color: var(--accent-ink); box-shadow: none; }
+    .btn.primary:hover { filter: brightness(1.06); }
+    .btn.danger { color: #d9a9a0; }
+    .input:focus { border-color: rgba(214,194,163,.7); box-shadow: 0 0 0 3px rgba(214,194,163,.15); }
+    .seg input:checked + label { background: var(--accent-soft); box-shadow: inset 0 0 0 1px rgba(214,194,163,.4); color: var(--ink); }
+    .check input { accent-color: var(--accent); }
+    .rem { background: var(--accent-soft); border-color: rgba(214,194,163,.25); }
+    .rem svg { color: var(--accent); }
+    .avatar, .space .sav, .circle-head .avs span { background: #2a2926; color: var(--accent); }
+    .circle-head .avs span { border-color: var(--solid); }
+    .badge { background: var(--accent); color: var(--accent-ink); }
+    .msg.me { background: #2b2a27; border-color: var(--line); color: var(--ink); box-shadow: none; }
+    .msg.me .tm { color: var(--muted); }
+    .msg .who, .msg:not(.me) .txt a { color: var(--accent); }
+    .jump { background: var(--accent); color: var(--accent-ink); box-shadow: none; }
+    .pw-eye[aria-pressed="true"] { color: var(--accent); }
+    .toast { background: #1d1d1e; backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: 0 16px 40px -16px rgba(0,0,0,.9); }
+    .toast button { color: var(--accent); }
+    .pill[data-s="synced"]::before { box-shadow: none; } .pill[data-s="saving"]::before, .pill[data-s="connecting"]::before, .pill[data-s="error"]::before, .pill[data-s="locked"]::before { box-shadow: none; }
+    .list, .cal, .circle-head, .empty, .chat-note, .tabs, .space, .btn { backdrop-filter: none; -webkit-backdrop-filter: none; }
+
+    /* Sheets */
+    dialog, dialog[open] { position: fixed; z-index: 1000; left: 0; right: 0; bottom: 0; top: auto; margin: 0 auto; width: 100%; max-width: 560px;
+      max-height: 88vh; max-height: 88dvh; background: #141415; backdrop-filter: none; -webkit-backdrop-filter: none;
+      border: 1px solid var(--line); border-bottom: 0; border-radius: 24px 24px 0 0; box-shadow: 0 -20px 60px rgba(0,0,0,.6); color: var(--ink); }
+    dialog:not([open]) { display: none; }
+    dialog[open] { display: flex; flex-direction: column; animation: sheet .3s var(--ease); }
+    dialog .sheet-b { flex: 1 1 auto; min-height: 0; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+    dialog .sheet-h, dialog .sheet-f, dialog .grab { flex: none; }
+    @media (min-width: 640px) { dialog, dialog[open] { top: 0; bottom: 0; height: fit-content; border-radius: 24px; border-bottom: 1px solid var(--line); } }
+    #scrim { position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,.66); animation: fadeIn .25s; }
+    body.sheet-open { overflow: hidden; }
+
+    /* Credit */
+    .credit { text-align: center; padding: 34px 16px calc(96px + env(safe-area-inset-bottom)); color: var(--faint); font: 500 12px/1.6 var(--mono); letter-spacing: .04em; }
+    .credit b { color: var(--muted); font-weight: 600; }
+    .credit i { font-style: normal; display: inline-block; animation: wob 3s ease-in-out infinite; }
+    @keyframes wob { 50% { transform: rotate(-8deg) translateY(-1px); } }
   </style>
 </head>
 
@@ -1695,6 +1769,8 @@ body.in-chat main { padding-bottom: 0; }
       </form>
     </section>
   </main>
+  <footer class="credit">Crafted by <b>Akash</b> &middot; powered by too much chai and zero forgotten birthdays <i aria-hidden="true">&#9832;</i><br>If it works, that was me. If it breaks, it was a feature.</footer>
+  <div id="scrim" hidden></div>
 
   <button class="fab" id="fab" aria-label="Add a date">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
@@ -3328,6 +3404,30 @@ body.in-chat main { padding-bottom: 0; }
         const tab = e.target.closest("[data-tab]");
         if (tab) return setTab(tab.dataset.tab);
       });
+
+      // Sheets: plain fixed-position elements. Native showModal() (top layer + backdrop-filter) renders blank on iOS Safari/Chrome.
+      (function () {
+        const scrim = document.getElementById("scrim");
+        const sync = () => {
+          const any = document.querySelector("dialog[open]");
+          scrim.hidden = !any; document.body.classList.toggle("sheet-open", !!any);
+        };
+        const obs = new MutationObserver(sync);
+        document.querySelectorAll("dialog").forEach((d) => obs.observe(d, { attributes: true, attributeFilter: ["open"] }));
+        HTMLDialogElement.prototype.showModal = function () {
+          if (this.hasAttribute("open")) return;
+          this.setAttribute("open", ""); sync();
+          const b = this.querySelector(".sheet-b"); if (b) b.scrollTop = 0;
+        };
+        HTMLDialogElement.prototype.show = HTMLDialogElement.prototype.showModal;
+        HTMLDialogElement.prototype.close = function (rv) {
+          if (!this.hasAttribute("open")) return;
+          if (rv !== undefined) this.returnValue = rv;
+          this.removeAttribute("open"); sync(); this.dispatchEvent(new Event("close"));
+        };
+        scrim.addEventListener("click", () => { const d = document.querySelector("dialog[open]"); if (d) d.close(); });
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape") { const d = document.querySelector("dialog[open]"); if (d) d.close(); } });
+      })();
       document.querySelectorAll("dialog").forEach((d) => d.addEventListener("click", (e) => { if (e.target === d) d.close(); }));
       $("#fab").addEventListener("click", () => openEdit(null, state.tab === "calendar" && state.selDay ? { date: iso(state.selDay), type: "event" } : {}));
       function openBulk() {
