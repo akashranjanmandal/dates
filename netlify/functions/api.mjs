@@ -101,6 +101,23 @@ export default async (req) => {
 
 async function handle(req, { url, path, method, store, body, session }) {
 
+  // A single event as a calendar file — opens straight in Apple Calendar on iPhone.
+  if (path === "/ics" && method === "GET") {
+    const q = url.searchParams, esc = (v) => String(v).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+    const s = (q.get("s") || "").replace(/\D/g, "").slice(0, 8), h = (q.get("h") || "").replace(/\D/g, "").slice(0, 4);
+    if (s.length !== 8) return json({ error: "Bad date" }, 400);
+    const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+    const y = +s.slice(0, 4), m = +s.slice(4, 6) - 1, d = +s.slice(6, 8);
+    const nextDay = new Date(Date.UTC(y, m, d + 1)).toISOString().slice(0, 10).replace(/-/g, "");
+    const L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Wishly//EN", "BEGIN:VEVENT", `UID:${s}${h}-${Math.abs([...(q.get("t") || "")].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7))}@wishly`, `DTSTAMP:${stamp}`, `SUMMARY:${esc((q.get("t") || "Wishly").slice(0, 200))}`];
+    if (h.length === 4) { const eh = String((+h.slice(0, 2) + 1) % 24).padStart(2, "0"); L.push(`DTSTART:${s}T${h}00`, `DTEND:${s}T${eh}${h.slice(2)}00`); }
+    else L.push(`DTSTART;VALUE=DATE:${s}`, `DTEND;VALUE=DATE:${nextDay}`);
+    if (q.get("y")) L.push("RRULE:FREQ=YEARLY");
+    if (q.get("n")) L.push(`DESCRIPTION:${esc(q.get("n").slice(0, 500))}`);
+    L.push("BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:Reminder", "TRIGGER:-PT15H", "END:VALARM", "END:VEVENT", "END:VCALENDAR");
+    return new Response(L.join("\r\n") + "\r\n", { headers: { "content-type": "text/calendar; charset=utf-8", "content-disposition": 'inline; filename="wishly.ics"', "cache-control": "no-store" } });
+  }
+
   // ---------- accounts ----------
   if (path === "/signup" && method === "POST") {
     const name = String(body.name || "").trim().replace(/\s+/g, " ");

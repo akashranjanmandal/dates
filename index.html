@@ -1671,6 +1671,13 @@ body.in-chat main { padding-bottom: 0; }
     #scrim { position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,.66); animation: fadeIn .25s; }
     body.sheet-open { overflow: hidden; }
 
+    .steps { padding-left: 20px; color: var(--muted); line-height: 1.7; margin: 8px 0 14px; }
+    .steps b { color: var(--ink); }
+    details.more > summary { cursor: pointer; font: 600 14px/1.3 var(--serif); color: var(--muted); list-style: none; padding: 4px 0; }
+    details.more > summary::-webkit-details-marker { display: none; }
+    details.more > summary::after { content: "  +"; }
+    details.more[open] > summary::after { content: "  \2212"; }
+    #btnGcal:disabled { opacity: .5; }
     /* Credit */
     .credit { text-align: center; padding: 34px 16px calc(96px + env(safe-area-inset-bottom)); color: var(--faint); font: 500 12px/1.6 var(--mono); letter-spacing: .04em; }
     .credit b { color: var(--muted); font-weight: 600; }
@@ -1839,12 +1846,12 @@ body.in-chat main { padding-bottom: 0; }
       </div>
       <div class="sheet-f">
         <button type="button" class="btn danger" id="btnDelete">Delete</button>
-        <a class="btn" id="btnGcal" target="_blank" rel="noopener">
+        <button type="button" class="btn" id="btnGcal">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <rect x="3" y="5" width="18" height="16" rx="2" />
             <path d="M16 3v4M8 3v4M3 11h18M12 14v4M10 16h4" />
-          </svg>Google Calendar
-        </a>
+          </svg>Add to calendar
+        </button>
         <span class="spacer"></span>
         <button type="submit" class="btn primary" id="btnSave">Save</button>
       </div>
@@ -1879,6 +1886,15 @@ body.in-chat main { padding-bottom: 0; }
     </div>
     <div class="sheet-f"><span class="spacer"></span><button class="btn primary" id="bulkAdd" disabled>Add</button>
     </div>
+  </dialog>
+
+  <!-- Notifications prompt -->
+  <dialog id="notifDlg" aria-labelledby="notifTitle">
+    <div class="grab"></div>
+    <div class="sheet-h"><h2 id="notifTitle">Never miss a date</h2>
+      <button type="button" class="icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg></button>
+    </div>
+    <div class="sheet-b" id="notifBody"></div>
   </dialog>
 
   <!-- Settings -->
@@ -1927,38 +1943,39 @@ body.in-chat main { padding-bottom: 0; }
         <p id="pushStatus">…</p>
         <div class="btn-row"><button class="btn primary" id="btnPush">Turn on for this device</button></div>
       </div>
-      <div class="settings-sec" id="testSec">
-        <h3>Check your reminders</h3>
-        <p>Sends a test right now to your email and phone(s) and shows exactly what happened.</p>
-        <div class="btn-row"><button class="btn" id="btnTest">Send me a test reminder</button></div>
-        <p class="hint" id="testResult" style="margin-top:8px"></p>
-      </div>
-      <div class="settings-sec" id="lastSec" hidden>
-        <h3>Last reminder</h3>
-        <p id="lastDelivery"></p>
-      </div>
-      <div class="settings-sec">
-        <h3>Google Calendar</h3>
-        <p>Download everything as one file, then in Google Calendar go to <b>Settings → Import &amp; export →
-            Import</b>. Birthdays repeat every year automatically.</p>
-        <div class="btn-row"><button class="btn primary" id="btnIcs">Download .ics for Google Calendar</button></div>
-      </div>
-      <div class="settings-sec">
-        <h3>Backup</h3>
-        <p>Save a copy of all your dates, or restore one.</p>
-        <div class="btn-row">
-          <button class="btn" id="btnExport">Export backup</button>
-          <label class="btn" for="importFile">Restore backup</label>
-          <input type="file" id="importFile" accept="application/json,.json" hidden>
-        </div>
-      </div>
       <div class="settings-sec" id="installSec">
-        <h3>Put Wishly on your home screen</h3>
-        <p><b>iPhone:</b> open this page in Safari → tap <b>Share</b> → <b>Add to Home Screen</b>.<br>
-          <b>Android:</b> in Chrome tap <b>⋮</b> → <b>Install app</b> (or <b>Add to Home screen</b>).
+        <h3>Add Wishly to your home screen</h3>
+        <p><b>iPhone:</b> in Safari tap <b>Share</b>, then <b>Add to Home Screen</b>.<br>
+          <b>Android:</b> in Chrome tap the <b>menu (three dots)</b>, then <b>Install app</b>.
         </p>
         <div class="btn-row"><button class="btn primary" id="btnInstall" hidden>Install Wishly</button></div>
       </div>
+      <details class="settings-sec more">
+        <summary>More options</summary>
+        <div id="testSec" style="margin-top:12px">
+          <h3>Check that reminders reach you</h3>
+          <p>We'll send one right now.</p>
+          <div class="btn-row"><button class="btn" id="btnTest">Send me a test reminder</button></div>
+          <p class="hint" id="testResult" style="margin-top:8px"></p>
+        </div>
+        <div id="lastSec" hidden style="margin-top:12px">
+          <h3>Last reminder</h3>
+          <p id="lastDelivery"></p>
+        </div>
+        <div style="margin-top:12px">
+          <h3>Add everything to my calendar</h3>
+          <p>One file with all your dates, repeating every year.</p>
+          <div class="btn-row"><button class="btn" id="btnIcs">Add all to calendar</button></div>
+        </div>
+        <div style="margin-top:12px">
+          <h3>Save a copy of my dates</h3>
+          <div class="btn-row">
+            <button class="btn" id="btnExport">Save a copy</button>
+            <label class="btn" for="importFile">Restore a copy</label>
+            <input type="file" id="importFile" accept="application/json,.json" hidden>
+          </div>
+        </div>
+      </details>
       <div class="settings-sec">
         <h3>This device</h3>
         <p id="deviceStatus"></p>
@@ -2001,7 +2018,7 @@ body.in-chat main { padding-bottom: 0; }
     </div>
     <div class="sheet-b">
       <p class="note">A circle is a shared space for a group of friends or colleagues. Everyone adds the dates they know,
-        everyone sees them and gets the reminders, and you can chat — end-to-end encrypted.</p>
+        everyone sees them and gets the reminders, and you can chat privately.</p>
       <form class="field" id="newCircleForm">
         <label for="circleName">Start a new circle</label>
         <div class="email-row"><input class="input" id="circleName" maxlength="40" placeholder="e.g. College Gang" autocomplete="off"><button class="btn primary">Create</button></div>
@@ -2022,7 +2039,7 @@ body.in-chat main { padding-bottom: 0; }
     </div>
     <div class="sheet-b">
       <p style="color:var(--muted);margin-top:0">Send this link to your friends. They open it, sign in (or create an account) and they're in —
-        with access to the shared dates and the encrypted chat.</p>
+        with access to the shared dates and the group chat.</p>
       <input class="input" id="inviteLink" readonly aria-label="Invite link" onclick="this.select()">
       <div class="btn-row" style="margin-top:10px">
         <button class="btn primary" id="btnCopy">Copy link</button>
@@ -2466,9 +2483,9 @@ body.in-chat main { padding-bottom: 0; }
       function updateGcal() {
         const ev = formEvent();
         const a = $("#btnGcal");
-        if (!ev.title || !ev.date) { a.removeAttribute("href"); a.style.opacity = .5; return; }
-        a.href = gcalUrl(ev); a.style.opacity = 1;
+        a.disabled = !(ev.title && ev.date);
       }
+      $("#btnGcal").addEventListener("click", () => { const ev = formEvent(); if (ev.title && ev.date) openCalendar(ev); });
 
       $("#typeSeg").addEventListener("change", () => {
         const type = formType();
@@ -2548,6 +2565,24 @@ body.in-chat main { padding-bottom: 0; }
         if (details) p.set("details", details);
         if (ev.repeat === "yearly") p.set("recur", "RRULE:FREQ=YEARLY");
         return `https://calendar.google.com/calendar/render?${p}`;
+      }
+
+      // Opens the phone's own calendar app: Google Calendar on Android, Apple Calendar on iPhone.
+      function icsUrl(ev) {
+        const o = ev.repeat === "yearly" ? nextOcc(ev) : mk(...ev.date.split("-").map(Number));
+        const q = new URLSearchParams({ t: heading(ev), s: compact(o) });
+        if (ev.time) q.set("h", ev.time.replace(":", ""));
+        if (ev.repeat === "yearly") q.set("y", "1");
+        const n = [detail(ev, o), ev.notes].filter(Boolean).join(" - "); if (n) q.set("n", n);
+        return `/api/ics?${q}`;
+      }
+      function openCalendar(ev) {
+        const web = gcalUrl(ev), ua = navigator.userAgent;
+        if (/android/i.test(ua)) {
+          const u = new URL(web);
+          location.href = `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;package=com.google.android.calendar;S.browser_fallback_url=${encodeURIComponent(web)};end`;
+        } else if (isIOS || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) location.href = icsUrl(ev);
+        else window.open(web, "_blank", "noopener");
       }
 
       function icsText() {
@@ -2659,7 +2694,7 @@ body.in-chat main { padding-bottom: 0; }
         const btn = $("#btnPush"), st = $("#pushStatus");
         btn.hidden = false; btn.disabled = false;
         if (state.mode !== "remote") { st.textContent = "Sign in to get phone notifications."; btn.hidden = true; return; }
-        if (!state.server?.push) { st.textContent = "Notifications aren't switched on for this site yet."; btn.hidden = true; return; }
+        if (!state.server?.push) { st.textContent = "Phone notifications aren't available right now."; btn.hidden = true; return; }
         if (!pushSupported()) {
           st.innerHTML = isIOS && !standalone
             ? "On iPhone, first add Wishly to your Home Screen (Share → <b>Add to Home Screen</b>), open it from there, then turn notifications on here."
@@ -2678,6 +2713,19 @@ body.in-chat main { padding-bottom: 0; }
           btn.textContent = "Turn on for this device"; btn.className = "btn primary";
         }
       }
+      // Asks the phone for permission, registers this device and confirms the server saved it.
+      async function enablePush() {
+        if (!pushSupported()) throw Object.assign(new Error("This browser can't show notifications."), { code: "unsupported" });
+        let perm = Notification.permission;
+        if (perm === "default") perm = await Notification.requestPermission();
+        if (perm !== "granted") throw Object.assign(new Error(perm === "denied" ? "Notifications are blocked." : "Notifications weren't allowed."), { code: perm });
+        const reg = await navigator.serviceWorker.register("/sw.js");
+        await navigator.serviceWorker.ready;
+        const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToUint8(state.server.vapidKey) });
+        const r = await api("/api/push/subscribe", { method: "POST", body: JSON.stringify({ subscription: sub.toJSON() }) });
+        if (!r?.user?.devices) throw new Error("We couldn't save this phone. Please try again.");
+        state.user = r.user; ls.set(LS.user, r.user);
+      }
       $("#btnPush").addEventListener("click", async () => {
         const btn = $("#btnPush"); btn.disabled = true;
         try {
@@ -2688,17 +2736,67 @@ body.in-chat main { padding-bottom: 0; }
             state.user = r.user; ls.set(LS.user, r.user);
             toast("Notifications off for this device");
           } else {
-            if (await Notification.requestPermission() !== "granted") throw new Error("Notifications weren't allowed.");
-            const reg = await navigator.serviceWorker.register("/sw.js");
-            await navigator.serviceWorker.ready;
-            const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToUint8(state.server.vapidKey) });
-            const r = await api("/api/push/subscribe", { method: "POST", body: JSON.stringify({ subscription: sub.toJSON() }) });
-            state.user = r.user; ls.set(LS.user, r.user);
-            toast("Notifications on — you'll get a pop-up when a reminder is due");
+            await enablePush();
+            toast("Notifications are on for this phone");
           }
         } catch (err) { toast(err.message || "Couldn't change notifications", "error"); }
         renderPush();
       });
+
+      // ---------- first-visit notification prompt ----------
+      const notifDlg = $("#notifDlg");
+      const notifBody = () => $("#notifBody");
+      function notifView() {
+        const b = notifBody(), ok = (t) => `<button class="btn primary" id="nEnable">${t}</button>`;
+        if (!pushSupported()) {
+          if (isIOS && !standalone) {
+            b.innerHTML = `<p>To get reminders on your iPhone, add Wishly to your Home Screen first:</p>
+              <ol class="steps"><li>Tap the <b>Share</b> button in Safari</li><li>Tap <b>Add to Home Screen</b></li><li>Open <b>Wishly</b> from your Home Screen and turn on notifications</li></ol>
+              <div class="btn-row"><button class="btn primary" id="nLater">Got it</button></div>`;
+            return true;
+          }
+          return false;
+        }
+        if (Notification.permission === "denied") {
+          b.innerHTML = `<p>Notifications are blocked for Wishly on this phone. To turn them on:</p>
+            <ol class="steps"><li>Open your phone's <b>Settings</b></li><li>Find <b>Wishly</b> (or your browser) and open <b>Notifications</b></li><li>Switch them on, then come back here</li></ol>
+            <div class="btn-row">${ok("I've turned them on")}<button class="btn ghost" id="nLater">Not now</button></div>`;
+          return true;
+        }
+        b.innerHTML = `<p>Get a gentle nudge on your phone before every birthday and event, even when Wishly is closed.</p>
+          <div class="btn-row">${ok("Enable notifications")}<button class="btn ghost" id="nLater">Not now</button></div>`;
+        return true;
+      }
+      function closeNotif(choice) { if (choice) ls.set("wishly.notif", { choice, at: Date.now() }); notifDlg.close(); }
+      notifDlg.addEventListener("click", async (e) => {
+        if (e.target.closest("#nLater")) {
+          if (isIOS && !standalone && !pushSupported()) ls.set("wishly.notifIos", Date.now());
+          return closeNotif(pushSupported() ? "skip" : "");
+        }
+        const en = e.target.closest("#nEnable"); if (!en) return;
+        en.disabled = true;
+        try {
+          await enablePush();
+          closeNotif("on"); toast("Notifications are on. We'll remind you in time.");
+          if ($("#settingsDlg").open) renderPush();
+        } catch (err) {
+          en.disabled = false;
+          if (err.code === "denied") { notifView(); }
+          else if (err.code === "default") { toast("No problem — you can turn notifications on any time in Settings."); closeNotif("skip"); }
+          else toast(err.message || "Couldn't turn on notifications", "error");
+        }
+      });
+      async function maybePromptNotif() {
+        try {
+          if (state.mode !== "remote" || !state.server?.push || $("#auth").hidden === false) return;
+          if (document.querySelector("dialog[open]")) return;
+          const seen = ls.get("wishly.notif", null);
+          if (seen && seen.choice) return;
+          if (pushSupported() && await currentSub()) return;
+          if (!pushSupported() && isIOS && !standalone && Date.now() - ls.get("wishly.notifIos", 0) < 3 * 864e5) return;
+          if (notifView()) notifDlg.showModal();
+        } catch { }
+      }
 
       // ---------- settings ----------
       function openSettings() {
@@ -2752,7 +2850,7 @@ body.in-chat main { padding-bottom: 0; }
       $("#btnIcs").addEventListener("click", () => {
         if (!state.events.length) return toast("Add some dates first.");
         download("wishly.ics", icsText(), "text/calendar");
-        toast("Downloaded — now import it in Google Calendar settings.");
+        toast("Open the downloaded file to add everything to your calendar.");
       });
       $("#btnExport").addEventListener("click", () => download(`wishly-backup-${iso(today())}.json`, JSON.stringify({ events: state.events }, null, 2), "application/json"));
       $("#importFile").addEventListener("change", async (e) => {
@@ -3067,7 +3165,7 @@ body.in-chat main { padding-bottom: 0; }
           </div>
           <div class="settings-sec">
             <h3>Chat on this device</h3>
-            ${rawKey(c.id) ? `<p><span class="status-ok">Unlocked</span> — messages are end-to-end encrypted with this circle's key.</p>`
+            ${rawKey(c.id) ? `<p><span class="status-ok">Private</span> — only circle members can read the chat.</p>`
             : `<p><span class="status-bad">Locked</span> — paste the circle's invite link to read messages here.</p><form class="email-row" id="unlockForm2"><input class="input" id="unlockInput2" placeholder="Paste invite link"><button class="btn primary">Unlock</button></form>`}
           </div>
           <div class="settings-sec">
@@ -3115,8 +3213,8 @@ body.in-chat main { padding-bottom: 0; }
       });
       async function unlockWith(c, text, done) {
         const { k } = parseInvite(text);
-        if (!k) return toast("That link doesn't include the chat key. Ask a member to send the full invite link.", "error");
-        if (!(await saveKey(c, k))) return toast("That key doesn't belong to this circle.", "error");
+        if (!k) return toast("That link looks incomplete. Ask a member to send the full invite link.", "error");
+        if (!(await saveKey(c, k))) return toast("That link doesn't match this circle.", "error");
         (chat.msgs[c.id] || []).forEach((m) => { m.text = undefined; });
         await decryptAll(c.id);
         toast("Chat unlocked on this device");
@@ -3204,7 +3302,7 @@ body.in-chat main { padding-bottom: 0; }
         const locked = !rawKey(c.id);
         $("#chatNote").innerHTML = `${SVG.lock}<span>${locked
           ? "<b>Chat is locked on this device.</b> Paste the circle's invite link to unlock it."
-          : "End-to-end encrypted — only members with this circle's invite link can read messages. Not even Wishly's server can."}</span>`;
+          : "Private chat — only people in this circle can read these messages."}</span>`;
         $("#unlockForm").hidden = !locked;
         $("#msgInput").disabled = locked; $("#sendBtn").disabled = locked;
         $("#msgInput").placeholder = locked ? "Unlock the chat to send messages" : `Message ${c.name}…`;
@@ -3224,7 +3322,7 @@ body.in-chat main { padding-bottom: 0; }
           const cls = ["msg", mine && "me", m.text == null && "locked", cont && "cont", m.pending && "pending", m.failed && "failed", !seen.has(m.id) && !m.pending && "new"].filter(Boolean).join(" ");
           const status = m.failed ? `<span class="fail">Not sent · tap to retry</span>` : m.pending ? "Sending…" : d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
           html += `<div class="${cls}" ${m.failed ? `data-retry="${esc(m.id)}" role="button" tabindex="0"` : ""}>${mine || cont ? "" : `<div class="who">${esc(m.from)}</div>`}
-            <div class="txt">${m.text == null ? "Encrypted message — unlock the chat to read it" : linkify(m.text)}</div>
+            <div class="txt">${m.text == null ? "Private message — open the invite link again to read it" : linkify(m.text)}</div>
             <div class="tm">${status}</div></div>`;
           prev = m; if (!m.pending) seen.add(m.id);
         }
@@ -3331,6 +3429,7 @@ body.in-chat main { padding-bottom: 0; }
           urlIntent.circle = null;
         } else setSpace(state.space);
         resyncPush();
+        setTimeout(maybePromptNotif, 1500);
       }
 
       // Test reminder: sends right now and shows exactly what happened on each channel.
