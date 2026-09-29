@@ -3,20 +3,16 @@
 //   npm run dev                       → http://localhost:8888 (admin at /admin)
 //   open http://localhost:8888/__remind → run the reminder job right now
 import http from "node:http";
-import { mkdir, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { BlobsServer } from "@netlify/blobs/server";
+import { startLocalBlobs } from "./blobs-local.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const PORT = Number(process.env.PORT) || 8888;
 const BLOBS_PORT = PORT + 1;
 
-const dir = join(ROOT, ".netlify/local-blobs");
-await mkdir(dir, { recursive: true });
-await new BlobsServer({ directory: dir, token: "local", port: BLOBS_PORT }).start();
-const edge = `http://localhost:${BLOBS_PORT}`;
-process.env.NETLIFY_BLOBS_CONTEXT = Buffer.from(JSON.stringify({ siteID: "local", token: "local", edgeURL: edge, uncachedEdgeURL: edge })).toString("base64");
+await startLocalBlobs({ directory: join(ROOT, ".netlify/local-blobs"), port: BLOBS_PORT });
 process.env.URL ||= `http://localhost:${PORT}`;
 
 const api = (await import("../netlify/functions/api.mjs")).default;

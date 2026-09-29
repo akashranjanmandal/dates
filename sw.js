@@ -1,5 +1,5 @@
 // Keeps the app shell available offline. API calls always go to the network.
-const CACHE = "wishly-v3";
+const CACHE = "wishly-v5";
 const SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
@@ -31,14 +31,24 @@ self.addEventListener("fetch", (e) => {
 self.addEventListener("push", (e) => {
   let data = {};
   try { data = e.data ? e.data.json() : {}; } catch { data = { title: "Wishly", body: e.data?.text() || "" }; }
-  e.waitUntil(self.registration.showNotification(data.title || "Wishly", {
-    body: data.body || "",
-    icon: "/icons/icon-192.png",
-    badge: "/icons/icon-192.png",
-    tag: data.tag,
-    renotify: Boolean(data.tag),
-    data: { url: data.url || "/" },
-  }));
+  e.waitUntil((async () => {
+    const wins = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    const focused = wins.some((w) => w.focused && w.visibilityState === "visible");
+    // A chat message while the app is open on screen: let the page fetch it right away instead of popping a banner.
+    // (iPhone requires every push to show a notification, so it always gets one.)
+    if (data.kind === "chat" && focused) {
+      wins.forEach((w) => w.postMessage({ type: "chat", circle: data.circle }));
+      if (!/iPhone|iPad|iPod/.test(self.navigator?.userAgent || "")) return;
+    }
+    await self.registration.showNotification(data.title || "Wishly", {
+      body: data.body || "",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      tag: data.tag,
+      renotify: Boolean(data.tag),
+      data: { url: data.url || "/" },
+    });
+  })());
 });
 
 self.addEventListener("notificationclick", (e) => {

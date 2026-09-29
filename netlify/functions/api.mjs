@@ -3,7 +3,7 @@ import {
   authConfigured, checkAdmin, checkPassword, eventsKey, hashPassword, nameKey, sign, userKey, validName, verify,
 } from "../shared/auth.mjs";
 import {
-  appendLog, circleEventsKey, circleKey, deliver, getJSON, inviteKey, messagePrefix, patchUser, userEvents,
+  appendLog, circleEventsKey, circleKey, deliver, getJSON, inviteKey, messagePrefix, patchUser, updateJSON, userEvents,
 } from "../shared/deliver.mjs";
 import { mailConfigured } from "../shared/mail.mjs";
 import { pushConfigured, pushToAll, validSubscription, vapidPublicKey } from "../shared/push.mjs";
@@ -56,7 +56,7 @@ const circleView = (c, u) => ({
   muted: Boolean(u.circlePrefs?.[c.id]?.mute), lastMsgAt: c.lastMsgAt || 0,
 });
 
-const logActivity = (store, entries) => appendLog(store, "activity", entries, 400);
+const logActivity = (store, entries) => appendLog(store, "activity", entries, 400).catch(() => {});
 
 async function allUsers(store) {
   const { blobs } = await store.list({ prefix: "users/" });
@@ -67,15 +67,19 @@ async function deleteCircle(store, c) {
   const { blobs } = await store.list({ prefix: messagePrefix(c.id) });
   await Promise.all(blobs.map((b) => store.delete(b.key)));
   await Promise.all([store.delete(circleKey(c.id)), store.delete(circleEventsKey(c.id)), store.delete(inviteKey(c.code))]);
-  await Promise.all(c.members.map((k) => patchUser(store, k, (u) => { u.circles = (u.circles || []).filter((x) => x !== c.id); })));
+  await Promise.all(c.members.map((k) => patchUser(store, k, (u) => { u.circles = (u.circles || []).filter((x) => x !== c.id); }).catch(() => {})));
 }
 
-async function removeMember(store, c, key) {
-  c.members = c.members.filter((k) => k !== key);
-  await patchUser(store, key, (u) => { u.circles = (u.circles || []).filter((x) => x !== c.id); });
-  if (!c.members.length) return deleteCircle(store, c);
-  if (c.owner === key) c.owner = c.members[0];
-  await store.setJSON(circleKey(c.id), c);
+// Takes someone out of a circle (leaving, being removed, or their account being deleted).
+async function removeMember(store, id, key) {
+  const { data: c } = await updateJSON(store, circleKey(id), (cur) => {
+    if (!cur || !cur.members.includes(key)) return undefined;
+    cur.members = cur.members.filter((k) => k !== key);
+    if (cur.owner === key && cur.members.length) cur.owner = cur.members[0];
+    return cur;
+  });
+  await patchUser(store, key, (u) => { u.circles = (u.circles || []).filter((x) => x !== id); }).catch(() => {});
+  if (c && !c.members.length) await deleteCircle(store, c);
 }
 
 export default async (req) => {
@@ -87,6 +91,15 @@ export default async (req) => {
   const store = getStore({ name: "dates", consistency: "strong" });
   const body = ["POST", "PUT", "PATCH"].includes(method) ? await req.json().catch(() => ({})) : {};
   const session = verify((req.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""));
+  try {
+    return await handle(req, { url, path, method, store, body, session });
+  } catch (e) {
+    console.error(e);
+    return json({ error: e.status === 409 ? e.message : "Something went wrong on our side — please try again" }, e.status || 500);
+  }
+};
+
+async function handle(req, { url, path, method, store, body, session }) {
 
   // ---------- accounts ----------
   if (path === "/signup" && method === "POST") {
@@ -94,13 +107,13 @@ export default async (req) => {
     if (!validName(name)) return json({ error: "Use 2–32 letters, numbers or spaces for your name" }, 400);
     if (String(body.password || "").length < 6) return json({ error: "Password needs at least 6 characters" }, 400);
     const k = nameKey(name);
-    if (await store.get(userKey(k))) return json({ error: "That name is taken — sign in instead, or add a surname" }, 409);
     const now = Date.now();
     const user = {
       name, key: k, ...hashPassword(String(body.password)), email: "", push: [], circles: [],
       tz: validTz(body.tz) ? body.tz : tzName(), created: now, lastSeen: now,
     };
-    await store.setJSON(userKey(k), user);
+    const made = await store.setJSON(userKey(k), user, { onlyIfNew: true });
+    if (!made.modified) return json({ error: "That name is taken — sign in instead, or add a surname" }, 409);
     await store.setJSON(eventsKey(k), []);
     await logActivity(store, [{ user: name, action: "joined", at: now }]);
     return json({ token: sign({ u: k }), user: publicUser(user) });
@@ -168,10 +181,7 @@ export default async (req) => {
       const k = decodeURIComponent(du[1]);
       const user = await getJSON(store, userKey(k));
       if (!user) return json({ error: "No such user" }, 404);
-      for (const id of user.circles || []) {
-        const c = await getJSON(store, circleKey(id));
-        if (c) await removeMember(store, c, k);
-      }
+      for (const id of user.circles || []) await removeMember(store, id, k).catch(() => {});
       await store.delete(userKey(k));
       await store.delete(eventsKey(k));
       await logActivity(store, [{ user: user.name, action: "removed by admin", at: Date.now() }]);
@@ -201,6 +211,13 @@ export default async (req) => {
       user: publicUser(user), events: await userEvents(store, user.key), circles, tz: user.tz || tzName(),
       mail: mailConfigured(), push: pushConfigured(), vapidKey: vapidPublicKey(),
     });
+  }
+
+  // Light refresh of the circles I'm in (member changes, unread chat badges) without the dates.
+  if (path === "/circles" && method === "GET") {
+    const circles = (await Promise.all((user.circles || []).map((id) => getJSON(store, circleKey(id)))))
+      .filter((c) => c && c.members.includes(user.key)).map((c) => circleView(c, user));
+    return json({ circles });
   }
 
   if (path === "/events" && method === "PUT") {
@@ -297,16 +314,22 @@ export default async (req) => {
     const inv = /^[A-Za-z0-9]{6,20}$/.test(body.code || "") && (await getJSON(store, inviteKey(body.code)));
     const c = inv && (await getJSON(store, circleKey(inv.id)));
     if (!c) return json({ error: "This invite link is no longer valid — ask for a new one" }, 404);
-    if (!c.members.includes(user.key)) {
-      if (c.members.length >= MAX_CIRCLE_MEMBERS) return json({ error: "This circle is full" }, 400);
-      if ((user.circles || []).length >= MAX_CIRCLES) return json({ error: `You can be in up to ${MAX_CIRCLES} circles` }, 400);
-      c.members.push(user.key);
-      c.names[user.key] = user.name;
-      await store.setJSON(circleKey(c.id), c);
-      await logActivity(store, [{ user: user.name, action: "joined circle", title: c.name, at: Date.now() }]);
-    }
+    let joined = false, full = false;
+    const { data: latest } = await updateJSON(store, circleKey(c.id), (cur) => {
+      joined = false; full = false;
+      if (!cur) return undefined;
+      if (cur.members.includes(user.key)) return undefined;
+      if (cur.members.length >= MAX_CIRCLE_MEMBERS) { full = true; return undefined; }
+      cur.members.push(user.key);
+      cur.names[user.key] = user.name;
+      joined = true;
+      return cur;
+    });
+    if (full) return json({ error: "This circle is full" }, 400);
+    if (!user.circles?.includes(c.id) && (user.circles || []).length >= MAX_CIRCLES) return json({ error: `You can be in up to ${MAX_CIRCLES} circles` }, 400);
     user = await patchUser(store, user.key, (u) => { u.circles = [...new Set([...(u.circles || []), c.id])]; });
-    return json({ circle: circleView(c, user) });
+    if (joined) await logActivity(store, [{ user: user.name, action: "joined circle", title: c.name, at: Date.now() }]);
+    return json({ circle: circleView(latest || c, user) });
   }
 
   const cm = path.match(/^\/circles\/([\w-]+)(\/.*)?$/);
@@ -323,35 +346,41 @@ export default async (req) => {
       if (c.owner !== user.key) return json({ error: "Only the circle's owner can rename it" }, 403);
       const name = String(body.name || "").trim().replace(/\s+/g, " ").slice(0, 40);
       if (name.length < 2) return json({ error: "Give your circle a name" }, 400);
-      c.name = name;
-      await store.setJSON(circleKey(c.id), c);
-      return json({ circle: circleView(c, user) });
+      const { data } = await updateJSON(store, circleKey(c.id), (cur) => { if (!cur) return undefined; cur.name = name; return cur; });
+      return json({ circle: circleView(data || c, user) });
     }
 
-    // Members change dates one at a time so simultaneous edits by different people merge.
+    // Members change dates one at a time; each change is merged into the latest list so that
+    // several people adding dates at the same moment never overwrite each other.
     if (sub === "/events" && method === "PATCH") {
-      const list = (await getJSON(store, circleEventsKey(c.id))) || [];
-      const map = new Map(list.map((e) => [e.id, e]));
-      const now = Date.now(), log = [];
-      for (const raw of (Array.isArray(body.upsert) ? body.upsert : []).slice(0, 500)) {
-        const ev = clean(raw);
-        if (!ev) continue;
-        const old = map.get(ev.id);
-        if (old && sameEvent(old, ev)) continue;
-        map.set(ev.id, { ...ev, by: old?.by || user.name, ...(old ? { editedBy: user.name } : {}) });
-        log.push({ user: user.name, action: old ? "edited" : "added", type: ev.type, title: `${ev.title} (in ${c.name})`, at: now });
-      }
-      for (const id of Array.isArray(body.remove) ? body.remove : []) {
-        const old = map.get(id);
-        if (!old) continue;
-        map.delete(id);
-        log.push({ user: user.name, action: "deleted", type: old.type, title: `${old.title} (in ${c.name})`, at: now });
-      }
-      if (map.size > 5000) return json({ error: "This circle has too many dates" }, 400);
-      const events = [...map.values()];
-      await store.setJSON(circleEventsKey(c.id), events);
+      const now = Date.now();
+      let log = [], tooMany = false;
+      const { data: events } = await updateJSON(store, circleEventsKey(c.id), (list) => {
+        log = []; tooMany = false;
+        const map = new Map((list || []).map((e) => [e.id, e]));
+        let changed = false;
+        for (const raw of (Array.isArray(body.upsert) ? body.upsert : []).slice(0, 500)) {
+          const ev = clean(raw);
+          if (!ev) continue;
+          const old = map.get(ev.id);
+          if (old && sameEvent(old, ev)) continue;
+          map.set(ev.id, { ...ev, by: old?.by || user.name, ...(old ? { editedBy: user.name } : {}) });
+          log.push({ user: user.name, action: old ? "edited" : "added", type: ev.type, title: `${ev.title} (in ${c.name})`, at: now });
+          changed = true;
+        }
+        for (const id of Array.isArray(body.remove) ? body.remove : []) {
+          const old = map.get(id);
+          if (!old) continue;
+          map.delete(id);
+          log.push({ user: user.name, action: "deleted", type: old.type, title: `${old.title} (in ${c.name})`, at: now });
+          changed = true;
+        }
+        if (map.size > 5000) { tooMany = true; return undefined; }
+        return changed ? [...map.values()] : undefined;
+      });
+      if (tooMany) return json({ error: "This circle has too many dates" }, 400);
       await logActivity(store, log);
-      return json({ events });
+      return json({ events: events || ((await getJSON(store, circleEventsKey(c.id))) || []) });
     }
 
     if (sub === "/prefs" && method === "PUT") {
@@ -360,7 +389,7 @@ export default async (req) => {
     }
 
     if (sub === "/leave" && method === "POST") {
-      await removeMember(store, c, user.key);
+      await removeMember(store, c.id, user.key);
       await logActivity(store, [{ user: user.name, action: "left circle", title: c.name, at: Date.now() }]);
       return json({ ok: true });
     }
@@ -370,26 +399,29 @@ export default async (req) => {
       if (c.owner !== user.key) return json({ error: "Only the circle's owner can remove people" }, 403);
       const k = decodeURIComponent(rm[1]);
       if (!c.members.includes(k) || k === user.key) return json({ error: "Not a member" }, 400);
-      await removeMember(store, c, k);
+      await removeMember(store, c.id, k);
       return json({ circle: circleView(await getJSON(store, circleKey(c.id)), user) });
     }
 
     if (sub === "/invite" && method === "POST") {
       if (c.owner !== user.key) return json({ error: "Only the circle's owner can reset the invite link" }, 403);
+      const code = rand(10);
+      await store.setJSON(inviteKey(code), { id: c.id });
+      const { data } = await updateJSON(store, circleKey(c.id), (cur) => { if (!cur) return undefined; cur.code = code; return cur; });
       await store.delete(inviteKey(c.code));
-      c.code = rand(10);
-      await store.setJSON(inviteKey(c.code), { id: c.id });
-      await store.setJSON(circleKey(c.id), c);
-      return json({ circle: circleView(c, user) });
+      return json({ circle: circleView(data || c, user) });
     }
 
     // ----- end-to-end encrypted chat: the server only ever stores ciphertext -----
     if (sub === "/messages" && method === "GET") {
       const after = url.searchParams.get("after") || "";
-      const { blobs } = await store.list({ prefix: messagePrefix(c.id) });
+      // Nothing new? Answer from the circle record alone — no listing, no message reads.
+      if (after && (c.lastMsgId || "") <= after) return json({ messages: [], more: false });
+      const prefix = messagePrefix(c.id);
+      const { blobs } = await store.list({ prefix });
       const keys = blobs.map((b) => b.key).sort();
-      const fresh = after ? keys.filter((k) => k.slice(messagePrefix(c.id).length) > after) : keys;
-      const pick = fresh.slice(-100);
+      const fresh = after ? keys.filter((k) => k.slice(prefix.length) > after) : keys;
+      const pick = fresh.slice(-60);
       const messages = (await Promise.all(pick.map((k) => getJSON(store, k)))).filter(Boolean);
       return json({ messages, more: fresh.length > pick.length });
     }
@@ -401,18 +433,26 @@ export default async (req) => {
       const id = `${String(now).padStart(14, "0")}-${rand(6)}`;
       const msg = { id, from: user.name, fromKey: user.key, at: now, iv, ct };
       await store.setJSON(messagePrefix(c.id) + id, msg);
-      c.lastMsgAt = now;
-      await store.setJSON(circleKey(c.id), c);
+      const { data: cur } = await updateJSON(store, circleKey(c.id), (x) => {
+        if (!x) return undefined;
+        if ((x.lastMsgId || "") >= id) return undefined;
+        x.lastMsgAt = now; x.lastMsgId = id; x.msgCount = (x.msgCount || 0) + 1;
+        return x;
+      });
 
       // Let the others know — the notification can't include the text (the server can't read it).
       const others = await Promise.all(c.members.filter((k) => k !== user.key).map((k) => getJSON(store, userKey(k))));
-      await Promise.allSettled(others.filter((u) => u?.push?.length && !u.circlePrefs?.[c.id]?.mute).map((u) =>
-        pushToAll(u.push, { title: c.name, body: `${user.name} sent a message`, tag: `chat-${c.id}`, url: `/?circle=${c.id}&tab=chat` })));
+      const notify = Promise.allSettled(others.filter((u) => u?.push?.length && !u.circlePrefs?.[c.id]?.mute).map((u) =>
+        pushToAll(u.push, { title: c.name, body: `${user.name} sent a message`, tag: `chat-${c.id}`, url: `/?circle=${c.id}&tab=chat`, kind: "chat", circle: c.id })));
+      await Promise.race([notify, sleep(2500)]);
 
-      const { blobs } = await store.list({ prefix: messagePrefix(c.id) });
-      if (blobs.length > MAX_MESSAGES) {
-        const old = blobs.map((b) => b.key).sort().slice(0, blobs.length - MAX_MESSAGES);
-        await Promise.all(old.map((k) => store.delete(k)));
+      // Keep the newest 1000 messages (checked every so often, not on every send).
+      if (((cur?.msgCount || 0) % 40) === 0) {
+        const { blobs } = await store.list({ prefix: messagePrefix(c.id) });
+        if (blobs.length > MAX_MESSAGES) {
+          const old = blobs.map((b) => b.key).sort().slice(0, blobs.length - MAX_MESSAGES);
+          await Promise.all(old.map((k) => store.delete(k)));
+        }
       }
       return json({ message: msg });
     }
@@ -421,6 +461,6 @@ export default async (req) => {
   }
 
   return json({ error: "Not found" }, 404);
-};
+}
 
 export const config = { path: "/api/*" };

@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Wishly</title>
   <meta name="description" content="Birthdays, anniversaries and events — with email reminders and Google Calendar.">
-  <meta name="theme-color" content="#141211">
+  <meta name="theme-color" content="#07060d">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,70 +16,35 @@
   <link rel="icon" type="image/png" href="/icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f6f2ec;
-      --surface: #fffdf9;
-      --surface-2: #f1ebe3;
-      --ink: #1f1a17;
-      --muted: #7a6f66;
-      --faint: #a79d93;
-      --line: #e7dfd4;
-      --accent: #b4533a;
-      --accent-ink: #fff;
-      --accent-soft: #f5e3db;
-      --c-birthday: #c0564b;
-      --c-anniversary: #8a5a83;
-      --c-event: #3b6e8f;
-      --c-other: #6b7d4f;
-      --shadow: 0 1px 2px rgb(60 40 20 / .05), 0 8px 24px -12px rgb(60 40 20 / .18);
-      --radius: 16px;
+      --bg: #07060d;
+      --solid: #0f0d1c;
+      --surface: rgba(255, 255, 255, .045);
+      --surface-2: rgba(255, 255, 255, .07);
+      --ink: #f4f2ff;
+      --muted: #b0adc8;
+      --faint: #8b88a8;
+      --line: rgba(255, 255, 255, .09);
+      --accent: #ff7a9c;
+      --accent-ink: #14060c;
+      --accent-soft: rgba(255, 122, 156, .14);
+      --violet: #8b7bff;
+      --cyan: #4cc9f0;
+      --g: linear-gradient(135deg, #7c6cff 0%, #c65bd6 48%, #ff7a8a 78%, #ffb26b 100%);
+      --gb: linear-gradient(135deg, #5f52ee 0%, #9b3fc4 52%, #cf3f6b 100%);
+      --g-soft: linear-gradient(135deg, rgba(124, 108, 255, .28), rgba(255, 122, 138, .2));
+      --c-birthday: #ff7a9c;
+      --c-anniversary: #b794ff;
+      --c-event: #4cc9f0;
+      --c-other: #9be564;
+      --shadow: 0 1px 0 rgba(255, 255, 255, .05) inset, 0 24px 60px -28px rgba(0, 0, 0, .9);
+      --radius: 20px;
       --ease: cubic-bezier(.2, .8, .2, 1);
-      --serif: "Fraunces", Georgia, serif;
+      --serif: "Space Grotesk", "Inter", -apple-system, sans-serif;
       --sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
-      color-scheme: light;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) {
-        --bg: #141211;
-        --surface: #1d1a18;
-        --surface-2: #26221f;
-        --ink: #f1ebe4;
-        --muted: #a39a90;
-        --faint: #756c63;
-        --line: #2f2a26;
-        --accent: #e07a5f;
-        --accent-ink: #1a0f0b;
-        --accent-soft: #3a2520;
-        --c-birthday: #e57f73;
-        --c-anniversary: #c592bd;
-        --c-event: #7fb2d3;
-        --c-other: #a9bb86;
-        --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 10px 30px -12px rgb(0 0 0 / .6);
-        color-scheme: dark;
-      }
-    }
-
-    :root[data-theme="dark"] {
-      --bg: #141211;
-      --surface: #1d1a18;
-      --surface-2: #26221f;
-      --ink: #f1ebe4;
-      --muted: #a39a90;
-      --faint: #756c63;
-      --line: #2f2a26;
-      --accent: #e07a5f;
-      --accent-ink: #1a0f0b;
-      --accent-soft: #3a2520;
-      --c-birthday: #e57f73;
-      --c-anniversary: #c592bd;
-      --c-event: #7fb2d3;
-      --c-other: #a9bb86;
-      --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 10px 30px -12px rgb(0 0 0 / .6);
+      --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
       color-scheme: dark;
     }
 
@@ -1416,6 +1381,218 @@ body.in-chat main { padding-bottom: 0; }
       }
     }
 
+
+    /* =====================================================================
+       Futuristic dark skin — glass surfaces, aurora light, gradient accents
+       ===================================================================== */
+    @property --a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+    @keyframes spin { to { --a: 360deg; } }
+    @keyframes aurora { to { transform: translate3d(-3vmax, 2vmax, 0) scale(1.07); } }
+    @keyframes ring { from { transform: scale(.94); opacity: .8; } to { transform: scale(1.16); opacity: 0; } }
+
+    html { background: var(--bg); }
+    * { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .18) transparent; }
+    ::selection { background: rgba(139, 123, 255, .5); color: #fff; }
+    body { background: transparent; }
+    body::before {
+      content: ""; position: fixed; inset: -20vmax; z-index: -2; pointer-events: none;
+      background:
+        radial-gradient(38vmax 38vmax at 12% 8%, rgba(124, 108, 255, .30), transparent 60%),
+        radial-gradient(34vmax 34vmax at 92% 14%, rgba(255, 122, 138, .20), transparent 60%),
+        radial-gradient(42vmax 42vmax at 62% 100%, rgba(76, 201, 240, .13), transparent 60%),
+        var(--bg);
+      animation: aurora 28s ease-in-out infinite alternate;
+    }
+    body::after {
+      content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background-image: linear-gradient(rgba(255, 255, 255, .03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      -webkit-mask-image: radial-gradient(ellipse 85% 55% at 50% 0%, #000 15%, transparent 75%);
+      mask-image: radial-gradient(ellipse 85% 55% at 50% 0%, #000 15%, transparent 75%);
+    }
+    :focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
+
+    /* Top bar */
+    .top { background: rgba(7, 6, 13, .6); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); border-bottom: 1px solid var(--line); }
+    .top::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: linear-gradient(90deg, transparent, rgba(139, 123, 255, .7), rgba(255, 122, 138, .7), transparent); opacity: .5; transition: opacity .3s; }
+    .top.scrolled::after { opacity: 1; }
+    .brand { font: 700 21px/1 var(--serif); font-style: normal; letter-spacing: -.03em; color: var(--ink); }
+    .logo { border-radius: 10px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .12), 0 8px 24px -6px rgba(160, 90, 240, .8); }
+    .pill { background: rgba(255, 255, 255, .06); border: 1px solid var(--line); color: var(--muted); font: 500 10.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 7px 11px; }
+    .pill::before { box-shadow: 0 0 0 transparent; }
+    .pill[data-s="synced"]::before { background: #34d399; box-shadow: 0 0 10px #34d399; }
+    .pill[data-s="saving"]::before, .pill[data-s="connecting"]::before { background: #fbbf24; box-shadow: 0 0 10px #fbbf24; }
+    .pill[data-s="error"]::before, .pill[data-s="locked"]::before { background: #fb7185; box-shadow: 0 0 10px #fb7185; }
+    .icon-btn:hover { background: rgba(255, 255, 255, .08); color: #fff; }
+
+    /* Hero */
+    .hero { padding: 30px 0 6px; }
+    .greet { display: flex; align-items: center; gap: 9px; margin: 0; font: 500 11px/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+    .greet::before { content: ""; width: 6px; height: 6px; flex: none; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); animation: pulse 2.4s infinite; }
+    .hero h1 { font: 600 clamp(31px, 7.4vw, 48px)/1.06 var(--serif); letter-spacing: -.035em; margin: 14px 0 0; text-wrap: balance; }
+    .hero h1 em { font-style: normal; background: var(--g); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+    /* Next-up card with a slowly circling gradient edge */
+    .next { position: relative; isolation: isolate; margin-top: 26px; padding: 20px 22px; color: var(--ink); border: 1px solid transparent; border-radius: 26px;
+      background: linear-gradient(var(--solid), var(--solid)) padding-box, conic-gradient(from var(--a), #7c6cff, #ff7a8a, #ffb26b, #4cc9f0, #7c6cff) border-box;
+      animation: spin 9s linear infinite; box-shadow: 0 34px 70px -34px rgba(124, 108, 255, .65); }
+    .next::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; background: radial-gradient(120% 100% at 0% 0%, rgba(124, 108, 255, .2), transparent 55%), radial-gradient(90% 90% at 100% 100%, rgba(255, 122, 138, .12), transparent 60%); }
+    .next:hover { transform: translateY(-3px); box-shadow: 0 40px 80px -30px rgba(160, 90, 240, .75); }
+    .next .count { font: 700 54px/1 var(--serif); letter-spacing: -.04em; background: var(--g); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 18px rgba(198, 91, 214, .5)); min-width: 64px; }
+    .next .count small { font: 500 10px/1.4 var(--mono); letter-spacing: .16em; color: var(--muted); -webkit-text-fill-color: var(--muted); }
+    .next .label { font: 500 10.5px/1.2 var(--mono); letter-spacing: .16em; color: var(--muted); }
+    .next .t { font: 600 22px/1.25 var(--serif); letter-spacing: -.025em; margin: 4px 0 2px; }
+    .next .emoji { width: 56px; height: 56px; border-radius: 18px; background: color-mix(in srgb, var(--c) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 40%, transparent), 0 0 34px -8px var(--c); }
+    .today-chip { background: color-mix(in srgb, var(--c, #fff) 14%, rgba(255, 255, 255, .04)); border: 1px solid color-mix(in srgb, var(--c, #fff) 35%, transparent); color: var(--ink); box-shadow: 0 0 24px -10px var(--c, transparent); }
+
+    /* Tabs */
+    .tabs { background: rgba(255, 255, 255, .04); border: 1px solid var(--line); border-radius: 18px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .tab { color: var(--muted); }
+    .tab[aria-selected="true"] { color: #fff; }
+    .tab-ind { border-radius: 14px; background: linear-gradient(135deg, rgba(124, 108, 255, .55), rgba(255, 122, 138, .42)); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16), 0 10px 26px -10px rgba(198, 91, 214, .8); }
+
+    /* Lists */
+    .group-h { display: flex; align-items: center; gap: 12px; font: 500 10.5px/1 var(--mono); letter-spacing: .16em; color: var(--muted); }
+    .group-h::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
+    .list { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+    .row { position: relative; grid-template-columns: 54px 1fr auto; padding: 13px 16px; border-top: 1px solid rgba(255, 255, 255, .06); }
+    .row::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 0 3px 3px 0; background: var(--c); box-shadow: 0 0 14px var(--c); opacity: 0; transition: opacity .2s; }
+    .row:hover { background: linear-gradient(90deg, color-mix(in srgb, var(--c) 11%, transparent), transparent 75%); }
+    .row:hover::before { opacity: 1; }
+    .date-b { border: 1px solid var(--line); background: rgba(255, 255, 255, .04); border-radius: 14px; padding: 8px 0 7px; }
+    .date-b b { font: 700 20px/1 var(--serif); letter-spacing: -.03em; }
+    .date-b span { display: block; margin-top: 4px; font: 500 9.5px/1 var(--mono); letter-spacing: .12em; color: var(--accent); }
+    .row .t { font-weight: 500; }
+    .when { font: 500 11px/1 var(--mono); letter-spacing: .04em; color: var(--muted); }
+    .when.soon { color: var(--accent); }
+    .when.today { background: var(--gb); color: #fff; padding: 5px 10px; box-shadow: 0 6px 18px -6px rgba(198, 63, 140, .8); }
+    .empty { background: var(--surface); border: 1px dashed rgba(255, 255, 255, .16); border-radius: 22px; backdrop-filter: blur(12px); }
+    .empty .big { font: 600 24px/1.25 var(--serif); font-style: normal; letter-spacing: -.03em; }
+
+    /* Controls */
+    .search input { background: rgba(0, 0, 0, .32); border-radius: 14px; }
+    .chip { background: rgba(255, 255, 255, .04); border-color: var(--line); color: var(--muted); }
+    .chip:hover { border-color: rgba(255, 255, 255, .22); color: var(--ink); }
+    .chip[aria-pressed="true"] { background: var(--g-soft); color: #fff; border-color: rgba(167, 139, 250, .6); box-shadow: 0 0 22px -8px rgba(167, 139, 250, .8); }
+    .chip[aria-pressed="true"] .ic { color: inherit; }
+    .btn { background: rgba(255, 255, 255, .055); border: 1px solid var(--line); color: var(--ink); border-radius: 14px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+    .btn:hover { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .22); }
+    .btn.primary { background: var(--gb); border-color: transparent; color: #fff; font-weight: 600; box-shadow: 0 12px 30px -12px rgba(198, 63, 140, .85), inset 0 1px 0 rgba(255, 255, 255, .28); }
+    .btn.primary:hover { filter: brightness(1.1) saturate(1.1); }
+    .btn.ghost { background: transparent; border-color: transparent; color: var(--muted); backdrop-filter: none; }
+    .btn.ghost:hover { color: #fff; background: rgba(255, 255, 255, .06); }
+    .btn.danger { color: #ff8fa8; background: transparent; border-color: transparent; }
+    .btn.danger:hover { background: rgba(255, 122, 156, .1); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .input { background: rgba(0, 0, 0, .34); border: 1px solid var(--line); border-radius: 14px; }
+    .input::placeholder { color: var(--faint); }
+    .input:focus { border-color: rgba(167, 139, 250, .85); box-shadow: 0 0 0 3px rgba(139, 123, 255, .22), 0 0 34px -10px rgba(139, 123, 255, .7); }
+    .seg { background: rgba(255, 255, 255, .04); border: 1px solid var(--line); border-radius: 14px; }
+    .seg label { border-radius: 10px; }
+    .seg input:checked + label { background: linear-gradient(135deg, rgba(124, 108, 255, .55), rgba(255, 122, 138, .42)); color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16); }
+    .seg input:focus-visible + label { outline-color: #a78bfa; }
+    .check input { accent-color: #a78bfa; }
+    .note { background: rgba(255, 255, 255, .05); border: 1px solid var(--line); }
+    .note b { color: #fff; }
+    .status-ok { color: #34d399; } .status-bad { color: #fb7185; }
+
+    /* Calendar */
+    .cal { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 10px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: var(--shadow); }
+    .cal-head h2 { font: 600 25px/1 var(--serif); letter-spacing: -.035em; }
+    .dow { font: 500 10px/1 var(--mono); letter-spacing: .14em; }
+    .day:hover { background: rgba(255, 255, 255, .06); }
+    .day.is-today .n { background: var(--gb); color: #fff; box-shadow: 0 0 22px -2px rgba(198, 63, 140, .85); }
+    .day.sel { background: var(--g-soft); box-shadow: inset 0 0 0 1px rgba(167, 139, 250, .55); }
+    .day .dots i { box-shadow: 0 0 8px var(--c); }
+    .day .names span { background: color-mix(in srgb, var(--c) 18%, transparent); border-left: 2px solid var(--c); border-radius: 4px 7px 7px 4px; }
+    .day-panel h3 { font: 600 18px/1.2 var(--serif); letter-spacing: -.02em; }
+
+    /* Floating add button */
+    .fab { background: var(--gb); color: #fff; border-radius: 20px; box-shadow: 0 18px 44px -12px rgba(198, 63, 140, .8), inset 0 1px 0 rgba(255, 255, 255, .3); }
+    .fab::before { content: ""; position: absolute; inset: -5px; border-radius: 25px; border: 1px solid rgba(198, 91, 214, .6); pointer-events: none; animation: ring 2.8s ease-out infinite; }
+
+    /* Sheets & dialogs */
+    dialog { background: rgba(14, 12, 26, .9); backdrop-filter: blur(26px) saturate(1.3); -webkit-backdrop-filter: blur(26px) saturate(1.3); border: 1px solid var(--line); border-top-color: rgba(167, 139, 250, .5); border-radius: 28px 28px 0 0; box-shadow: 0 -24px 70px rgba(0, 0, 0, .65), 0 0 90px -30px rgba(139, 123, 255, .5); }
+    @media (min-width: 640px) { dialog { border-radius: 28px; border-top-color: var(--line); } }
+    dialog::backdrop { background: rgba(4, 3, 10, .66); backdrop-filter: blur(6px); }
+    .sheet-h h2 { font: 600 22px/1.2 var(--serif); letter-spacing: -.03em; }
+    .sheet-f { border-top-color: var(--line); background: rgba(255, 255, 255, .02); }
+    .grab { background: rgba(255, 255, 255, .22); }
+    .settings-sec { border-top-color: var(--line); }
+    .settings-sec h3 { font: 600 14px/1.3 var(--serif); letter-spacing: -.01em; }
+    .rem { background: var(--g-soft); border: 1px solid rgba(167, 139, 250, .38); }
+    .rem svg { color: #c4b5fd; }
+
+    /* Sign in */
+    .auth { background: radial-gradient(60vmax 60vmax at 15% 0%, rgba(124, 108, 255, .38), transparent 60%), radial-gradient(50vmax 50vmax at 96% 18%, rgba(255, 122, 138, .26), transparent 60%), radial-gradient(60vmax 60vmax at 50% 112%, rgba(76, 201, 240, .17), transparent 60%), var(--bg); }
+    .auth::before { content: ""; position: fixed; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(255, 255, 255, .03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .03) 1px, transparent 1px); background-size: 48px 48px; -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000, transparent 75%); mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000, transparent 75%); }
+    .auth-card { position: relative; }
+    .auth-logo { width: 92px; height: 92px; border-radius: 26px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 26px 70px -12px rgba(160, 90, 240, .85), 0 0 100px -10px rgba(255, 122, 138, .5); }
+    .auth h1 { font: 700 46px/1 var(--serif); font-style: normal; letter-spacing: -.045em; background: var(--g); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .auth-sub { color: var(--muted); }
+    .auth form { background: rgba(16, 14, 30, .74); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); border: 1px solid rgba(255, 255, 255, .1); border-radius: 26px; box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .95), inset 0 1px 0 rgba(255, 255, 255, .05); }
+    .auth .err { color: #fb7185; }
+    .avatar, .space .sav, .circle-head .avs span { background: var(--gb); }
+
+    /* Circles & chat */
+    .space { background: rgba(255, 255, 255, .04); border-color: var(--line); color: var(--muted); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    .space:hover { color: var(--ink); border-color: rgba(255, 255, 255, .22); }
+    .space[aria-pressed="true"] { background: var(--g-soft); color: #fff; border-color: rgba(167, 139, 250, .6); box-shadow: 0 0 26px -8px rgba(167, 139, 250, .8); }
+    .space .dot-new { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+    .space.add { color: #c4b5fd; border-style: dashed; }
+    .circle-head { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: var(--shadow); }
+    .circle-head .avs span { border-color: #14122a; }
+    .circle-head .ci b { font: 600 18px/1.2 var(--serif); letter-spacing: -.02em; }
+    .badge { background: var(--gb); color: #fff; }
+    .chat-note { background: var(--surface); border-color: var(--line); border-radius: 16px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .chat-note svg { color: #34d399; }
+    .msg { background: rgba(255, 255, 255, .06); border: 1px solid var(--line); border-radius: 18px 18px 18px 6px; }
+    .msg.me { background: var(--gb); border-color: transparent; color: #fff; border-radius: 18px 18px 6px 18px; box-shadow: 0 12px 30px -14px rgba(198, 63, 140, .85); }
+    .msg.me .tm { color: rgba(255, 255, 255, .78); }
+    .msg .who { color: #c4b5fd; }
+    .composer { background: linear-gradient(to top, var(--bg) 68%, transparent); }
+    .composer textarea { border-radius: 18px; }
+    .composer .btn { border-radius: 16px; }
+    .day-sep { font-family: var(--mono); letter-spacing: .14em; }
+
+    /* Toasts */
+    .toast { background: rgba(22, 19, 40, .94); color: var(--ink); border: 1px solid rgba(255, 255, 255, .13); border-radius: 16px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .95), 0 0 34px -12px rgba(139, 123, 255, .7); }
+    .toast.error { background: rgba(72, 14, 32, .95); border-color: rgba(255, 122, 156, .55); color: #ffd9e2; }
+    .toast button { color: #c4b5fd; }
+    .toast.error button { color: #ffd9e2; }
+
+    /* Password eye */
+    .pw-wrap { position: relative; }
+    .pw-wrap .input { padding-right: 46px; }
+    .pw-eye { position: absolute; right: 5px; top: 50%; translate: 0 -50%; width: 36px; height: 36px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); display: grid; place-items: center; transition: background .15s, color .15s; }
+    .pw-eye:hover { background: rgba(255, 255, 255, .08); color: #fff; }
+    .pw-eye svg { width: 19px; height: 19px; grid-area: 1 / 1; }
+    .pw-eye .e-off { display: none; }
+    .pw-eye[aria-pressed="true"] { color: #c4b5fd; }
+    .pw-eye[aria-pressed="true"] .e-on { display: none; }
+    .pw-eye[aria-pressed="true"] .e-off { display: block; }
+    input::-ms-reveal, input::-ms-clear { display: none; }
+
+    /* Chat details */
+    .msg { animation: none; }
+    .msg.new { animation: pop .25s var(--ease) both; }
+    .msg.cont { margin-top: -3px; border-top-left-radius: 8px; }
+    .msg.me.cont { border-top-left-radius: 18px; border-top-right-radius: 8px; }
+    .msg.pending { opacity: .72; }
+    .msg.failed { border-color: rgba(251, 113, 133, .7); background: rgba(251, 113, 133, .12); cursor: pointer; }
+    .msg.failed .tm .fail { color: #fda4af; font-weight: 600; }
+    .msg .txt a { color: inherit; text-decoration: underline; text-underline-offset: 2px; word-break: break-all; }
+    .msg:not(.me) .txt a { color: #c4b5fd; }
+    .jump { position: sticky; bottom: 78px; align-self: center; margin: 0 auto; display: block; z-index: 6; border: 0; border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 600; color: #fff; background: var(--gb); box-shadow: 0 12px 30px -10px rgba(198, 63, 140, .9); animation: pop .25s var(--ease) both; }
+
+    /* Polish */
+    /* iPhone zooms the page when a field's text is smaller than 16px — keep fields at 16px on phones */
+    @media (max-width: 640px) { input, textarea, select, .input { font-size: 16px; } }
+    .auth h1 { padding: 0 0 .12em; margin-bottom: 20px; line-height: 1.12; }
+    body.in-chat .hero { display: none; }
+    body.in-chat .spaces { padding-bottom: 0; }
+    @media (max-width: 420px) { .greet { letter-spacing: .1em; } }
+
     @media (prefers-reduced-motion: reduce) {
 
       *,
@@ -1509,6 +1686,7 @@ body.in-chat main { padding-bottom: 0; }
         <button class="btn primary">Unlock</button>
       </form>
       <div class="msgs" id="msgs"></div>
+      <button class="jump" id="jumpBtn" type="button" hidden>New messages ↓</button>
       <form class="composer" id="composer">
         <textarea class="input" id="msgInput" rows="1" maxlength="4000" aria-label="Message"></textarea>
         <button class="btn primary" id="sendBtn" aria-label="Send">
@@ -1536,6 +1714,7 @@ body.in-chat main { padding-bottom: 0; }
           </svg></button>
       </div>
       <div class="sheet-b">
+        <div class="note" id="circleNote" hidden style="margin:2px 0 12px"></div>
         <div class="seg" id="typeSeg"></div>
         <div class="field">
           <label for="fTitle" id="fTitleLbl">Name</label>
@@ -1705,14 +1884,6 @@ body.in-chat main { padding-bottom: 0; }
         <div class="btn-row"><button class="btn primary" id="btnInstall" hidden>Install Wishly</button></div>
       </div>
       <div class="settings-sec">
-        <h3>Appearance</h3>
-        <div class="seg" id="themeSeg">
-          <input type="radio" name="theme" id="thA" value="auto"><label for="thA">Auto</label>
-          <input type="radio" name="theme" id="thL" value="light"><label for="thL">Light</label>
-          <input type="radio" name="theme" id="thD" value="dark"><label for="thD">Dark</label>
-        </div>
-      </div>
-      <div class="settings-sec">
         <h3>This device</h3>
         <p id="deviceStatus"></p>
         <div class="btn-row"><button class="btn" id="btnSignOut">Sign out</button></div>
@@ -1736,8 +1907,8 @@ body.in-chat main { padding-bottom: 0; }
         </div>
         <div class="field">
           <label for="authPass">Password</label>
-          <input class="input" type="password" id="authPass" autocomplete="current-password"
-            placeholder="At least 6 characters">
+          <div class="pw-wrap"><input class="input" type="password" id="authPass" autocomplete="current-password"
+            placeholder="At least 6 characters"><button type="button" class="pw-eye" aria-label="Show password" aria-pressed="false"><svg class="e-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><svg class="e-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A10.4 10.4 0 0 1 12 4c6.4 0 10 8 10 8a17.6 17.6 0 0 1-3.1 4.3M6.6 6.6A17.2 17.2 0 0 0 2 12s3.6 8 10 8a9.7 9.7 0 0 0 5.4-1.6"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2M2 2l20 20"/></svg></button></div>
         </div>
         <div class="hint err" id="authErr"></div>
         <button class="btn primary" type="submit" id="authBtn">Sign in</button>
@@ -1836,7 +2007,7 @@ body.in-chat main { padding-bottom: 0; }
       }
       const browserTz = () => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { return ""; } };
       const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-      const LS = { events: "wishly.events.", token: "wishly.token", user: "wishly.user", tab: "wishly.tab", theme: "wishly.theme" };
+      const LS = { events: "wishly.events.", token: "wishly.token", user: "wishly.user", tab: "wishly.tab" };
 
       const ls = {
         get(k, f) { try { const v = localStorage.getItem(k); return v == null ? f : JSON.parse(v); } catch { return f; } },
@@ -1989,7 +2160,11 @@ body.in-chat main { padding-bottom: 0; }
       }
 
       // ---------- rendering ----------
-      function render() {
+      let renderSig = "";
+      function render(force) {
+        const sig = `${state.space}|${today().getTime()}|${JSON.stringify(state.events)}`;
+        if (!force && sig === renderSig) return;
+        renderSig = sig;
         renderHero();
         renderUpcoming();
         renderCalendar();
@@ -2043,8 +2218,9 @@ body.in-chat main { padding-bottom: 0; }
       }
 
       function emptyHtml(big, small, withBulk = true) {
+        const invite = inCircle() ? `<button class="btn" data-act="circle-invite">Invite friends</button>` : "";
         return `<div class="empty"><div class="big">${big}</div>${small}
-    <div class="btns"><button class="btn primary" data-act="new">Add a date</button>${withBulk ? `<button class="btn" data-act="bulk">Paste a list</button>` : ""}</div></div>`;
+    <div class="btns"><button class="btn primary" data-act="new">Add a date</button>${withBulk ? `<button class="btn" data-act="bulk">Paste a list</button>` : ""}${invite}</div></div>`;
       }
 
       function renderUpcoming() {
@@ -2129,7 +2305,7 @@ body.in-chat main { padding-bottom: 0; }
         state.tab = tab; ls.set(LS.tab, tab);
         document.body.classList.toggle("in-chat", tab === "chat");
         if (tab === "chat") { markRead(state.space); renderChat(true); renderSpaces(); }
-        if (inCircle() && (tab === "chat") !== wasChat) startChatPoll();
+        if (inCircle() && (tab === "chat") !== wasChat) kickPoll();
         if (inCircle() && tab !== "chat") loadCircle(state.space);
         document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === tab));
         document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === `view-${tab}`));
@@ -2150,7 +2326,10 @@ body.in-chat main { padding-bottom: 0; }
         const isNew = !ev;
         const type = ev?.type || preset.type || "birthday";
         state.editing = ev ? ev.id : null;
-        $("#editTitle").textContent = isNew ? "New date" : "Edit";
+        const cc = inCircle();
+        $("#editTitle").textContent = isNew ? (cc ? `Add to ${cc.name}` : "New date") : (cc ? "Edit shared date" : "Edit");
+        $("#circleNote").hidden = !cc;
+        if (cc) $("#circleNote").innerHTML = `<b>Shared with ${cc.members.length} member${cc.members.length > 1 ? "s" : ""}.</b> Everyone in ${esc(cc.name)} will see this date and get reminded.`;
         $(`#t_${type}`).checked = true;
         $("#fTitle").value = ev?.title || "";
         $("#fDate").value = ev?.date || preset.date || "";
@@ -2474,7 +2653,6 @@ body.in-chat main { padding-bottom: 0; }
           : `Saved in this browser only (${state.events.length} dates).`;
         $("#btnSignOut").hidden = !remote;
         $("#testSec").hidden = !remote;
-        $(`#themeSeg input[value="${ls.get(LS.theme, "dark")}"]`).checked = true;
         $("#settingsDlg").showModal();
       }
       function saveDefault() {
@@ -2516,11 +2694,6 @@ body.in-chat main { padding-bottom: 0; }
         } catch { toast("That file doesn't look like a Wishly backup.", "error"); }
         e.target.value = "";
       });
-      $("#themeSeg").addEventListener("change", (e) => { ls.set(LS.theme, e.target.value); applyTheme(); });
-      function applyTheme() {
-        const t = ls.get(LS.theme, "dark");
-        if (t === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
-      }
       // Android/desktop Chrome: offer a one-tap install button.
       let installPrompt = null;
       addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; $("#btnInstall").hidden = false; });
@@ -2533,10 +2706,23 @@ body.in-chat main { padding-bottom: 0; }
       if (matchMedia("(display-mode: standalone)").matches || navigator.standalone) $("#installSec").hidden = true;
       $("#btnSignOut").addEventListener("click", () => { $("#settingsDlg").close(); signOut(); });
 
+      // ---------- password "eye" ----------
+      document.addEventListener("pointerdown", (e) => { if (e.target.closest(".pw-eye")) e.preventDefault(); }); // keep the cursor in the field
+      document.addEventListener("click", (e) => {
+        const b = e.target.closest(".pw-eye"); if (!b) return;
+        const input = b.closest(".pw-wrap").querySelector("input");
+        const show = input.type === "password";
+        input.type = show ? "text" : "password";
+        b.setAttribute("aria-pressed", show); b.setAttribute("aria-label", show ? "Hide password" : "Show password");
+        input.focus({ preventScroll: true });
+      });
+      const hidePasswords = () => document.querySelectorAll(".pw-wrap").forEach((w) => { w.querySelector("input").type = "password"; const b = w.querySelector(".pw-eye"); b.setAttribute("aria-pressed", "false"); b.setAttribute("aria-label", "Show password"); });
+
       // ---------- sign in / sign up ----------
       function showAuth(err = "") {
         state.mode = "locked"; setPill("locked");
         $("#authErr").textContent = err;
+        hidePasswords();
         $("#auth").hidden = false;
         document.body.classList.add("authing");
         setTimeout(() => $("#authName").focus(), 50);
@@ -2544,11 +2730,11 @@ body.in-chat main { padding-bottom: 0; }
       function hideAuth() {
         $("#auth").hidden = true;
         document.body.classList.remove("authing");
-        $("#authPass").value = "";
+        $("#authPass").value = ""; hidePasswords();
       }
       function signOut(msg = "") {
         ls.del(LS.token); ls.del(LS.user);
-        stopChatPoll();
+        stopPoll();
         Object.assign(state, { token: "", user: null, server: null, events: [], personal: [], circles: [], circleEvents: {}, snap: {}, space: "me" });
         ls.set("wishly.space", "me");
         $("#chatTab").hidden = true; renderSpaces();
@@ -2626,10 +2812,10 @@ body.in-chat main { padding-bottom: 0; }
       const inviteLink = (c) => `${location.origin}/?join=${c.invite}${rawKey(c.id) ? `#k=${rawKey(c.id)}` : ""}`;
       function parseInvite(text) {
         const s = String(text || "").trim();
-        try {
-          const u = new URL(s);
-          return { code: u.searchParams.get("join") || "", k: new URLSearchParams(u.hash.slice(1)).get("k") || "" };
-        } catch { return { code: /^[A-Za-z0-9]{6,20}$/.test(s) ? s : "", k: "" }; }
+        // The key is exactly 43 URL-safe characters; take just that so stray punctuation added by a chat app is ignored.
+        const k = (s.match(/[#&?]k=([A-Za-z0-9_-]{43})/) || [])[1] || "";
+        const code = (s.match(/[?&]join=([A-Za-z0-9]{6,20})/) || [])[1] || (/^[A-Za-z0-9]{6,20}$/.test(s) ? s : "");
+        return { code, k };
       }
       const myKey = () => (state.user?.name || "").trim().replace(/\s+/g, " ").toLowerCase();
       const initial = (n) => esc(String(n || "?").trim()[0].toUpperCase());
@@ -2641,7 +2827,7 @@ body.in-chat main { padding-bottom: 0; }
       const circleById = (id) => state.circles.find((c) => c.id === id);
       const inCircle = () => (state.space !== "me" ? circleById(state.space) : null);
       const lastRead = (id) => ls.get(`wishly.read.${id}`, 0);
-      const markRead = (id) => { ls.set(`wishly.read.${id}`, Date.now()); };
+      const markRead = (id, ts) => { const t = ts || circleById(id)?.lastMsgAt || 0; if (t > lastRead(id)) ls.set(`wishly.read.${id}`, t); };
       const core = (e) => JSON.stringify([e.type, e.title, e.date, !!e.yearUnknown, e.time || "", e.repeat, e.remind || [], e.notes || ""]);
 
       function setSpace(id) {
@@ -2652,30 +2838,34 @@ body.in-chat main { padding-bottom: 0; }
         $("#chatTab").hidden = id === "me";
         if (id === "me" && state.tab === "chat") setTab("upcoming");
         renderSpaces(); render(); moveInd();
-        stopChatPoll();
-        if (id !== "me") { loadCircle(id); startChatPoll(); if (state.tab === "chat") renderChat(true); }
+        if (id !== "me") { loadCircle(id); chat.loadedAt = Date.now(); if (state.tab === "chat") renderChat(true); }
+        kickPoll();
       }
 
+      let spacesSig = "", headSig = "";
       function renderSpaces() {
         const nav = $("#spaces");
         nav.hidden = state.mode !== "remote" || !state.user;
-        if (nav.hidden) { $("#circleHead").innerHTML = ""; return; }
-        nav.innerHTML = `<button class="space" data-space="me" aria-pressed="${state.space === "me"}"><span class="sav">${initial(state.user.name)}</span>My dates</button>` +
-          state.circles.map((c) => `<button class="space" data-space="${c.id}" aria-pressed="${state.space === c.id}"><span class="sav">${initial(c.name)}</span>${esc(c.name)}${c.lastMsgAt > lastRead(c.id) && !(state.space === c.id && state.tab === "chat") ? '<span class="dot-new" aria-label="new messages"></span>' : ""}</button>`).join("") +
+        if (nav.hidden) { $("#circleHead").innerHTML = ""; spacesSig = headSig = ""; return; }
+        const unread = (c) => c.lastMsgAt > lastRead(c.id) && !viewingChat(c.id);
+        const spaces = `<button class="space" data-space="me" aria-pressed="${state.space === "me"}"><span class="sav">${initial(state.user.name)}</span>My dates</button>` +
+          state.circles.map((c) => `<button class="space" data-space="${c.id}" aria-pressed="${state.space === c.id}"><span class="sav">${initial(c.name)}</span>${esc(c.name)}${unread(c) ? '<span class="dot-new" aria-label="new messages"></span>' : ""}</button>`).join("") +
           `<button class="space add" data-act="circle-new">+ Circle</button>`;
+        if (spaces !== spacesSig) { spacesSig = spaces; nav.innerHTML = spaces; }
         const c = inCircle();
-        $("#circleHead").innerHTML = c ? `<div class="circle-head">
+        const head = c ? `<div class="circle-head">
             <div class="avs">${c.members.slice(0, 4).map((m) => `<span title="${esc(m.name)}">${initial(m.name)}</span>`).join("")}${c.members.length > 4 ? `<span>+${c.members.length - 4}</span>` : ""}</div>
             <div class="ci"><b>${esc(c.name)}</b><span>${c.members.length} member${c.members.length > 1 ? "s" : ""} · shared dates${c.muted ? " · reminders muted" : ""}</span></div>
             <button class="btn" data-act="circle-invite">Invite</button>
             <button class="icon-btn" data-act="circle-info" aria-label="Circle settings">${SVG.more}</button>
           </div>` : "";
-        const n = c && (c.lastMsgAt > lastRead(c.id)) && state.tab !== "chat";
-        $("#chatBadge").hidden = !n;
+        if (head !== headSig) { headSig = head; $("#circleHead").innerHTML = head; }
+        $("#chatBadge").hidden = !(c && unread(c) && state.tab !== "chat");
       }
 
       function upsertCircle(c) {
         const i = state.circles.findIndex((x) => x.id === c.id);
+        if (i >= 0 && JSON.stringify(state.circles[i]) === JSON.stringify(c)) return;
         if (i < 0) state.circles.push(c); else state.circles[i] = c;
         renderSpaces();
       }
@@ -2689,6 +2879,7 @@ body.in-chat main { padding-bottom: 0; }
       function applyCircleEvents(id, events, { keepLocal = false } = {}) {
         state.snap[id] = new Map(events.map((e) => [e.id, core(e)]));
         if (keepLocal) return;
+        if (JSON.stringify(state.circleEvents[id] || []) === JSON.stringify(events)) return; // nothing new: leave the screen alone
         state.circleEvents[id] = events; ls.set(`wishly.cev.${id}`, events);
         if (state.space === id) { state.events = events; render(); }
       }
@@ -2857,7 +3048,11 @@ body.in-chat main { padding-bottom: 0; }
       }
 
       // ----- chat -----
-      const chat = { msgs: {}, last: {}, timer: null, busy: false, loadedAt: 0 };
+      const chat = { msgs: {}, last: {}, timer: null, busy: false, loadedAt: 0, lightAt: 0, idle: 0, seen: {}, n: 0 };
+      const byOrder = (a, b) => (a.pending ? 1 : 0) - (b.pending ? 1 : 0) || a.id.localeCompare(b.id);
+      const serverLast = (list) => list.filter((m) => !m.pending && !m.failed).at(-1)?.id || "";
+      const linkify = (t) => esc(t).replace(/(https?:\/\/[^\s<]*[^\s<.,;:!?)"'&])/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+
       async function decryptAll(id) {
         const key = await cryptoKey(id);
         for (const m of chat.msgs[id] || []) {
@@ -2866,6 +3061,8 @@ body.in-chat main { padding-bottom: 0; }
           try { m.text = plain == null ? null : JSON.parse(plain).t; } catch { m.text = null; }
         }
       }
+      const viewingChat = (id) => state.space === id && state.tab === "chat" && !document.hidden;
+
       async function fetchMessages(id) {
         if (chat.busy) return;
         chat.busy = true;
@@ -2876,30 +3073,57 @@ body.in-chat main { padding-bottom: 0; }
           const have = new Set(list.map((m) => m.id));
           const fresh = r.messages.filter((m) => !have.has(m.id));
           if (fresh.length) {
-            list.push(...fresh); list.sort((a, b) => a.id.localeCompare(b.id));
-            chat.last[id] = list.at(-1).id;
+            list.push(...fresh); list.sort(byOrder);
+            chat.last[id] = serverLast(list);
             await decryptAll(id);
             const c = circleById(id);
-            if (c) c.lastMsgAt = Math.max(c.lastMsgAt || 0, list.at(-1).at);
+            if (c) c.lastMsgAt = Math.max(c.lastMsgAt || 0, ...fresh.map((m) => m.at));
+            chat.idle = 0;
+            // Someone we don't know yet is talking: they just joined, so refresh the member list now.
+            if (c && fresh.some((m) => !c.members.some((x) => x.key === m.fromKey))) { chat.lightAt = Date.now(); refreshCircles(); }
+          } else chat.idle++;
+          if (viewingChat(id)) {
+            markRead(id);
+            if (fresh.length || !after) renderChat({ fromOthers: fresh.some((m) => m.fromKey !== myKey()) });
           }
-          if (state.space === id && state.tab === "chat") { markRead(id); if (fresh.length || !after) renderChat(); }
           renderSpaces();
         } catch (e) { if (e.status === 404) dropCircle(id); }
         finally { chat.busy = false; }
       }
-      function stopChatPoll() { clearInterval(chat.timer); chat.timer = null; }
-      function startChatPoll() {
-        stopChatPoll();
-        const c = inCircle(); if (!c) return;
-        const tick = () => {
-          if (document.hidden || !inCircle()) return;
-          fetchMessages(state.space);
-          if (Date.now() - chat.loadedAt > 12000) { chat.loadedAt = Date.now(); loadCircle(state.space); } // shared dates
-        };
-        tick();
-        chat.timer = setInterval(tick, state.tab === "chat" ? 4000 : 8000);
+
+      // One gentle scheduler for everything that needs refreshing. It slows down when nothing is happening
+      // and stops when the app is in the background (phone notifications cover that case).
+      function schedulePoll() {
+        clearTimeout(chat.timer);
+        if (state.mode !== "remote" || !state.user) return;
+        const inChat = Boolean(inCircle()) && state.tab === "chat";
+        const delay = document.hidden ? 60000 : inChat ? (chat.idle < 8 ? 4000 : chat.idle < 25 ? 8000 : 15000) : 30000;
+        chat.timer = setTimeout(async () => { await pollOnce(); schedulePoll(); }, delay);
       }
-      function renderChat(scroll = false) {
+      async function pollOnce() {
+        if (document.hidden || state.mode !== "remote") return;
+        const c = inCircle();
+        if (c) {
+          await fetchMessages(c.id);
+          if (Date.now() - chat.loadedAt > 25000) { chat.loadedAt = Date.now(); await loadCircle(c.id); }
+        }
+        if (Date.now() - chat.lightAt > 24000) { chat.lightAt = Date.now(); await refreshCircles(); }
+      }
+      function kickPoll() { chat.idle = 0; if (state.mode === "remote") { pollOnce(); } schedulePoll(); }
+      function stopPoll() { clearTimeout(chat.timer); chat.timer = null; }
+      async function refreshCircles() {
+        try {
+          const r = await api("/api/circles");
+          const before = JSON.stringify(state.circles);
+          if (JSON.stringify(r.circles) === before) return;
+          state.circles = r.circles;
+          if (state.space !== "me" && !circleById(state.space)) return setSpace("me");
+          renderSpaces();
+        } catch { /* try again next time */ }
+      }
+
+      function renderChat(opts = {}) {
+        if (opts === true) opts = { scroll: true };
         const c = inCircle(); if (!c) return;
         const locked = !rawKey(c.id);
         $("#chatNote").innerHTML = `${SVG.lock}<span>${locked
@@ -2909,51 +3133,87 @@ body.in-chat main { padding-bottom: 0; }
         $("#msgInput").disabled = locked; $("#sendBtn").disabled = locked;
         $("#msgInput").placeholder = locked ? "Unlock the chat to send messages" : `Message ${c.name}…`;
         const list = chat.msgs[c.id] || [], me = myKey(), t = today();
+        const seen = (chat.seen[c.id] ||= new Set());
         const nearBottom = innerHeight + scrollY >= document.body.scrollHeight - 160;
-        let day = "", html = "";
+        let day = "", html = "", prev = null;
         for (const m of list) {
           const d = new Date(m.at), dk = d.toDateString();
           if (dk !== day) {
-            day = dk;
+            day = dk; prev = null;
             const dd = new Date(d.getFullYear(), d.getMonth(), d.getDate());
             html += `<div class="day-sep">${sameDay(dd, t) ? "Today" : sameDay(dd, addDays(t, -1)) ? "Yesterday" : d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}</div>`;
           }
           const mine = m.fromKey === me;
-          html += `<div class="msg ${mine ? "me" : ""} ${m.text == null ? "locked" : ""}">${mine ? "" : `<div class="who">${esc(m.from)}</div>`}
-            <div class="txt">${m.text == null ? "Encrypted message — unlock the chat to read it" : esc(m.text)}</div>
-            <div class="tm">${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</div></div>`;
+          const cont = prev && prev.fromKey === m.fromKey && m.at - prev.at < 5 * 60e3;
+          const cls = ["msg", mine && "me", m.text == null && "locked", cont && "cont", m.pending && "pending", m.failed && "failed", !seen.has(m.id) && !m.pending && "new"].filter(Boolean).join(" ");
+          const status = m.failed ? `<span class="fail">Not sent · tap to retry</span>` : m.pending ? "Sending…" : d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+          html += `<div class="${cls}" ${m.failed ? `data-retry="${esc(m.id)}" role="button" tabindex="0"` : ""}>${mine || cont ? "" : `<div class="who">${esc(m.from)}</div>`}
+            <div class="txt">${m.text == null ? "Encrypted message — unlock the chat to read it" : linkify(m.text)}</div>
+            <div class="tm">${status}</div></div>`;
+          prev = m; if (!m.pending) seen.add(m.id);
         }
         $("#msgs").innerHTML = html || `<div class="empty" style="border:0;background:none"><div class="big">Say hi to ${esc(c.name)}</div>Plan gifts and surprises together — privately.</div>`;
-        if (scroll || nearBottom) requestAnimationFrame(() => scrollTo({ top: document.body.scrollHeight, behavior: scroll ? "auto" : "smooth" }));
+        if (opts.scroll || nearBottom) { $("#jumpBtn").hidden = true; requestAnimationFrame(() => scrollTo({ top: document.body.scrollHeight, behavior: opts.scroll ? "auto" : "smooth" })); }
+        else if (opts.fromOthers) $("#jumpBtn").hidden = false;
       }
+      addEventListener("scroll", () => { if (!$("#jumpBtn").hidden && innerHeight + scrollY >= document.body.scrollHeight - 120) $("#jumpBtn").hidden = true; }, { passive: true });
+      $("#jumpBtn").addEventListener("click", () => { $("#jumpBtn").hidden = true; scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }); });
+
       const autoGrow = () => { const t = $("#msgInput"); t.style.height = "auto"; t.style.height = `${Math.min(t.scrollHeight, 140)}px`; };
       $("#msgInput").addEventListener("input", autoGrow);
       $("#msgInput").addEventListener("keydown", (e) => {
         if (e.key === "Enter" && !e.shiftKey && !/iphone|android/i.test(navigator.userAgent)) { e.preventDefault(); $("#composer").requestSubmit(); }
       });
+
+      // Messages appear the instant you send them; the server round-trip happens behind the scenes.
+      async function sendMsg(c, m) {
+        m.failed = false; m.pending = true;
+        try {
+          const key = await cryptoKey(c.id);
+          if (!key) throw new Error("Unlock the chat first.");
+          const box = (m.box ||= await seal(key, JSON.stringify({ t: m.text }), c.id));
+          const r = await api(`/api/circles/${c.id}/messages`, { method: "POST", body: JSON.stringify(box) });
+          const list = chat.msgs[c.id], real = { ...r.message, text: m.text };
+          const i = list.indexOf(m);
+          if (list.some((x) => x.id === real.id)) list.splice(i, 1); else list[i] = real;
+          list.sort(byOrder);
+          c.lastMsgAt = Math.max(c.lastMsgAt || 0, real.at);
+          chat.last[c.id] = serverLast(list);
+          markRead(c.id, real.at); chat.idle = 0;
+        } catch (err) {
+          m.pending = false; m.failed = true;
+          if (err.status === 404) dropCircle(c.id);
+          else if (err.status === 401) return signOut("Please sign in again.");
+        }
+        if (inCircle()?.id === c.id) renderChat({ scroll: true });
+        renderSpaces();
+      }
       $("#composer").addEventListener("submit", async (e) => {
         e.preventDefault();
         const c = inCircle(), text = $("#msgInput").value.trim();
         if (!c || !text) return;
         if (text.length > 4000) return toast("That message is too long.", "error");
-        const key = await cryptoKey(c.id);
-        if (!key) return toast("Unlock the chat first.", "error");
-        $("#sendBtn").disabled = true;
-        try {
-          const box = await seal(key, JSON.stringify({ t: text }), c.id);
-          const r = await api(`/api/circles/${c.id}/messages`, { method: "POST", body: JSON.stringify(box) });
-          r.message.text = text;
-          const list = (chat.msgs[c.id] ||= []);
-          if (!list.some((m) => m.id === r.message.id)) list.push(r.message);
-          $("#msgInput").value = ""; autoGrow();
-          markRead(c.id); renderChat(true);
-        } catch (err) { toast(err.message, "error"); }
-        finally { $("#sendBtn").disabled = false; $("#msgInput").focus(); }
+        if (!rawKey(c.id)) return toast("Unlock the chat first.", "error");
+        $("#msgInput").value = ""; autoGrow(); $("#msgInput").focus();
+        const m = { id: `tmp-${String(++chat.n).padStart(6, "0")}`, from: state.user.name, fromKey: myKey(), at: Date.now(), text, pending: true };
+        (chat.msgs[c.id] ||= []).push(m); chat.msgs[c.id].sort(byOrder);
+        renderChat({ scroll: true });
+        sendMsg(c, m);
+      });
+      $("#msgs").addEventListener("click", (e) => {
+        const r = e.target.closest("[data-retry]"); if (!r) return;
+        const c = inCircle(), m = (chat.msgs[c?.id] || []).find((x) => x.id === r.dataset.retry);
+        if (m) { renderChat({ scroll: true }); sendMsg(c, m); }
       });
       $("#unlockForm").addEventListener("submit", (e) => { e.preventDefault(); unlockWith(inCircle(), $("#unlockInput").value); });
       $("#spaces").addEventListener("click", (e) => {
         const b = e.target.closest("[data-space]");
-        if (b) setSpace(b.dataset.space);
+        if (b && b.dataset.space !== state.space) setSpace(b.dataset.space);
+      });
+      // A push from the service worker while the app is open: fetch straight away instead of waiting.
+      navigator.serviceWorker?.addEventListener("message", (e) => {
+        if (e.data?.type !== "chat") return;
+        if (state.space === e.data.circle) fetchMessages(e.data.circle); else { chat.lightAt = 0; refreshCircles(); }
       });
 
       // Re-register this phone with the server on every visit, and fix a subscription made with an
@@ -2980,11 +3240,14 @@ body.in-chat main { padding-bottom: 0; }
         const out = { join: u.searchParams.get("join"), k: new URLSearchParams(u.hash.slice(1)).get("k"), circle: u.searchParams.get("circle"), tab: u.searchParams.get("tab") };
         if (out.join || out.k || out.circle || out.tab) history.replaceState(null, "", "/");
         if (out.join) { try { sessionStorage.setItem("wishly.join", JSON.stringify({ code: out.join, k: out.k })); } catch { } }
+        const raw = location.hash + location.search; // (already stripped above; parse from the original href)
+        const m = u.href.match(/[#&?]k=([A-Za-z0-9_-]{43})/); if (m) out.k = m[1];
+        out.pending = out.join ? { code: out.join, k: out.k } : null;
         return out;
       })();
       async function afterConnect() {
-        let pending = null;
-        try { pending = JSON.parse(sessionStorage.getItem("wishly.join") || "null"); sessionStorage.removeItem("wishly.join"); } catch { }
+        let pending = urlIntent.pending; urlIntent.pending = null;
+        try { pending ||= JSON.parse(sessionStorage.getItem("wishly.join") || "null"); sessionStorage.removeItem("wishly.join"); } catch { }
         if (pending?.code) await joinCircle(pending.code, pending.k);
         else if (urlIntent.circle && circleById(urlIntent.circle)) {
           setSpace(urlIntent.circle);
@@ -3045,7 +3308,7 @@ body.in-chat main { padding-bottom: 0; }
         if (row) { const ev = state.events.find((x) => x.id === row.dataset.id); if (ev) openEdit(ev); return; }
         const act = e.target.closest("[data-act]");
         if (act?.dataset.act === "new") return openEdit(null);
-        if (act?.dataset.act === "bulk") return $("#bulkDlg").showModal();
+        if (act?.dataset.act === "bulk") return openBulk();
         if (act?.dataset.act === "new-on") return openEdit(null, { date: act.dataset.day, type: "event" });
         if (act?.dataset.act === "circle-new") return $("#circleDlg").showModal();
         if (act?.dataset.act === "circle-invite") { $("#circleInfoDlg").open && $("#circleInfoDlg").close(); return openInvite(); }
@@ -3067,7 +3330,12 @@ body.in-chat main { padding-bottom: 0; }
       });
       document.querySelectorAll("dialog").forEach((d) => d.addEventListener("click", (e) => { if (e.target === d) d.close(); }));
       $("#fab").addEventListener("click", () => openEdit(null, state.tab === "calendar" && state.selDay ? { date: iso(state.selDay), type: "event" } : {}));
-      $("#btnBulk").addEventListener("click", () => $("#bulkDlg").showModal());
+      function openBulk() {
+        const cc = inCircle();
+        $("#bulkTitle").textContent = cc ? `Add many birthdays to ${cc.name}` : "Add many birthdays";
+        $("#bulkDlg").showModal();
+      }
+      $("#btnBulk").addEventListener("click", openBulk);
       $("#btnSettings").addEventListener("click", openSettings);
       $("#syncPill").addEventListener("click", () => state.mode === "locked" ? showAuth() : state.mode === "error" || $("#syncPill").dataset.s === "error" ? pushNow() : openSettings());
       $("#q").addEventListener("input", (e) => { state.q = e.target.value; renderAll(); });
@@ -3083,10 +3351,9 @@ body.in-chat main { padding-bottom: 0; }
       });
       addEventListener("scroll", () => $("#top").classList.toggle("scrolled", scrollY > 8), { passive: true });
       addEventListener("resize", moveInd);
-      document.addEventListener("visibilitychange", () => { if (!document.hidden) { render(); if (state.mode === "remote") connect(); } });
+      document.addEventListener("visibilitychange", () => { if (document.hidden) return; if (state.mode === "remote") { connect(); kickPoll(); } else render(); });
 
       // ---------- boot ----------
-      applyTheme();
       setTab(["upcoming", "calendar", "all"].includes(state.tab) ? state.tab : "upcoming");
       render();
       document.fonts?.ready.then(moveInd);

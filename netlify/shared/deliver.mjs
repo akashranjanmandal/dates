@@ -3,6 +3,9 @@
 import { eventsKey, userKey } from "./auth.mjs";
 import { mailConfigured, sendMail } from "./mail.mjs";
 import { pushConfigured, pushToAll } from "./push.mjs";
+import { appendLog, updateJSON } from "./store.mjs";
+
+export { appendLog, updateJSON };
 
 export const circleKey = (id) => `circles/${id}`;
 export const circleEventsKey = (id) => `cevents/${id}`;
@@ -11,20 +14,14 @@ export const messagePrefix = (id) => `msgs/${id}/`;
 
 export const getJSON = (store, key) => store.get(key, { type: "json" });
 
-// Read-modify-write a user with the freshest copy, so concurrent writers
-// (the reminder job vs. a phone turning notifications on) don't clobber each other.
+// Change a user record atomically (safe against the reminder job, phones subscribing, joins, etc.).
+// `fn` mutates the user in place and may run more than once.
 export async function patchUser(store, key, fn) {
-  const user = await getJSON(store, userKey(key));
-  if (!user) return null;
-  const out = (await fn(user)) || user;
-  await store.setJSON(userKey(key), out);
-  return out;
-}
-
-export async function appendLog(store, key, entries, cap) {
-  if (!entries.length) return;
-  const log = (await getJSON(store, key)) || [];
-  await store.setJSON(key, [...[...entries].reverse(), ...log].slice(0, cap));
+  const { data } = await updateJSON(store, userKey(key), async (user) => {
+    if (!user) return undefined;
+    return (await fn(user)) || user;
+  });
+  return data;
 }
 
 export const userEvents = async (store, key) => (await getJSON(store, eventsKey(key))) || [];

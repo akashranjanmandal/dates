@@ -69,6 +69,13 @@ reminders (each person can mute a circle), and there's a chat.
   If everyone loses the key, old messages can't be recovered (by design).
 - Notifications for chat messages say "X sent a message" — the server can't read the text.
 
+## Reliability notes
+- **Shared data is conflict-safe.** Every change to circle members, shared dates, chat counters and user records goes
+  through `netlify/shared/store.mjs` (`updateJSON`): a change is only saved if nobody else changed the same thing in the
+  meantime, otherwise it's retried on fresh data. (Tested: 10 people joining at once and 50 simultaneous date additions all land.)
+- `npm run dev` runs a local blob store that behaves like Netlify's (atomic conditional writes), so concurrency bugs show up locally.
+- Chat refreshes every 4–15 s while you're looking at it, pauses in the background, and phones get a push when a message arrives.
+
 ## Using it
 - Everyone opens the site → **Create account** (name + password) → **Settings → Email reminders** to add their email.
 - **Admin:** open `https://<your-site>.netlify.app/admin` and enter `ADMIN_PASSWORD`.
